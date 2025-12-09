@@ -115,8 +115,6 @@ def run_sub_transaction(main_window, transaction_title):
 def bank_pos_navigate1():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'ตัวแทนธนาคาร' (รายการ 1)...")
     try:
-        if not bank_pos_navigate_main(): return
-        
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
         
