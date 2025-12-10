@@ -74,7 +74,7 @@ def force_scroll_down(window, config):
 
 # ==================== MAIN TEST FUNCTION ====================
 
-def praisani_pos_main():
+def pos_services_main(CONFIG):
     # 1. กำหนดตัวแปรจาก Config
     HOTKEY_AGENCY_TITLE = B_CFG['HOTKEY_AGENCY_TITLE']
     HOTKEY_BaS_TITLE = B_CFG['HOTKEY_BaS_TITLE']
@@ -121,7 +121,7 @@ def praisani_pos_main():
         print("\n[V] SUCCESS: ดำเนินการขั้นตอน สำเร็จ!")
         return True
     except Exception as e:
-        print(f"\n[X] FAILED: เกิดข้อผิดพลาดใน praisani_pos_main: {e}")
+        print(f"\n[X] FAILED: เกิดข้อผิดพลาดใน pos_services_main: {e}")
         return False
     
 # ----------------- ฟังก์ชันแม่แบบสำหรับรายการย่อย -----------------
@@ -170,7 +170,7 @@ def pos_services1():
 def pos_services2():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการไปรษณีย์' (รายการ 2)...")
     try:
-        if not praisani_pos_main(): return
+        if not pos_services_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
@@ -183,7 +183,7 @@ def pos_services2():
 def pos_services3():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการไปรษณีย์' (รายการ 3)...")
     try:
-        if not praisani_pos_main(): return
+        if not pos_services_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
@@ -196,7 +196,7 @@ def pos_services3():
 def pos_services4():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการไปรษณีย์' (รายการ 4)...")
     try:
-        if not praisani_pos_main(): return
+        if not pos_services_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
@@ -209,7 +209,7 @@ def pos_services4():
 def pos_services5():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการไปรษณีย์' (รายการ 5)...")
     try:
-        if not praisani_pos_main(): return
+        if not pos_services_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
@@ -222,7 +222,7 @@ def pos_services5():
 def pos_services6():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการไปรษณีย์' (รายการ 6)...")
     try:
-        if not praisani_pos_main(): return
+        if not pos_services_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
@@ -235,7 +235,7 @@ def pos_services6():
 def pos_services7():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการไปรษณีย์' (รายการ 7)...")
     try:
-        if not praisani_pos_main(): return
+        if not pos_services_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
