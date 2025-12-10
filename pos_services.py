@@ -74,7 +74,7 @@ def force_scroll_down(window, config):
 
 # ==================== MAIN TEST FUNCTION ====================
 
-def pos_services_main(CONFIG):
+def pos_services_main():
     # 1. กำหนดตัวแปรจาก Config
     HOTKEY_AGENCY_TITLE = B_CFG['HOTKEY_AGENCY_TITLE']
     HOTKEY_BaS_TITLE = B_CFG['HOTKEY_BaS_TITLE']
@@ -121,7 +121,7 @@ def pos_services_main(CONFIG):
         print("\n[V] SUCCESS: ดำเนินการขั้นตอน สำเร็จ!")
         return True
     except Exception as e:
-        print(f"\n[X] FAILED: เกิดข้อผิดพลาดใน pos_services_main: {e}")
+        print(f"\n[X] FAILED: เกิดข้อผิดพลาดใน : {e}")
         return False
     
 # ----------------- ฟังก์ชันแม่แบบสำหรับรายการย่อย -----------------
@@ -248,7 +248,7 @@ def pos_services7():
 # ----------------- Main Execution -----------------
 
 if __name__ == "__main__":
-    pos_services_main(CONFIG)
+    pos_services_main()
     pos_services1()
     pos_services2()
     pos_services3()
