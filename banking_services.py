@@ -154,6 +154,42 @@ def banking_services_transaction(main_window, transaction_title):
         
     except Exception as e:
         print(f"\n[X] FAILED: เกิดข้อผิดพลาดในการทำรายการย่อย {transaction_title}: {e}")
+    
+#------------ ฟังก์ชัน แม่แบบ 2 step -------------------
+
+def banking_services_transaction2(main_window, transaction_title):
+    """ฟังก์ชันที่ใช้ร่วมกันสำหรับรายการย่อยทั้งหมด"""
+    
+    # 1. กำหนดตัวแปรจาก Config
+    TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
+    NEXT_TITLE = B_CFG['NEXT_TITLE']
+    ID_AUTO_ID = B_CFG['ID_AUTO_ID']
+    FINISH_BUTTON_TITLE = B_CFG['FINISH_BUTTON_TITLE']
+    
+    try:
+        # 2. คลิกรายการย่อย
+        print(f"[*] 2. ค้นหาและคลิกรายการ: {transaction_title}")
+        main_window.child_window(title=transaction_title, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+        
+        # 3. คลิก 'ถัดไป'
+        print(f"[*] 3. กดปุ่ม '{NEXT_TITLE}'")
+        main_window.child_window(title=NEXT_TITLE, auto_id=ID_AUTO_ID, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+
+        # 4. คลิก 'ถัดไป'
+        print(f"[*] 4. กดปุ่ม '{NEXT_TITLE}'")
+        main_window.child_window(title=NEXT_TITLE, auto_id=ID_AUTO_ID, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+        
+        # 5. คลิก 'เสร็จสิ้น'
+        print(f"[*] 5. กดปุ่ม '{FINISH_BUTTON_TITLE}'")
+        main_window.child_window(title=FINISH_BUTTON_TITLE, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+        
+    except Exception as e:
+        print(f"\n[X] FAILED: เกิดข้อผิดพลาดในการทำรายการย่อย {transaction_title}: {e}")
+
 # ----------------- ฟังก์ชันย่อยตามโครงสร้างเดิม (เรียกใช้ Config) -----------------
 
 def banking_services1():
@@ -162,7 +198,7 @@ def banking_services1():
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
         
-        banking_services_transaction(main_window, S_CFG['BANKING_1_TITLE'])
+        banking_services_transaction2(main_window, S_CFG['BANKING_1_TITLE'])
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
