@@ -38,8 +38,8 @@ POSTAL_CODE = CONFIG['GLOBAL']['POSTAL_CODE']
 POSTAL_CODE_EDIT_AUTO_ID = CONFIG['GLOBAL']['POSTAL_CODE_EDIT_AUTO_ID']
 
 # ดึง Section หลัก
-B_CFG = CONFIG['BANKING_MAIN']
-S_CFG = CONFIG['BANKING_SERVICES']
+B_CFG = CONFIG['PRAISANI_POS_MAIN']
+S_CFG = CONFIG['PRAISANI_POS_SERVICES']
 
 # ==================== SCROLL HELPERS mouse ====================
 
@@ -74,15 +74,14 @@ def force_scroll_down(window, config):
 
 # ==================== MAIN TEST FUNCTION ====================
 
-def banking_services_main():
-
+def praisani_pos_main():
     # 1. กำหนดตัวแปรจาก Config
     HOTKEY_AGENCY_TITLE = B_CFG['HOTKEY_AGENCY_TITLE']
     HOTKEY_BaS_TITLE = B_CFG['HOTKEY_BaS_TITLE']
     NEXT_TITLE = B_CFG['NEXT_TITLE']
     ID_AUTO_ID = B_CFG['ID_AUTO_ID']
 
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' โดยการกดปุ่ม '{HOTKEY_AGENCY_TITLE}'...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการไปรษณีย์' โดยการกดปุ่ม '{HOTKEY_AGENCY_TITLE}'...")
     try:
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
@@ -91,12 +90,12 @@ def banking_services_main():
         # 2. กด A
         main_window.child_window(title=HOTKEY_AGENCY_TITLE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
-        print("[/] เข้าสู่หน้า 'บริการธนาคาร'...")
+        print("[/] เข้าสู่หน้า 'บริการไปรษณีย์'...")
 
         # 3. กด B
         main_window.child_window(title=HOTKEY_BaS_TITLE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
-        print("[/] กำลังดำเนินการในหน้า 'บริการธนาคาร'...")
+        print("[/] กำลังดำเนินการในหน้า 'บริการไปรษณีย์'...")
 
         # --- กด 'อ่านบัตรประชาชน' ---
         print(f"[*] 2.1. ค้นหาและคลิกปุ่ม '{ID_CARD_BUTTON_TITLE}'...")
@@ -119,15 +118,15 @@ def banking_services_main():
         main_window.child_window(title=NEXT_TITLE, auto_id=ID_AUTO_ID, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
  
-        print("\n[V] SUCCESS: ดำเนินการขั้นตอน Bank POS (ผู้ฝากส่ง) สำเร็จ!")
+        print("\n[V] SUCCESS: ดำเนินการขั้นตอน สำเร็จ!")
         return True
     except Exception as e:
-        print(f"\n[X] FAILED: เกิดข้อผิดพลาดใน bank_pos_navigate_main: {e}")
+        print(f"\n[X] FAILED: เกิดข้อผิดพลาดใน praisani_pos_main: {e}")
         return False
     
 # ----------------- ฟังก์ชันแม่แบบสำหรับรายการย่อย -----------------
 
-def banking_services_transaction(main_window, transaction_title):
+def praisani_pos_transaction(main_window, transaction_title):
     """ฟังก์ชันที่ใช้ร่วมกันสำหรับรายการย่อยทั้งหมด"""
     
     # 1. กำหนดตัวแปรจาก Config
@@ -154,218 +153,106 @@ def banking_services_transaction(main_window, transaction_title):
         
     except Exception as e:
         print(f"\n[X] FAILED: เกิดข้อผิดพลาดในการทำรายการย่อย {transaction_title}: {e}")
+
 # ----------------- ฟังก์ชันย่อยตามโครงสร้างเดิม (เรียกใช้ Config) -----------------
 
-def banking_services1():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 1)...")
+def pos_services1():
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการไปรษณีย์' (รายการ 1)...")
     try:
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
         
-        banking_services_transaction(main_window, S_CFG['BANKING_1_TITLE'])
+        praisani_pos_transaction(main_window, S_CFG['PRAISANI_1_TITLE'])
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
-def banking_services2():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 2)...")
+def pos_services2():
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการไปรษณีย์' (รายการ 2)...")
     try:
-        if not banking_services_main(): return
+        if not praisani_pos_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
         
-        banking_services_transaction(main_window, S_CFG['BANKING_2_TITLE'])
+        praisani_pos_transaction(main_window, S_CFG['PRAISANI_2_TITLE'])
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
-def banking_services3():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 3)...")
+def pos_services3():
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการไปรษณีย์' (รายการ 3)...")
     try:
-        if not banking_services_main(): return
+        if not praisani_pos_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
         
-        banking_services_transaction(main_window, S_CFG['BANKING_3_TITLE'])
+        praisani_pos_transaction(main_window, S_CFG['PRAISANI_3_TITLE'])
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
-def banking_services4():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 4)...")
+def pos_services4():
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการไปรษณีย์' (รายการ 4)...")
     try:
-        if not banking_services_main(): return
+        if not praisani_pos_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
         
-        banking_services_transaction(main_window, S_CFG['BANKING_4_TITLE'])
+        praisani_pos_transaction(main_window, S_CFG['PRAISANI_4_TITLE'])
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
-def banking_services5():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 5)...")
+def pos_services5():
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการไปรษณีย์' (รายการ 5)...")
     try:
-        if not banking_services_main(): return
+        if not praisani_pos_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
         
-        banking_services_transaction(main_window, S_CFG['BANKING_5_TITLE'])
+        praisani_pos_transaction(main_window, S_CFG['PRAISANI_5_TITLE'])
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
-def banking_services6():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 6)...")
+def pos_services6():
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการไปรษณีย์' (รายการ 6)...")
     try:
-        if not banking_services_main(): return
+        if not praisani_pos_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
         
-        banking_services_transaction(main_window, S_CFG['BANKING_6_TITLE'])
+        praisani_pos_transaction(main_window, S_CFG['PRAISANI_6_TITLE'])
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
-def banking_services7():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 7)...")
+def pos_services7():
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการไปรษณีย์' (รายการ 7)...")
     try:
-        if not banking_services_main(): return
+        if not praisani_pos_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
         
-        banking_services_transaction(main_window, S_CFG['BANKING_7_TITLE'])
+        praisani_pos_transaction(main_window, S_CFG['PRAISANI_7_TITLE'])
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")   
-
-def banking_services8():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 8)...")
-    try:
-        if not banking_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        banking_services_transaction(main_window, S_CFG['BANKING_8_TITLE'])
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def banking_services9():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 9)...")
-    try:
-        if not banking_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        banking_services_transaction(main_window, S_CFG['BANKING_9_TITLE'])
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")   
-
-def banking_services10():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 10)...")
-    try:
-        if not banking_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        banking_services_transaction(main_window, S_CFG['BANKING_10_TITLE'])
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def banking_services11():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 11)...")
-    try:
-        if not banking_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        banking_services_transaction(main_window, S_CFG['BANKING_11_TITLE'])
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")   
-
-def banking_services12():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 12)...")
-    try:
-        if not banking_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        banking_services_transaction(main_window, S_CFG['BANKING_12_TITLE'])
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def banking_services13():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 13)...")
-    try:
-        if not banking_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        banking_services_transaction(main_window, S_CFG['BANKING_13_TITLE'])
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")  
-
-def banking_services14():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 14)...")
-    try:
-        if not banking_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        banking_services_transaction(main_window, S_CFG['BANKING_14_TITLE'])
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def banking_services15():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 15)...")
-    try:
-        if not banking_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        banking_services_transaction(main_window, S_CFG['BANKING_15_TITLE'])
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")                            
 
 # ----------------- Main Execution -----------------
 
-
 if __name__ == "__main__":
-    banking_services_main(CONFIG)
-    banking_services1()
-    banking_services2()
-    banking_services3()
-    banking_services4()
-    banking_services5()
-    banking_services6()
-    banking_services7()
-    banking_services8()
-    banking_services9()
-    banking_services10()
-    banking_services11()
-    banking_services12()
-    banking_services13()
-    banking_services14()
-    banking_services15()
+    pos_services_main(CONFIG)
+    pos_services1()
+    pos_services2()
+    pos_services3()
+    pos_services4()
+    pos_services5()
+    pos_services6()
+    pos_services7()
