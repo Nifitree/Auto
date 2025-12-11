@@ -32,227 +32,81 @@ if not CONFIG.sections():
 WINDOW_TITLE = CONFIG['GLOBAL']['WINDOW_TITLE']
 WAIT_TIME = CONFIG.getint('GLOBAL', 'WAIT_TIME_SEC')
 PHONE_NUMBER = CONFIG['GLOBAL']['PHONE_NUMBER']
-ID_CARD_BUTTON_TITLE = CONFIG['GLOBAL']['ID_CARD_BUTTON_TITLE']
 PHONE_EDIT_AUTO_ID = CONFIG['GLOBAL']['PHONE_EDIT_AUTO_ID']
-POSTAL_CODE = CONFIG['GLOBAL']['POSTAL_CODE'] 
-POSTAL_CODE_EDIT_AUTO_ID = CONFIG['GLOBAL']['POSTAL_CODE_EDIT_AUTO_ID']
 
 # ดึง Section หลัก
 B_CFG = CONFIG['EKYC_MAIN']
 S_CFG = CONFIG['EKYC_SERVICES']
 
-# ==================== SCROLL HELPERS mouse ====================
+# ==================== MAIN LOGIC ====================
 
-def force_scroll_down(window, config):
-    """เลื่อนหน้าจอลงโดยใช้ Mouse wheel"""
-    try:
-        center_x_offset = config.getint('MOUSE_SCROLL', 'CENTER_X_OFFSET')
-        center_y_offset = config.getint('MOUSE_SCROLL', 'CENTER_Y_OFFSET')
-        wheel_dist = config.getint('MOUSE_SCROLL', 'WHEEL_DIST')
-        focus_delay = config.getfloat('MOUSE_SCROLL', 'FOCUS_DELAY')
-        scroll_delay = config.getfloat('MOUSE_SCROLL', 'SCROLL_DELAY')
-    except ValueError:
-        print("[!] Scroll config invalid. Using defaults.")
-        center_x_offset, center_y_offset, wheel_dist, focus_delay, scroll_delay = 300, 300, -20, 0.5, 1.0
-
-    print(f"...กำลังเลื่อนหน้าจอลง (Mouse Wheel {wheel_dist})...")
-
-    try:
-        rect = window.rectangle()
-        center_x = rect.left + center_x_offset
-        center_y = rect.top + center_y_offset
-        
-        mouse.click(coords=(center_x, center_y))
-        time.sleep(focus_delay)
-        
-        mouse.scroll(coords=(center_x, center_y), wheel_dist=wheel_dist)
-        time.sleep(scroll_delay)
-        print("[/] Scroll สำเร็จ")
-    except Exception as e:
-        print(f"[!] Scroll failed: {e}, ใช้ PageDown แทน")
-        window.type_keys("{PGDN}")
-
-# ==================== MAIN TEST FUNCTION ====================
-
-def pos_services_main():
-    # 1. กำหนดตัวแปรจาก Config
+def run_ekyc_step(service_name, service_title):
+    """
+    Flow การทำงาน:
+    1. กด 'A' (Agency)
+    2. กด 'K' (BaS)
+    3. เลือกรายการย่อย (Service Title)
+    4. กรอกเบอร์โทรศัพท์
+    5. กด 'ถัดไป'
+    6. กด 'ESC' เพื่อออก
+    """
+    print(f"\n{'='*50}\n[*] เริ่มทำรายการ: {service_name} (รหัส: {service_title})")
+    
+    # ดึงค่า Config ที่จำเป็น
     HOTKEY_AGENCY_TITLE = B_CFG['HOTKEY_AGENCY_TITLE']
     HOTKEY_BaS_TITLE = B_CFG['HOTKEY_BaS_TITLE']
-    NEXT_TITLE = B_CFG['NEXT_TITLE']
-    ID_AUTO_ID = B_CFG['ID_AUTO_ID']
-
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการไปรษณีย์' โดยการกดปุ่ม '{HOTKEY_AGENCY_TITLE}'...")
-    try:
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        print("[/] เชื่อมต่อหน้าจอสำเร็จ ")
-
-        # 2. กด A
-        main_window.child_window(title=HOTKEY_AGENCY_TITLE, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-        print("[/] เข้าสู่หน้า 'บริการไปรษณีย์'...")
-
-        # 3. กด B
-        main_window.child_window(title=HOTKEY_BaS_TITLE, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-        print("[/] กำลังดำเนินการในหน้า 'บริการไปรษณีย์'...")
-
-        # --- กด 'อ่านบัตรประชาชน' ---
-        print(f"[*] 2.1. ค้นหาและคลิกปุ่ม '{ID_CARD_BUTTON_TITLE}'...")
-        main_window.child_window(title=ID_CARD_BUTTON_TITLE, control_type="Text").click_input()
-
-        # --- ค้นหาช่องเลขไปรษณีย์และกรอกข้อมูล ---
-        print(f"[*] 2.2.5. กำลังค้นหาช่องกรอกเลขไปรษณีย์ ID='{POSTAL_CODE_EDIT_AUTO_ID}' และกรอก: {POSTAL_CODE}...")
-    
-        # โค้ดใช้ตัวแปร Global ที่ดึงมาจากด้านบน
-        main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit").click_input() 
-        main_window.type_keys(POSTAL_CODE)
-
-        # --- ค้นหาช่องหมายเลขโทรศัพท์และกรอกข้อมูล ---
-        print(f"[*] 2.2. กำลังค้นหาช่องกรอกด้วย ID='{PHONE_EDIT_AUTO_ID}' และกรอก: {PHONE_NUMBER}...")
-        main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit").click_input()
-        main_window.type_keys(PHONE_NUMBER)
-
-        # --- กด 'ถัดไป' เพื่อยืนยัน ---
-        print(f"[*] 2.3. กดปุ่ม '{NEXT_TITLE}' เพื่อไปหน้าถัดไป...")
-        main_window.child_window(title=NEXT_TITLE, auto_id=ID_AUTO_ID, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
- 
-        print("\n[V] SUCCESS: ดำเนินการขั้นตอน สำเร็จ!")
-        return True
-    except Exception as e:
-        print(f"\n[X] FAILED: เกิดข้อผิดพลาดใน : {e}")
-        return False
-    
-# ----------------- ฟังก์ชันแม่แบบสำหรับรายการย่อย -----------------
-
-def praisani_pos_transaction(main_window, transaction_title):
-    """ฟังก์ชันที่ใช้ร่วมกันสำหรับรายการย่อยทั้งหมด"""
-    
-    # 1. กำหนดตัวแปรจาก Config
     TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
     NEXT_TITLE = B_CFG['NEXT_TITLE']
     ID_AUTO_ID = B_CFG['ID_AUTO_ID']
-    FINISH_BUTTON_TITLE = B_CFG['FINISH_BUTTON_TITLE']
     
     try:
-        # 2. คลิกรายการย่อย
-        print(f"[*] 2. ค้นหาและคลิกรายการ: {transaction_title}")
-        main_window.child_window(title=transaction_title, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text").click_input()
+        # เชื่อมต่อ Application
+        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
+        main_window = app.top_window()
+        # print("[/] เชื่อมต่อหน้าจอสำเร็จ")
+
+        # 1. กด A (Agency)
+        print(f"[*] 1. กดปุ่ม '{HOTKEY_AGENCY_TITLE}' (Agency)")
+        main_window.child_window(title=HOTKEY_AGENCY_TITLE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
+
+        # 2. กด K (BaS)
+        print(f"[*] 2. กดปุ่ม '{HOTKEY_BaS_TITLE}' (BaS)")
+        main_window.child_window(title=HOTKEY_BaS_TITLE, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+
+        # 3. เลือกรายการย่อย
+        print(f"[*] 3. เลือกรายการ: {service_title}")
+        main_window.child_window(title=service_title, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+
+        # 4. กรอกเบอร์โทรศัพท์
+        print(f"[*] 4. กรอกเบอร์โทรศัพท์: {PHONE_NUMBER}")
+        main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit").click_input()
+        main_window.type_keys(PHONE_NUMBER)
         
-        # 3. คลิก 'ถัดไป'
-        print(f"[*] 3. กดปุ่ม '{NEXT_TITLE}'")
+        # 5. กด 'ถัดไป'
+        print(f"[*] 5. กดปุ่ม '{NEXT_TITLE}'")
         main_window.child_window(title=NEXT_TITLE, auto_id=ID_AUTO_ID, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
-        
-        # 4. คลิก 'เสร็จสิ้น'
-        print(f"[*] 4. กดปุ่ม '{FINISH_BUTTON_TITLE}'")
-        main_window.child_window(title=FINISH_BUTTON_TITLE, control_type="Text").click_input()
+
+        # 6. กด ESC
+        print(f"[*] 6. กดปุ่ม ESC เพื่อย้อนกลับ")
+        main_window.type_keys("{ESC}")
         time.sleep(WAIT_TIME)
         
-    except Exception as e:
-        print(f"\n[X] FAILED: เกิดข้อผิดพลาดในการทำรายการย่อย {transaction_title}: {e}")
-
-# ----------------- ฟังก์ชันย่อยตามโครงสร้างเดิม (เรียกใช้ Config) -----------------
-
-def pos_services1():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการไปรษณีย์' (รายการ 1)...")
-    try:
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        praisani_pos_transaction(main_window, S_CFG['PRAISANI_1_TITLE'])
+        print(f"[V] รายการ {service_name} เสร็จสิ้น")
         
     except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def pos_services2():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการไปรษณีย์' (รายการ 2)...")
-    try:
-        if not pos_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        praisani_pos_transaction(main_window, S_CFG['PRAISANI_2_TITLE'])
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def pos_services3():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการไปรษณีย์' (รายการ 3)...")
-    try:
-        if not pos_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        praisani_pos_transaction(main_window, S_CFG['PRAISANI_3_TITLE'])
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def pos_services4():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการไปรษณีย์' (รายการ 4)...")
-    try:
-        if not pos_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        praisani_pos_transaction(main_window, S_CFG['PRAISANI_4_TITLE'])
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def pos_services5():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการไปรษณีย์' (รายการ 5)...")
-    try:
-        if not pos_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        praisani_pos_transaction(main_window, S_CFG['PRAISANI_5_TITLE'])
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def pos_services6():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการไปรษณีย์' (รายการ 6)...")
-    try:
-        if not pos_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        praisani_pos_transaction(main_window, S_CFG['PRAISANI_6_TITLE'])
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def pos_services7():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการไปรษณีย์' (รายการ 7)...")
-    try:
-        if not pos_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        praisani_pos_transaction(main_window, S_CFG['PRAISANI_7_TITLE'])
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")   
+        print(f"\n[X] FAILED: เกิดข้อผิดพลาดในรายการ {service_name}: {e}")
 
 # ----------------- Main Execution -----------------
 
 if __name__ == "__main__":
-    pos_services_main()
-    pos_services1()
-    pos_services2()
-    pos_services3()
-    pos_services4()
-    pos_services5()
-    pos_services6()
-    pos_services7()
+    if 'EKYC_1_TITLE' in S_CFG:
+        run_ekyc_step("Service 1", S_CFG['EKYC_1_TITLE'])
+        
+    if 'EKYC_2_TITLE' in S_CFG:
+        run_ekyc_step("Service 2", S_CFG['EKYC_2_TITLE'])
+        
+    print(f"\n{'='*50}\n[V] จบการทำงานทั้งหมด")

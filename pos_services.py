@@ -239,6 +239,10 @@ def pos_services7():
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
+
+        # [NEW] ตำแหน่งที่ : เรียก Scroll ตรงนี้
+        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 7...")
+        force_scroll_down(main_window, CONFIG) 
         
         praisani_pos_transaction(main_window, S_CFG['PRAISANI_7_TITLE'])
         
