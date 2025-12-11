@@ -3,6 +3,7 @@ from pywinauto.application import Application
 from pywinauto import mouse 
 import time
 import os
+import sys # เพิ่ม sys
 
 CONFIG_FILE = "config.ini"
 
@@ -26,14 +27,15 @@ def read_config(filename=CONFIG_FILE):
 CONFIG = read_config()
 if not CONFIG.sections():
     print("ไม่สามารถโหลด config.ini ได้ โปรดตรวจสอบไฟล์")
-    exit()
+    # ใช้ sys.exit(1) เพื่อให้แน่ใจว่าโปรแกรมหยุดทำงาน
+    sys.exit(1) 
 
 # ดึงค่า Global ที่ใช้ร่วมกัน
 WINDOW_TITLE = CONFIG['GLOBAL']['WINDOW_TITLE']
 WAIT_TIME = CONFIG.getint('GLOBAL', 'WAIT_TIME_SEC')
 PHONE_NUMBER = CONFIG['GLOBAL']['PHONE_NUMBER']
 PHONE_EDIT_AUTO_ID = CONFIG['GLOBAL']['PHONE_EDIT_AUTO_ID']
-POSTAL_CODE = CONFIG['GLOBAL']['POSTAL_CODE']
+POSTAL_CODE = CONFIG['GLOBAL']['POSTAL_CODE'] 
 POSTAL_CODE_EDIT_AUTO_ID = CONFIG['GLOBAL']['POSTAL_CODE_EDIT_AUTO_ID'] 
 
 # ดึง Section หลัก
@@ -48,9 +50,10 @@ def run_ekyc_step(service_name, service_title):
     1. กด 'A' (Agency)
     2. กด 'K' (BaS)
     3. เลือกรายการย่อย (Service Title)
-    4. กรอกเบอร์โทรศัพท์
-    5. กด 'ถัดไป'
-    6. กด 'ESC' เพื่อออก
+    4. ตรวจสอบ/กรอกเลขไปรษณีย์
+    5. ตรวจสอบ/กรอกเบอร์โทรศัพท์
+    6. กด 'ถัดไป'
+    7. กด 'ESC' เพื่อออก
     """
     print(f"\n{'='*50}\n[*] เริ่มทำรายการ: {service_name} (รหัส: {service_title})")
     
@@ -82,16 +85,32 @@ def run_ekyc_step(service_name, service_title):
         main_window.child_window(title=service_title, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
 
-        # 4. ค้นหาช่องเลขไปรษณีย์และกรอกข้อมูล
-        print(f"[*] 4. กำลังค้นหาช่องกรอกเลขไปรษณีย์ ID='{POSTAL_CODE_EDIT_AUTO_ID}' และกรอก: {POSTAL_CODE}...")
-        main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit").click_input() 
-        main_window.type_keys(POSTAL_CODE)
-
-        # 5. กรอกเบอร์โทรศัพท์
-        print(f"[*] 5. กรอกเบอร์โทรศัพท์: {PHONE_NUMBER}")
-        main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit").click_input()
-        main_window.type_keys(PHONE_NUMBER)
+        # 4. [การตรวจสอบ/กรอก] เลขไปรษณีย์
+        print(f"[*] 4. กำลังตรวจสอบ/กรอกเลขไปรษณีย์ ID='{POSTAL_CODE_EDIT_AUTO_ID}'")
+        postal_control = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
         
+        # ตรวจสอบว่าช่องว่างหรือไม่
+        if not postal_control.texts()[0].strip():
+            print(f"   -> ช่องว่าง, กรอก: {POSTAL_CODE}")
+            postal_control.click_input() 
+            main_window.type_keys(POSTAL_CODE)
+        else:
+            print("   -> ช่องมีค่าอยู่แล้ว, ข้ามการกรอก")
+        time.sleep(0.5)
+
+        # 5. [การตรวจสอบ/กรอก] เบอร์โทรศัพท์
+        print(f"[*] 5. กำลังตรวจสอบ/กรอกเบอร์โทรศัพท์ ID='{PHONE_EDIT_AUTO_ID}'")
+        phone_control = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
+        
+        # ตรวจสอบว่าช่องว่างหรือไม่
+        if not phone_control.texts()[0].strip():
+            print(f"   -> ช่องว่าง, กรอก: {PHONE_NUMBER}")
+            phone_control.click_input()
+            main_window.type_keys(PHONE_NUMBER)
+        else:
+            print("   -> ช่องมีค่าอยู่แล้ว, ข้ามการกรอก")
+        time.sleep(0.5)
+
         # 6. กด 'ถัดไป'
         print(f"[*] 6. กดปุ่ม '{NEXT_TITLE}'")
         main_window.child_window(title=NEXT_TITLE, auto_id=ID_AUTO_ID, control_type="Text").click_input()
