@@ -41,7 +41,6 @@ POSTAL_CODE_EDIT_AUTO_ID = CONFIG['GLOBAL']['POSTAL_CODE_EDIT_AUTO_ID']
 B_CFG = CONFIG['BANK_POS_MAIN']
 S_CFG = CONFIG['BANK_POS_SUB_TRANSACTIONS']
 
-
 # ----------------- ฟังก์ชันหลัก: นำทางและกรอกข้อมูล -----------------
 
 def bank_pos_navigate_main():

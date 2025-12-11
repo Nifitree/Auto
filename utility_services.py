@@ -3,6 +3,7 @@ from pywinauto.application import Application
 from pywinauto import mouse 
 import time
 import os
+import sys
 
 CONFIG_FILE = "config.ini"
 
@@ -82,7 +83,7 @@ def utility_services_main(CONFIG):
     NEXT_TITLE = B_CFG['NEXT_TITLE']
     ID_AUTO_ID = B_CFG['ID_AUTO_ID']
 
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' โดยการกดปุ่ม '{HOTKEY_AGENCY_TITLE}'...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' โดยการกดปุ่ม '{HOTKEY_AGENCY_TITLE}'...")
     try:
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
@@ -91,38 +92,54 @@ def utility_services_main(CONFIG):
         # 2. กด A
         main_window.child_window(title=HOTKEY_AGENCY_TITLE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
-        print("[/] เข้าสู่หน้า 'บริการธนาคาร'...")
+        print("[/] เข้าสู่หน้า 'บริการสาธารณูปโภค'...")
 
         # 3. กด T
         main_window.child_window(title=HOTKEY_BaS_TITLE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
-        print("[/] กำลังดำเนินการในหน้า 'บริการธนาคาร'...")
+        print("[/] กำลังดำเนินการในหน้า 'บริการสาธารณูปโภค'...")
 
         # --- กด 'อ่านบัตรประชาชน' ---
         print(f"[*] 2.1. ค้นหาและคลิกปุ่ม '{ID_CARD_BUTTON_TITLE}'...")
         main_window.child_window(title=ID_CARD_BUTTON_TITLE, control_type="Text").click_input()
 
-        # --- ค้นหาช่องเลขไปรษณีย์และกรอกข้อมูล ---
-        print(f"[*] 2.2.5. กำลังค้นหาช่องกรอกเลขไปรษณีย์ ID='{POSTAL_CODE_EDIT_AUTO_ID}' และกรอก: {POSTAL_CODE}...")
-    
-        # โค้ดใช้ตัวแปร Global ที่ดึงมาจากด้านบน
-        main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit").click_input() 
-        main_window.type_keys(POSTAL_CODE)
+         # --- [NEW] ค้นหาช่องเลขไปรษณีย์และกรอกข้อมูล ---
+        print(f"[*] 2.2.5. กำลังตรวจสอบ/กรอกเลขไปรษณีย์ ID='{POSTAL_CODE_EDIT_AUTO_ID}'")
+        postal_control = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
+        
+        if not postal_control.texts()[0].strip():
+            print(f" [-] -> ช่องว่าง, กรอก: {POSTAL_CODE}")
+            postal_control.click_input() 
+            main_window.type_keys(POSTAL_CODE)
+        else:
+            print(f" [-] -> ช่องมีค่าอยู่แล้ว: {postal_control.texts()[0].strip()}, ข้ามการกรอก")
+        time.sleep(0.5)
 
-        # --- ค้นหาช่องหมายเลขโทรศัพท์และกรอกข้อมูล ---
-        print(f"[*] 2.2. กำลังค้นหาช่องกรอกด้วย ID='{PHONE_EDIT_AUTO_ID}' และกรอก: {PHONE_NUMBER}...")
-        main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit").click_input()
-        main_window.type_keys(PHONE_NUMBER)
+        # ตำแหน่งที่ : เรียก Scroll ตรงนี้
+        print("[*] ค้นหาช่องหมายเลขโทรศัพท์และกรอกข้อมูล ...")
+        force_scroll_down(main_window, CONFIG) 
+        
+        # --- [NEW] ค้นหาช่องหมายเลขโทรศัพท์และกรอกข้อมูล ---
+        print(f"[*] 2.2. กำลังตรวจสอบ/กรอกเบอร์โทรศัพท์ ID='{PHONE_EDIT_AUTO_ID}'")
+        phone_control = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
+        
+        if not phone_control.texts()[0].strip():
+            print(f" [-] -> ช่องว่าง, กรอก: {PHONE_NUMBER}")
+            phone_control.click_input()
+            main_window.type_keys(PHONE_NUMBER)
+        else:
+            print(f" [-] -> ช่องมีค่าอยู่แล้ว: {phone_control.texts()[0].strip()}, ข้ามการกรอก")
+        time.sleep(0.5)
 
         # --- กด 'ถัดไป' เพื่อยืนยัน ---
         print(f"[*] 2.3. กดปุ่ม '{NEXT_TITLE}' เพื่อไปหน้าถัดไป...")
         main_window.child_window(title=NEXT_TITLE, auto_id=ID_AUTO_ID, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
  
-        print("\n[V] SUCCESS: ดำเนินการขั้นตอน Bank POS (ผู้ฝากส่ง) สำเร็จ!")
+        print("\n[V] SUCCESS: ดำเนินการขั้นตอน Utility POS (ผู้ฝากส่ง) สำเร็จ!")
         return True
     except Exception as e:
-        print(f"\n[X] FAILED: เกิดข้อผิดพลาดใน bank_pos_navigate_main: {e}")
+        print(f"\n[X] FAILED: เกิดข้อผิดพลาดใน utility_services_main: {e}")
         return False
     
 # ----------------- ฟังก์ชันแม่แบบสำหรับรายการย่อย -----------------
@@ -155,7 +172,7 @@ def utility_services_transaction(main_window, transaction_title):
     except Exception as e:
         print(f"\n[X] FAILED: เกิดข้อผิดพลาดในการทำรายการย่อย {transaction_title}: {e}")
     
-#------------ ฟังก์ชัน แม่แบบ 2 step -------------------
+# ----------------- ฟังก์ชันแม่แบบ step 2 -----------------
 
 def utility_services_transaction2(main_window, transaction_title):
     """ฟังก์ชันที่ใช้ร่วมกันสำหรับรายการย่อยทั้งหมด"""
@@ -172,9 +189,9 @@ def utility_services_transaction2(main_window, transaction_title):
         main_window.child_window(title=transaction_title, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
         
-        # 3. คลิก 'ถัดไป'
-        print(f"[*] 3. กดปุ่ม '{NEXT_TITLE}'")
-        main_window.child_window(title=NEXT_TITLE, auto_id=ID_AUTO_ID, control_type="Text").click_input()
+        # 3. การดำเนินการ: กดปุ่ม ENTER
+        print("[*] 3. ดำเนินการ: กดปุ่ม ENTER")
+        main_window.type_keys("{ENTER}")
         time.sleep(WAIT_TIME)
 
         # 4. คลิก 'ถัดไป'
@@ -193,225 +210,143 @@ def utility_services_transaction2(main_window, transaction_title):
 # ----------------- ฟังก์ชันย่อยตามโครงสร้างเดิม (เรียกใช้ Config) -----------------
 
 def utility_services1():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 1)...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 1)...")
     try:
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
         
-        banking_services_transaction2(main_window, S_CFG['BANKING_1_TITLE'])
+        utility_services_transaction(main_window, S_CFG['UTILITY_1_TITLE'])
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def utility_services2():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 2)...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 2)...")
     try:
-        if not banking_services_main(): return
+        if not utility_services_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
         
-        banking_services_transaction(main_window, S_CFG['BANKING_2_TITLE'])
+        utility_services_transaction(main_window, S_CFG['UTILITY_2_TITLE'])
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def utility_services3():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 3)...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 3)...")
     try:
-        if not banking_services_main(): return
+        if not utility_services_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
         
-        banking_services_transaction(main_window, S_CFG['BANKING_3_TITLE'])
+        utility_services_transaction(main_window, S_CFG['UTILITY_3_TITLE'])
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def utility_services4():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 4)...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 4)...")
     try:
-        if not banking_services_main(): return
+        if not utility_services_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
+
+        # ตำแหน่งที่ : เรียก Scroll ตรงนี้
+        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 4...")
+        force_scroll_down(main_window, CONFIG) 
         
-        banking_services_transaction(main_window, S_CFG['BANKING_4_TITLE'])
+        utility_services_transaction(main_window, S_CFG['UTILITY_4_TITLE'])
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def utility_services5():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 5)...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 5)...")
     try:
-        if not banking_services_main(): return
+        if not utility_services_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
+
+        # ตำแหน่งที่ : เรียก Scroll ตรงนี้
+        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 5...")
+        force_scroll_down(main_window, CONFIG) 
         
-        banking_services_transaction(main_window, S_CFG['BANKING_5_TITLE'])
+        utility_services_transaction(main_window, S_CFG['UTILITY_5_TITLE'])
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def utility_services6():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 6)...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 6)...")
     try:
-        if not banking_services_main(): return
+        if not utility_services_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
+
+        # ตำแหน่งที่ : เรียก Scroll ตรงนี้
+        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 6...")
+        force_scroll_down(main_window, CONFIG) 
         
-        banking_services_transaction(main_window, S_CFG['BANKING_6_TITLE'])
+        utility_services_transaction(main_window, S_CFG['UTILITY_6_TITLE'])
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def utility_services7():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 7)...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 7)...")
     try:
-        if not banking_services_main(): return
+        if not utility_services_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
+
+        # ตำแหน่งที่ : เรียก Scroll ตรงนี้
+        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 7...")
+        force_scroll_down(main_window, CONFIG) 
         
-        banking_services_transaction(main_window, S_CFG['BANKING_7_TITLE'])
+        utility_services_transaction(main_window, S_CFG['UTILITY_7_TITLE'])
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")   
 
 def utility_services8():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 8)...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 8)...")
     try:
-        if not banking_services_main(): return
+        if not utility_services_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
         
-        banking_services_transaction(main_window, S_CFG['BANKING_8_TITLE'])
+        # ตำแหน่งที่ : เรียก Scroll ตรงนี้
+        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 8...")
+        force_scroll_down(main_window, CONFIG) 
+
+        utility_services_transaction(main_window, S_CFG['UTILITY_8_TITLE'])
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def utility_services9():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 9)...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 9)...")
     try:
-        if not banking_services_main(): return
+        if not utility_services_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
 
-        # [NEW] ตำแหน่งที่ : เรียก Scroll ตรงนี้
+        # ตำแหน่งที่ : เรียก Scroll ตรงนี้
         print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 9...")
         force_scroll_down(main_window, CONFIG) 
         
-        banking_services_transaction(main_window, S_CFG['BANKING_9_TITLE'])
+        utility_services_transaction(main_window, S_CFG['UTILITY_9_TITLE'])
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")   
-
-def utility_services10():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 10)...")
-    try:
-        if not banking_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-
-        # [NEW] ตำแหน่งที่ : เรียก Scroll ตรงนี้
-        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 10...")
-        force_scroll_down(main_window, CONFIG) 
-        
-        banking_services_transaction(main_window, S_CFG['BANKING_10_TITLE'])
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def utility_services11():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 11)...")
-    try:
-        if not banking_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-
-        # [NEW] ตำแหน่งที่ : เรียก Scroll ตรงนี้
-        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 11...")
-        force_scroll_down(main_window, CONFIG) 
-        
-        banking_services_transaction(main_window, S_CFG['BANKING_11_TITLE'])
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")   
-
-def utility_services12():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 12)...")
-    try:
-        if not banking_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-
-        # [NEW] ตำแหน่งที่ : เรียก Scroll ตรงนี้
-        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 12...")
-        force_scroll_down(main_window, CONFIG) 
-        
-        banking_services_transaction(main_window, S_CFG['BANKING_12_TITLE'])
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def utility_services13():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 13)...")
-    try:
-        if not banking_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-
-        # [NEW] ตำแหน่งที่ : เรียก Scroll ตรงนี้
-        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 13...")
-        force_scroll_down(main_window, CONFIG) 
-        
-        banking_services_transaction(main_window, S_CFG['BANKING_13_TITLE'])
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")  
-
-def utility_services14():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 14)...")
-    try:
-        if not banking_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-
-        # [NEW] ตำแหน่งที่ : เรียก Scroll ตรงนี้
-        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 14...")
-        force_scroll_down(main_window, CONFIG) 
-
-        banking_services_transaction(main_window, S_CFG['BANKING_14_TITLE'])
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def utility_services15():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 15)...")
-    try:
-        if not banking_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-
-        # [NEW] ตำแหน่งที่ : เรียก Scroll ตรงนี้
-        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 15...")
-        force_scroll_down(main_window, CONFIG) 
-        
-        banking_services_transaction(main_window, S_CFG['BANKING_15_TITLE'])
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")                            
 
 # ----------------- Main Execution -----------------
 
@@ -427,9 +362,3 @@ if __name__ == "__main__":
     utility_services7()
     utility_services8()
     utility_services9()
-    utility_services10()
-    utility_services11()
-    utility_services12()
-    utility_services13()
-    utility_services14()
-    utility_services15()
