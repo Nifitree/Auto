@@ -75,7 +75,7 @@ def force_scroll_down(window, config):
 
 # ==================== MAIN TEST FUNCTION ====================
 
-def utility_services_main(CONFIG):
+def utility_services_main():
 
     # 1. กำหนดตัวแปรจาก Config
     HOTKEY_AGENCY_TITLE = B_CFG['HOTKEY_AGENCY_TITLE']
@@ -347,7 +347,7 @@ def utility_services9():
 
 
 if __name__ == "__main__":
-    utility_services_main(CONFIG)
+    utility_services_main()
     utility_services1()
     utility_services2()
     utility_services3()

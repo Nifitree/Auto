@@ -114,6 +114,10 @@ def banking_services_main(CONFIG):
         else:
             print(f" [-] -> ช่องมีค่าอยู่แล้ว: {postal_control.texts()[0].strip()}, ข้ามการกรอก")
         time.sleep(0.5)
+
+        # ตำแหน่งที่ : เรียก Scroll ตรงนี้
+        print("[*] ค้นหาช่องหมายเลขโทรศัพท์และกรอกข้อมูล...")
+        force_scroll_down(main_window, CONFIG) 
         
         # --- [NEW] ค้นหาช่องหมายเลขโทรศัพท์และกรอกข้อมูล ---
         print(f"[*] 2.2. กำลังตรวจสอบ/กรอกเบอร์โทรศัพท์ ID='{PHONE_EDIT_AUTO_ID}'")

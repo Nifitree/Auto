@@ -98,6 +98,10 @@ def run_ekyc_step(service_name, service_title):
             print(" [*] -> ช่องมีค่าอยู่แล้ว, ข้ามการกรอก")
         time.sleep(0.5)
 
+        # ตำแหน่งที่ : เรียก Scroll ตรงนี้
+        print("[*] ค้นหาช่องหมายเลขโทรศัพท์และกรอกข้อมูล...")
+        force_scroll_down(main_window, CONFIG) 
+
         # 5. [การตรวจสอบ/กรอก] เบอร์โทรศัพท์
         print(f"[*] 5. กำลังตรวจสอบ/กรอกเบอร์โทรศัพท์ ID='{PHONE_EDIT_AUTO_ID}'")
         phone_control = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
