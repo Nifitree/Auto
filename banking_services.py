@@ -301,6 +301,10 @@ def banking_services9():
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
+
+        # [NEW] ตำแหน่งที่ : เรียก Scroll ตรงนี้
+        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 9...")
+        force_scroll_down(main_window, CONFIG) 
         
         banking_services_transaction(main_window, S_CFG['BANKING_9_TITLE'])
         
@@ -314,6 +318,10 @@ def banking_services10():
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
+
+        # [NEW] ตำแหน่งที่ : เรียก Scroll ตรงนี้
+        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 10...")
+        force_scroll_down(main_window, CONFIG) 
         
         banking_services_transaction(main_window, S_CFG['BANKING_10_TITLE'])
         
@@ -327,6 +335,10 @@ def banking_services11():
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
+
+        # [NEW] ตำแหน่งที่ : เรียก Scroll ตรงนี้
+        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 11...")
+        force_scroll_down(main_window, CONFIG) 
         
         banking_services_transaction(main_window, S_CFG['BANKING_11_TITLE'])
         
@@ -340,6 +352,10 @@ def banking_services12():
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
+
+        # [NEW] ตำแหน่งที่ : เรียก Scroll ตรงนี้
+        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 12...")
+        force_scroll_down(main_window, CONFIG) 
         
         banking_services_transaction(main_window, S_CFG['BANKING_12_TITLE'])
         
@@ -353,6 +369,10 @@ def banking_services13():
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
+
+        # [NEW] ตำแหน่งที่ : เรียก Scroll ตรงนี้
+        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 13...")
+        force_scroll_down(main_window, CONFIG) 
         
         banking_services_transaction(main_window, S_CFG['BANKING_13_TITLE'])
         
@@ -366,7 +386,11 @@ def banking_services14():
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
-        
+
+        # [NEW] ตำแหน่งที่ : เรียก Scroll ตรงนี้
+        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 14...")
+        force_scroll_down(main_window, CONFIG) 
+
         banking_services_transaction(main_window, S_CFG['BANKING_14_TITLE'])
         
     except Exception as e:
@@ -379,6 +403,10 @@ def banking_services15():
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
+
+        # [NEW] ตำแหน่งที่ : เรียก Scroll ตรงนี้
+        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 15...")
+        force_scroll_down(main_window, CONFIG) 
         
         banking_services_transaction(main_window, S_CFG['BANKING_15_TITLE'])
         
