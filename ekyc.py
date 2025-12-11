@@ -33,6 +33,8 @@ WINDOW_TITLE = CONFIG['GLOBAL']['WINDOW_TITLE']
 WAIT_TIME = CONFIG.getint('GLOBAL', 'WAIT_TIME_SEC')
 PHONE_NUMBER = CONFIG['GLOBAL']['PHONE_NUMBER']
 PHONE_EDIT_AUTO_ID = CONFIG['GLOBAL']['PHONE_EDIT_AUTO_ID']
+POSTAL_CODE = CONFIG['GLOBAL']['POSTAL_CODE']
+POSTAL_CODE_EDIT_AUTO_ID = CONFIG['GLOBAL']['POSTAL_CODE_EDIT_AUTO_ID'] 
 
 # ดึง Section หลัก
 B_CFG = CONFIG['EKYC_MAIN']
@@ -80,18 +82,23 @@ def run_ekyc_step(service_name, service_title):
         main_window.child_window(title=service_title, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
 
-        # 4. กรอกเบอร์โทรศัพท์
-        print(f"[*] 4. กรอกเบอร์โทรศัพท์: {PHONE_NUMBER}")
+        # 4. ค้นหาช่องเลขไปรษณีย์และกรอกข้อมูล
+        print(f"[*] 4. กำลังค้นหาช่องกรอกเลขไปรษณีย์ ID='{POSTAL_CODE_EDIT_AUTO_ID}' และกรอก: {POSTAL_CODE}...")
+        main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit").click_input() 
+        main_window.type_keys(POSTAL_CODE)
+
+        # 5. กรอกเบอร์โทรศัพท์
+        print(f"[*] 5. กรอกเบอร์โทรศัพท์: {PHONE_NUMBER}")
         main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit").click_input()
         main_window.type_keys(PHONE_NUMBER)
         
-        # 5. กด 'ถัดไป'
-        print(f"[*] 5. กดปุ่ม '{NEXT_TITLE}'")
+        # 6. กด 'ถัดไป'
+        print(f"[*] 6. กดปุ่ม '{NEXT_TITLE}'")
         main_window.child_window(title=NEXT_TITLE, auto_id=ID_AUTO_ID, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
 
-        # 6. กด ESC
-        print(f"[*] 6. กดปุ่ม ESC เพื่อย้อนกลับ")
+        # 7. กด ESC
+        print(f"[*] 7. กดปุ่ม ESC เพื่อย้อนกลับ")
         main_window.type_keys("{ESC}")
         time.sleep(WAIT_TIME)
         
