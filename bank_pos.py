@@ -67,17 +67,29 @@ def bank_pos_navigate_main():
         print(f"[*] 2.1. ค้นหาและคลิกปุ่ม '{ID_CARD_BUTTON_TITLE}'...")
         main_window.child_window(title=ID_CARD_BUTTON_TITLE, control_type="Text").click_input()
 
-        # --- ค้นหาช่องเลขไปรษณีย์และกรอกข้อมูล ---
-        print(f"[*] 2.2.5. กำลังค้นหาช่องกรอกเลขไปรษณีย์ ID='{POSTAL_CODE_EDIT_AUTO_ID}' และกรอก: {POSTAL_CODE}...")
-    
-        # โค้ดใช้ตัวแปร Global ที่ดึงมาจากด้านบน
-        main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit").click_input() 
-        main_window.type_keys(POSTAL_CODE)
-
-        # --- ค้นหาช่องหมายเลขโทรศัพท์และกรอกข้อมูล ---
-        print(f"[*] 2.2. กำลังค้นหาช่องกรอกด้วย ID='{PHONE_EDIT_AUTO_ID}' และกรอก: {PHONE_NUMBER}...")
-        main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit").click_input()
-        main_window.type_keys(PHONE_NUMBER)
+        # --- [NEW] ค้นหาช่องเลขไปรษณีย์และกรอกข้อมูล ---
+        print(f"[*] 2.2.5. กำลังตรวจสอบ/กรอกเลขไปรษณีย์ ID='{POSTAL_CODE_EDIT_AUTO_ID}'")
+        postal_control = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
+        
+        if not postal_control.texts()[0].strip():
+            print(f" [-] -> ช่องว่าง, กรอก: {POSTAL_CODE}")
+            postal_control.click_input() 
+            main_window.type_keys(POSTAL_CODE)
+        else:
+            print(f" [-] -> ช่องมีค่าอยู่แล้ว: {postal_control.texts()[0].strip()}, ข้ามการกรอก")
+        time.sleep(0.5)
+        
+        # --- [NEW] ค้นหาช่องหมายเลขโทรศัพท์และกรอกข้อมูล ---
+        print(f"[*] 2.2. กำลังตรวจสอบ/กรอกเบอร์โทรศัพท์ ID='{PHONE_EDIT_AUTO_ID}'")
+        phone_control = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
+        
+        if not phone_control.texts()[0].strip():
+            print(f" [-] -> ช่องว่าง, กรอก: {PHONE_NUMBER}")
+            phone_control.click_input()
+            main_window.type_keys(PHONE_NUMBER)
+        else:
+            print(f" [-] -> ช่องมีค่าอยู่แล้ว: {phone_control.texts()[0].strip()}, ข้ามการกรอก")
+        time.sleep(0.5)
 
         # --- กด 'ถัดไป' เพื่อยืนยัน ---
         print(f"[*] 2.3. กดปุ่ม '{NEXT_BUTTON_TITLE}' เพื่อไปหน้าถัดไป...")

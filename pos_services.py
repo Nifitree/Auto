@@ -3,6 +3,7 @@ from pywinauto.application import Application
 from pywinauto import mouse 
 import time
 import os
+import sys # เพิ่ม sys
 
 CONFIG_FILE = "config.ini"
 
@@ -26,7 +27,7 @@ def read_config(filename=CONFIG_FILE):
 CONFIG = read_config()
 if not CONFIG.sections():
     print("ไม่สามารถโหลด config.ini ได้ โปรดตรวจสอบไฟล์")
-    exit()
+    exit() # ใช้ exit() ตามโค้ดเดิม
 
 # ดึงค่า Global ที่ใช้ร่วมกัน
 WINDOW_TITLE = CONFIG['GLOBAL']['WINDOW_TITLE']
@@ -78,8 +79,9 @@ def pos_services_main():
     # 1. กำหนดตัวแปรจาก Config
     HOTKEY_AGENCY_TITLE = B_CFG['HOTKEY_AGENCY_TITLE']
     HOTKEY_BaS_TITLE = B_CFG['HOTKEY_BaS_TITLE']
+    TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE'] # ไม่ได้ใช้ใน main แต่ดึงมา
     NEXT_TITLE = B_CFG['NEXT_TITLE']
-    ID_AUTO_ID = B_CFG['ID_AUTO_ID']
+    ID_AUTO_ID = B_CFG['ID_AUTO_ID'] # ไม่ได้ใช้ใน main แต่ดึงมา
 
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการไปรษณีย์' โดยการกดปุ่ม '{HOTKEY_AGENCY_TITLE}'...")
     try:
@@ -101,23 +103,35 @@ def pos_services_main():
         print(f"[*] 2.1. ค้นหาและคลิกปุ่ม '{ID_CARD_BUTTON_TITLE}'...")
         main_window.child_window(title=ID_CARD_BUTTON_TITLE, control_type="Text").click_input()
 
-        # --- ค้นหาช่องเลขไปรษณีย์และกรอกข้อมูล ---
-        print(f"[*] 2.2.5. กำลังค้นหาช่องกรอกเลขไปรษณีย์ ID='{POSTAL_CODE_EDIT_AUTO_ID}' และกรอก: {POSTAL_CODE}...")
-    
-        # โค้ดใช้ตัวแปร Global ที่ดึงมาจากด้านบน
-        main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit").click_input() 
-        main_window.type_keys(POSTAL_CODE)
-
-        # --- ค้นหาช่องหมายเลขโทรศัพท์และกรอกข้อมูล ---
-        print(f"[*] 2.2. กำลังค้นหาช่องกรอกด้วย ID='{PHONE_EDIT_AUTO_ID}' และกรอก: {PHONE_NUMBER}...")
-        main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit").click_input()
-        main_window.type_keys(PHONE_NUMBER)
+        # --- [NEW] ค้นหาช่องเลขไปรษณีย์และกรอกข้อมูล ---
+        print(f"[*] 2.2.5. กำลังตรวจสอบ/กรอกเลขไปรษณีย์ ID='{POSTAL_CODE_EDIT_AUTO_ID}'")
+        postal_control = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
+        
+        if not postal_control.texts()[0].strip():
+            print(f" [-] -> ช่องว่าง, กรอก: {POSTAL_CODE}")
+            postal_control.click_input() 
+            main_window.type_keys(POSTAL_CODE)
+        else:
+            print(f" [-] -> ช่องมีค่าอยู่แล้ว: {postal_control.texts()[0].strip()}, ข้ามการกรอก")
+        time.sleep(0.5)
+        
+        # --- [NEW] ค้นหาช่องหมายเลขโทรศัพท์และกรอกข้อมูล ---
+        print(f"[*] 2.2. กำลังตรวจสอบ/กรอกเบอร์โทรศัพท์ ID='{PHONE_EDIT_AUTO_ID}'")
+        phone_control = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
+        
+        if not phone_control.texts()[0].strip():
+            print(f" [-] -> ช่องว่าง, กรอก: {PHONE_NUMBER}")
+            phone_control.click_input()
+            main_window.type_keys(PHONE_NUMBER)
+        else:
+            print(f" [-] -> ช่องมีค่าอยู่แล้ว: {phone_control.texts()[0].strip()}, ข้ามการกรอก")
+        time.sleep(0.5)
 
         # --- กด 'ถัดไป' เพื่อยืนยัน ---
         print(f"[*] 2.3. กดปุ่ม '{NEXT_TITLE}' เพื่อไปหน้าถัดไป...")
         main_window.child_window(title=NEXT_TITLE, auto_id=ID_AUTO_ID, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
- 
+        
         print("\n[V] SUCCESS: ดำเนินการขั้นตอน สำเร็จ!")
         return True
     except Exception as e:
@@ -247,7 +261,7 @@ def pos_services7():
         praisani_pos_transaction(main_window, S_CFG['PRAISANI_7_TITLE'])
         
     except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")   
+        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 # ----------------- Main Execution -----------------
 

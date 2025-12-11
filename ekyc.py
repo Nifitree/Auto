@@ -68,7 +68,7 @@ def run_ekyc_step(service_name, service_title):
         # เชื่อมต่อ Application
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
-        # print("[/] เชื่อมต่อหน้าจอสำเร็จ")
+        print("[/] เชื่อมต่อหน้าจอสำเร็จ")
 
         # 1. กด A (Agency)
         print(f"[*] 1. กดปุ่ม '{HOTKEY_AGENCY_TITLE}' (Agency)")
@@ -91,11 +91,11 @@ def run_ekyc_step(service_name, service_title):
         
         # ตรวจสอบว่าช่องว่างหรือไม่
         if not postal_control.texts()[0].strip():
-            print(f"   -> ช่องว่าง, กรอก: {POSTAL_CODE}")
+            print(f" [*] -> ช่องว่าง, กรอก: {POSTAL_CODE}")
             postal_control.click_input() 
             main_window.type_keys(POSTAL_CODE)
         else:
-            print("   -> ช่องมีค่าอยู่แล้ว, ข้ามการกรอก")
+            print(" [*] -> ช่องมีค่าอยู่แล้ว, ข้ามการกรอก")
         time.sleep(0.5)
 
         # 5. [การตรวจสอบ/กรอก] เบอร์โทรศัพท์
@@ -104,11 +104,11 @@ def run_ekyc_step(service_name, service_title):
         
         # ตรวจสอบว่าช่องว่างหรือไม่
         if not phone_control.texts()[0].strip():
-            print(f"   -> ช่องว่าง, กรอก: {PHONE_NUMBER}")
+            print(f" [*] -> ช่องว่าง, กรอก: {PHONE_NUMBER}")
             phone_control.click_input()
             main_window.type_keys(PHONE_NUMBER)
         else:
-            print("   -> ช่องมีค่าอยู่แล้ว, ข้ามการกรอก")
+            print(" [*] -> ช่องมีค่าอยู่แล้ว, ข้ามการกรอก")
         time.sleep(0.5)
 
         # 6. กด 'ถัดไป'
