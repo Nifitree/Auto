@@ -193,14 +193,9 @@ def utility_services_transaction2(main_window, transaction_title):
         print("[*] 3. ดำเนินการ: กดปุ่ม ENTER")
         main_window.type_keys("{ENTER}")
         time.sleep(WAIT_TIME)
-
-        # 4. คลิก 'ถัดไป'
-        print(f"[*] 4. กดปุ่ม '{NEXT_TITLE}'")
-        main_window.child_window(title=NEXT_TITLE, auto_id=ID_AUTO_ID, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
         
-        # 5. คลิก 'เสร็จสิ้น'
-        print(f"[*] 5. กดปุ่ม '{FINISH_BUTTON_TITLE}'")
+        # 4. คลิก 'เสร็จสิ้น'
+        print(f"[*] 4. กดปุ่ม '{FINISH_BUTTON_TITLE}'")
         main_window.child_window(title=FINISH_BUTTON_TITLE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
         
@@ -258,7 +253,7 @@ def utility_services4():
         print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 4...")
         force_scroll_down(main_window, CONFIG) 
         
-        utility_services_transaction(main_window, S_CFG['UTILITY_4_TITLE'])
+        utility_services_transaction2(main_window, S_CFG['UTILITY_4_TITLE'])
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
@@ -275,7 +270,7 @@ def utility_services5():
         print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 5...")
         force_scroll_down(main_window, CONFIG) 
         
-        utility_services_transaction(main_window, S_CFG['UTILITY_5_TITLE'])
+        utility_services_transaction2(main_window, S_CFG['UTILITY_5_TITLE'])
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
@@ -309,7 +304,7 @@ def utility_services7():
         print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 7...")
         force_scroll_down(main_window, CONFIG) 
         
-        utility_services_transaction(main_window, S_CFG['UTILITY_7_TITLE'])
+        utility_services_transaction2(main_window, S_CFG['UTILITY_7_TITLE'])
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")   
