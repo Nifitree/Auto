@@ -248,10 +248,6 @@ def utility_services4():
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
-
-        # ตำแหน่งที่ : เรียก Scroll ตรงนี้
-        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 4...")
-        force_scroll_down(main_window, CONFIG) 
         
         utility_services_transaction2(main_window, S_CFG['UTILITY_4_TITLE'])
         
@@ -265,10 +261,6 @@ def utility_services5():
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
-
-        # ตำแหน่งที่ : เรียก Scroll ตรงนี้
-        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 5...")
-        force_scroll_down(main_window, CONFIG) 
         
         utility_services_transaction2(main_window, S_CFG['UTILITY_5_TITLE'])
         
@@ -282,10 +274,6 @@ def utility_services6():
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
-
-        # ตำแหน่งที่ : เรียก Scroll ตรงนี้
-        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 6...")
-        force_scroll_down(main_window, CONFIG) 
         
         utility_services_transaction(main_window, S_CFG['UTILITY_6_TITLE'])
         
@@ -299,10 +287,6 @@ def utility_services7():
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
-
-        # ตำแหน่งที่ : เรียก Scroll ตรงนี้
-        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 7...")
-        force_scroll_down(main_window, CONFIG) 
         
         utility_services_transaction2(main_window, S_CFG['UTILITY_7_TITLE'])
         
@@ -317,10 +301,6 @@ def utility_services8():
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
         
-        # ตำแหน่งที่ : เรียก Scroll ตรงนี้
-        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 8...")
-        force_scroll_down(main_window, CONFIG) 
-
         utility_services_transaction(main_window, S_CFG['UTILITY_8_TITLE'])
         
     except Exception as e:
@@ -333,10 +313,6 @@ def utility_services9():
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
-
-        # ตำแหน่งที่ : เรียก Scroll ตรงนี้
-        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 9...")
-        force_scroll_down(main_window, CONFIG) 
         
         utility_services_transaction(main_window, S_CFG['UTILITY_9_TITLE'])
         
