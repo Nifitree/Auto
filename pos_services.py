@@ -3,7 +3,7 @@ from pywinauto.application import Application
 from pywinauto import mouse 
 import time
 import os
-import sys # เพิ่ม sys
+import sys
 
 CONFIG_FILE = "config.ini"
 
@@ -135,15 +135,28 @@ def pos_services_main():
             print(f" [-] -> ช่องมีค่าอยู่แล้ว: {postal_control.texts()[0].strip()}, ข้ามการกรอก")
         time.sleep(0.5)
     
-    # --- ค้นหาช่องหมายเลขโทรศัพท์และกรอกข้อมูล ---
+        # --- ค้นหาช่องหมายเลขโทรศัพท์และกรอกข้อมูล ---
         print(f"[*] 2.2. กำลังตรวจสอบ/กรอกเบอร์โทรศัพท์ ID='{PHONE_EDIT_AUTO_ID}'")
         phone_control = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
     
-    # [จุดที่ 3] ตรวจสอบว่าช่องปรากฏหรือไม่ ก่อนกรอก
+        # [จุดที่ 2] ตรวจสอบ/Scroll ซ้ำเพื่อหาช่องเบอร์โทรศัพท์
         if not phone_control.exists(timeout=1):
-            print("[X] FAILED: ช่องเบอร์โทรศัพท์ไม่ปรากฏในหน้าจอ")
-            return False # ยกเลิกการทำงาน
+            print("[!] ช่องเบอร์โทรศัพท์ไม่ปรากฏทันที, กำลังตรวจสอบ/เลื่อนหน้าจอซ้ำ...")
         
+        max_scrolls = 3
+        found = False
+        for i in range(max_scrolls):
+            force_scroll_down(main_window, CONFIG)
+            if phone_control.exists(timeout=1):
+                print("[/] ช่องเบอร์โทรศัพท์พบแล้วหลังการ Scroll")
+                found = True
+                break
+        
+        if not found:
+            print(f"[X] FAILED: ไม่สามารถหาช่องเบอร์โทรศัพท์ '{PHONE_EDIT_AUTO_ID}' ได้หลัง Scroll {max_scrolls} ครั้ง")
+            return False # ยกเลิกการทำงานหากหาไม่พบ
+    
+        #  [จุดที่ 3] ดำเนินการกรอกข้อมูล (เมื่อแน่ใจว่าพบแล้ว)
         if not phone_control.texts()[0].strip():
             print(f" [-] -> ช่องว่าง, กรอก: {PHONE_NUMBER}")
             phone_control.click_input()

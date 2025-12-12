@@ -89,30 +89,62 @@ def run_ekyc_step(service_name, service_title):
         print(f"[*] 4. กำลังตรวจสอบ/กรอกเลขไปรษณีย์ ID='{POSTAL_CODE_EDIT_AUTO_ID}'")
         postal_control = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
         
-        # ตรวจสอบว่าช่องว่างหรือไม่
+        #  [จุดที่ 1] ตรวจสอบว่าช่องปรากฏหรือไม่ ก่อน Scroll
+        if not postal_control.exists(timeout=1):
+            print("[!] ช่องไปรษณีย์ไม่ปรากฏทันที, กำลังเลื่อนหน้าจอลง...")
+        
+        # ใช้การวนลูป Scroll & Check เพื่อความแม่นยำสูงสุด
+        max_scrolls = 3
+        found = False
+        for i in range(max_scrolls):
+            force_scroll_down(main_window, CONFIG)
+            if postal_control.exists(timeout=1):
+                print("[/] ช่องไปรษณีย์พบแล้วหลังการ Scroll")
+                found = True
+                break
+        
+        if not found:
+            print(f"[X] FAILED: ไม่สามารถหาช่องไปรษณีย์ '{POSTAL_CODE_EDIT_AUTO_ID}' ได้หลัง Scroll {max_scrolls} ครั้ง")
+            return False # ยกเลิกการทำงานหากหาไม่พบ
+
+        # [จุดที่ 2] ดำเนินการกรอกข้อมูล (เมื่อแน่ใจว่าพบแล้ว)
         if not postal_control.texts()[0].strip():
-            print(f" [*] -> ช่องว่าง, กรอก: {POSTAL_CODE}")
+            # ถ้าช่องว่าง (Empty) ให้ทำการกรอก
+            print(f" [-] -> ช่องว่าง, กรอก: {POSTAL_CODE}")
             postal_control.click_input() 
             main_window.type_keys(POSTAL_CODE)
         else:
-            print(" [*] -> ช่องมีค่าอยู่แล้ว, ข้ามการกรอก")
+            print(f" [-] -> ช่องมีค่าอยู่แล้ว: {postal_control.texts()[0].strip()}, ข้ามการกรอก")
         time.sleep(0.5)
-
-        # ตำแหน่งที่ : เรียก Scroll ตรงนี้
-        print("[*] ค้นหาช่องหมายเลขโทรศัพท์และกรอกข้อมูล...")
-        force_scroll_down(main_window, CONFIG) 
-
-        # 5. [การตรวจสอบ/กรอก] เบอร์โทรศัพท์
-        print(f"[*] 5. กำลังตรวจสอบ/กรอกเบอร์โทรศัพท์ ID='{PHONE_EDIT_AUTO_ID}'")
+    
+        # --- ค้นหาช่องหมายเลขโทรศัพท์และกรอกข้อมูล ---
+        print(f"[*] 2.2. กำลังตรวจสอบ/กรอกเบอร์โทรศัพท์ ID='{PHONE_EDIT_AUTO_ID}'")
         phone_control = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
+    
+        # [จุดที่ 2] ตรวจสอบ/Scroll ซ้ำเพื่อหาช่องเบอร์โทรศัพท์
+        if not phone_control.exists(timeout=1):
+            print("[!] ช่องเบอร์โทรศัพท์ไม่ปรากฏทันที, กำลังตรวจสอบ/เลื่อนหน้าจอซ้ำ...")
         
-        # ตรวจสอบว่าช่องว่างหรือไม่
+        max_scrolls = 3
+        found = False
+        for i in range(max_scrolls):
+            force_scroll_down(main_window, CONFIG)
+            if phone_control.exists(timeout=1):
+                print("[/] ช่องเบอร์โทรศัพท์พบแล้วหลังการ Scroll")
+                found = True
+                break
+        
+        if not found:
+            print(f"[X] FAILED: ไม่สามารถหาช่องเบอร์โทรศัพท์ '{PHONE_EDIT_AUTO_ID}' ได้หลัง Scroll {max_scrolls} ครั้ง")
+            return False # ยกเลิกการทำงานหากหาไม่พบ
+    
+        #  [จุดที่ 3] ดำเนินการกรอกข้อมูล (เมื่อแน่ใจว่าพบแล้ว)
         if not phone_control.texts()[0].strip():
-            print(f" [*] -> ช่องว่าง, กรอก: {PHONE_NUMBER}")
+            print(f" [-] -> ช่องว่าง, กรอก: {PHONE_NUMBER}")
             phone_control.click_input()
             main_window.type_keys(PHONE_NUMBER)
         else:
-            print(" [*] -> ช่องมีค่าอยู่แล้ว, ข้ามการกรอก")
+            print(f" [-] -> ช่องมีค่าอยู่แล้ว: {phone_control.texts()[0].strip()}, ข้ามการกรอก")
         time.sleep(0.5)
 
         # 6. กด 'ถัดไป'
