@@ -279,11 +279,40 @@ def pos_services7():
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
 
-        # [NEW] ตำแหน่งที่ : เรียก Scroll ตรงนี้
-        print("[*] 1.5. เลื่อนหน้าจอเพื่อค้นหารายการที่ 7...")
-        force_scroll_down(main_window, CONFIG) 
+       # เพิ่มการตรวจสอบหลัง Scroll
+        SERVICE_TITLE = S_CFG['PRAISANI_7_TITLE']
+        TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
         
-        praisani_pos_transaction(main_window, S_CFG['PRAISANI_7_TITLE'])
+        target_control = main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text")
+        
+        max_scrolls = 3
+        found = False
+        
+        print(f"[*] 1.5. กำลังตรวจสอบรายการ '{SERVICE_TITLE}' ก่อน Scroll...")
+        
+        # 1. ตรวจสอบก่อนว่ารายการปรากฏขึ้นแล้วหรือไม่ (ในกรณีที่หน้าจอไม่เต็ม)
+        if target_control.exists(timeout=1):
+            print("[/] รายการย่อยพบแล้ว, ไม่จำเป็นต้อง Scroll.")
+            found = True
+        
+        # 2. ถ้าไม่พบ ให้วนลูป Scroll และตรวจสอบซ้ำ
+        if not found:
+            print(f"[*] 1.5.1. รายการย่อยไม่ปรากฏทันที, เริ่มการ Scroll ({max_scrolls} ครั้ง)...")
+            for i in range(max_scrolls):
+                force_scroll_down(main_window, CONFIG) 
+                # ตรวจสอบหลัง Scroll
+                if target_control.exists(timeout=1):
+                    print(f"[/] รายการย่อยพบแล้วในการ Scroll ครั้งที่ {i+1}.")
+                    found = True
+                    break
+        
+        # 3. หากยังไม่พบ ให้ยกเลิกการทำงาน
+        if not found:
+            print(f"[X] FAILED: ไม่สามารถค้นหารายการย่อย '{SERVICE_TITLE}' ได้หลัง Scroll {max_scrolls} ครั้ง")
+            return
+        
+        # 4. หากพบแล้ว จึงเรียก Transaction ต่อไป
+        praisani_pos_transaction(main_window, SERVICE_TITLE)
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
