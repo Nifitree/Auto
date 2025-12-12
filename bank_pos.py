@@ -1,6 +1,7 @@
-from pywinauto.application import Application
-import time
 import configparser
+from pywinauto.application import Application
+from pywinauto import mouse 
+import time
 import os
 import sys
 

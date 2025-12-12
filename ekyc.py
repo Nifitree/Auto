@@ -42,6 +42,37 @@ POSTAL_CODE_EDIT_AUTO_ID = CONFIG['GLOBAL']['POSTAL_CODE_EDIT_AUTO_ID']
 B_CFG = CONFIG['EKYC_MAIN']
 S_CFG = CONFIG['EKYC_SERVICES']
 
+# ==================== SCROLL HELPERS mouse ====================
+
+def force_scroll_down(window, config):
+    """เลื่อนหน้าจอลงโดยใช้ Mouse wheel"""
+    try:
+        center_x_offset = config.getint('MOUSE_SCROLL', 'CENTER_X_OFFSET')
+        center_y_offset = config.getint('MOUSE_SCROLL', 'CENTER_Y_OFFSET')
+        wheel_dist = config.getint('MOUSE_SCROLL', 'WHEEL_DIST')
+        focus_delay = config.getfloat('MOUSE_SCROLL', 'FOCUS_DELAY')
+        scroll_delay = config.getfloat('MOUSE_SCROLL', 'SCROLL_DELAY')
+    except ValueError:
+        print("[!] Scroll config invalid. Using defaults.")
+        center_x_offset, center_y_offset, wheel_dist, focus_delay, scroll_delay = 300, 300, -20, 0.5, 1.0
+
+    print(f"...กำลังเลื่อนหน้าจอลง (Mouse Wheel {wheel_dist})...")
+
+    try:
+        rect = window.rectangle()
+        center_x = rect.left + center_x_offset
+        center_y = rect.top + center_y_offset
+        
+        mouse.click(coords=(center_x, center_y))
+        time.sleep(focus_delay)
+        
+        mouse.scroll(coords=(center_x, center_y), wheel_dist=wheel_dist)
+        time.sleep(scroll_delay)
+        print("[/] Scroll สำเร็จ")
+    except Exception as e:
+        print(f"[!] Scroll failed: {e}, ใช้ PageDown แทน")
+        window.type_keys("{PGDN}")
+
 # ==================== MAIN LOGIC ====================
 
 def run_ekyc_step(service_name, service_title):
