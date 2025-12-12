@@ -95,7 +95,7 @@ def goods_pm_main():
         time.sleep(WAIT_TIME)
         print("[/] เข้าสู่หน้า 'บริการประกันภัย'...")
 
-        # 3. กด P
+        # 3. กด G
         main_window.child_window(title=BT_G_TITLE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
         print("[/] กำลังดำเนินการในหน้า 'บริการประกันภัย'...")
