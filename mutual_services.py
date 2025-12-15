@@ -210,15 +210,12 @@ def mutual_transaction(main_window, transaction_title):
             main_window.type_keys(BARCODE_VALUE)
             time.sleep(0.5)
 
-            # 2.5.2 กดปุ่ม 'ตกลง'
-            # 3. คลิก 'ถัดไป'
-            
-            print(f"[*] 3. กดปุ่ม '{NEXT_TITLE}'")
+            # 2.5.2 กดปุ่ม 'ถัดไป'
+            print(f"[*] 3. ถัดไป '{NEXT_TITLE}'")
             main_window.child_window(title=NEXT_TITLE, auto_id=NEXT_AUTO_ID, control_type="Text").click_input()
             time.sleep(WAIT_TIME)
             
-        
-        # 3. คลิก 'ถัดไป'
+        # 3. คลิก 'ตกลง'
         print(f"[*] 2.5.2. กดปุ่ม '{OK_BUTTON_TITLE}'")
         main_window.child_window(title=OK_BUTTON_TITLE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
