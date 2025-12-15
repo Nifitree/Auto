@@ -43,6 +43,7 @@ POSTAL_CODE_EDIT_AUTO_ID = CONFIG['GLOBAL']['POSTAL_CODE_EDIT_AUTO_ID']
 B_CFG = CONFIG['MUTUAL_MAIN']
 S_CFG = CONFIG['MUTUAL_SERVICES']
 T_CFG = CONFIG['PAYMENT']
+I_CFG = CONFIG['INFORMATION']
 
 # ==================== SCROLL HELPERS mouse ====================
 
@@ -241,18 +242,96 @@ def mutual_services1():
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
-def mutual_services2():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 2)...")
+# ----------------- ฟังก์ชันย่อยตามโครงสร้างเดิม (แก้ไข mutual_services2) -----------------
+
+def mutual_services2(payment_flow_handler):
+    """
+    [CUSTOM FLOW] สำหรับ MUTUAL_2_TITLE (50412):
+    1. คลิกรายการ
+    2. กรอก 4 ฟิลด์
+    3. ถัดไป (1) -> ถัดไป (2)
+    4. กด 'รับเงิน' -> เรียก Payment Flow -> เสร็จสิ้น
+    """
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 2 - กรอก 4 ฟิลด์)...")
     try:
-        if not mutual_main(): return
-        
+        # 1.1 นำทางเข้าสู่หน้า Mutual Services (A -> M)
+        if not mutual_main(): 
+            return
+            
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
         
-        mutual_transaction(main_window, S_CFG['MUTUAL_2_TITLE'])
+        # 1.2 กำหนดตัวแปรจาก Config (ใช้ B_CFG สำหรับปุ่มหลัก)
+        SERVICE_TITLE = S_CFG['MUTUAL_2_TITLE']
+        TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
+        NEXT_TITLE = B_CFG['NEXT_TITLE']
+        NEXT_AUTO_ID = B_CFG['NEXT_AUTO_ID']
+        FINISH_BUTTON_TITLE = B_CFG['FINISH_BUTTON_TITLE']
+        
+        # 2. คลิกรายการย่อย (Service 2)
+        print(f"[*] 2. ค้นหาและคลิกรายการ: {SERVICE_TITLE}")
+        main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+        
+        # =========================================================================
+        # >>>>> ขั้นตอนที่ 3: กรอกข้อมูล 4 ฟิลด์ (ใช้ Auto ID จาก Global) <<<<<
+        print("[*] 3. กำลังกรอกข้อมูลสมาชิกและบัญชี...")
+
+        # 3.1 กรอกเลขสมาชิก
+        print(f" [-] กรอกเลขสมาชิก: {MEMBER_ID_VALUE}")
+        main_window.child_window(auto_id=MEMBER_ID_AUTO_ID, control_type="Edit").type_keys(MEMBER_ID_VALUE)
+        time.sleep(0.5)
+
+        # 3.2 กรอกเลขบัญชี
+        print(f" [-] กรอกเลขบัญชี: {ACCOUNT_NUM_VALUE}")
+        main_window.child_window(auto_id=ACCOUNT_NUM_AUTO_ID, control_type="Edit").type_keys(ACCOUNT_NUM_VALUE)
+        time.sleep(0.5)
+
+        # 3.3 กรอกชื่อเจ้าของบัญชี
+        print(f" [-] กรอกชื่อเจ้าของบัญชี: {ACCOUNT_NAME_VALUE}")
+        main_window.child_window(auto_id=ACCOUNT_NAME_AUTO_ID, control_type="Edit").type_keys(ACCOUNT_NAME_VALUE)
+        time.sleep(0.5)
+
+        # 3.4 กรอกจำนวนเงินที่ชำระ
+        print(f" [-] กรอกจำนวนเงิน: {AMOUNT_TO_PAY_VALUE}")
+        main_window.child_window(auto_id=AMOUNT_TO_PAY_AUTO_ID, control_type="Edit").type_keys(AMOUNT_TO_PAY_VALUE)
+        time.sleep(WAIT_TIME)
+        # =========================================================================
+
+        # 4. คลิก 'ถัดไป' ครั้งที่ 1 (ไปหน้ายืนยัน/สรุป)
+        print(f"[*] 4. กดปุ่ม '{NEXT_TITLE}' (ครั้งที่ 1)")
+        main_window.child_window(title=NEXT_TITLE, auto_id=NEXT_AUTO_ID, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+        
+        # 5. คลิก 'ถัดไป' ครั้งที่ 2 (นำไปสู่หน้าชำระเงิน)
+        print(f"[*] 5. กดปุ่ม '{NEXT_TITLE}' (ครั้งที่ 2)")
+        main_window.child_window(title=NEXT_TITLE, auto_id=NEXT_AUTO_ID, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+        
+        # 6. คลิก 'รับเงิน' (ปุ่มที่นำไปสู่ Payment Flow)
+        print(f"[*] 6. กดปุ่ม '{RECEIVE_PAYMENT_TITLE}'")
+        main_window.child_window(title=RECEIVE_PAYMENT_TITLE, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+
+        # =========================================================================
+        # >>>>> ขั้นตอนที่ 7: การเรียก Flow การชำระเงิน (เลือกวิธี) <<<<<
+        print("[*] 7. เข้าสู่หน้าจอการชำระเงินและดำเนินการ...")
+        
+        # ** ณ จุดนี้ หน้าจอเลือกวิธีการชำระเงินควรจะเด้งขึ้นมา **
+        # ตัวอย่าง: ชำระด้วยเงินสด (Cash) โดยเรียกใช้ handler ที่ส่งมา
+        payment_flow_handler.pay_cash() 
+        
+        # =========================================================================
+        
+        # 8. คลิก 'เสร็จสิ้น'
+        print(f"[*] 8. กดปุ่ม '{FINISH_BUTTON_TITLE}'")
+        main_window.child_window(title=FINISH_BUTTON_TITLE, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+        
+        print(f"\n[V] SUCCESS: ดำเนินการรายการย่อย {SERVICE_TITLE} สำเร็จ!")
         
     except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
+        print(f"\n[X] FAILED: ไม่สามารถทำรายการย่อย {SERVICE_TITLE}: {e}")
 
 def mutual_services3():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 3)...")
