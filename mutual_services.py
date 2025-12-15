@@ -211,13 +211,16 @@ def mutual_transaction(main_window, transaction_title):
             time.sleep(0.5)
 
             # 2.5.2 กดปุ่ม 'ตกลง'
-            print(f"[*] 2.5.2. กดปุ่ม '{OK_BUTTON_TITLE}'")
-            main_window.child_window(title=OK_BUTTON_TITLE, control_type="Text").click_input()
+            # 3. คลิก 'ถัดไป'
+            
+            print(f"[*] 3. กดปุ่ม '{NEXT_TITLE}'")
+            main_window.child_window(title=NEXT_TITLE, auto_id=NEXT_AUTO_ID, control_type="Text").click_input()
             time.sleep(WAIT_TIME)
+            
         
         # 3. คลิก 'ถัดไป'
-        print(f"[*] 3. กดปุ่ม '{NEXT_TITLE}'")
-        main_window.child_window(title=NEXT_TITLE, auto_id=NEXT_AUTO_ID, control_type="Text").click_input()
+        print(f"[*] 2.5.2. กดปุ่ม '{OK_BUTTON_TITLE}'")
+        main_window.child_window(title=OK_BUTTON_TITLE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
         
         # 4. คลิก 'เสร็จสิ้น'
@@ -233,8 +236,6 @@ def mutual_transaction(main_window, transaction_title):
 def mutual_services1():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 1)...")
     try:
-        if not mutual_main(): return
-        
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
         
