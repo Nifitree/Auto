@@ -45,6 +45,23 @@ S_CFG = CONFIG['MUTUAL_SERVICES']
 T_CFG = CONFIG['PAYMENT']
 I_CFG = CONFIG['INFORMATION']
 
+# =======================================================================
+# >>>>> ตำแหน่งที่ถูกต้องในการดึงค่า [INFORMATION] เข้าสู่ Global Scope <<<<<
+# --- [ใหม่] ดึงค่าทั้งหมดจาก Section [INFORMATION] ---
+RECEIVE_PAYMENT_TITLE = I_CFG['RECEIVE_PAYMENT_TITLE']
+
+MEMBER_ID_VALUE = I_CFG['MEMBER_ID_VALUE']
+MEMBER_ID_AUTO_ID = I_CFG['MEMBER_ID_AUTO_ID'] 
+
+ACCOUNT_NUM_VALUE = I_CFG['ACCOUNT_NUM_VALUE']
+ACCOUNT_NUM_AUTO_ID = I_CFG['ACCOUNT_NUM_AUTO_ID'] 
+
+ACCOUNT_NAME_VALUE = I_CFG['ACCOUNT_NAME_VALUE']
+ACCOUNT_NAME_AUTO_ID = I_CFG['ACCOUNT_NAME_AUTO_ID']
+
+AMOUNT_TO_PAY_VALUE = I_CFG['AMOUNT_TO_PAY_VALUE']
+AMOUNT_TO_PAY_AUTO_ID = I_CFG['AMOUNT_TO_PAY_AUTO_ID']
+
 # ==================== SCROLL HELPERS mouse ====================
 
 def force_scroll_down(window, config):
