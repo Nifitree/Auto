@@ -82,7 +82,7 @@ def goods_pm_main():
     TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE'] # ไม่ได้ใช้ใน main แต่ดึงมา
     NEXT_TITLE = B_CFG['NEXT_TITLE']
     NEXT_AUTO_ID = B_CFG['NEXT_AUTO_ID'] # ไม่ได้ใช้ใน main แต่ดึงมา
-    FINISH_TITLE = B_CFG['FINISH_TITLE']
+    FINISH_BUTTON_TITLE = B_CFG['FINISH_BUTTON_TITLE']
 
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' โดยการกดปุ่ม '{BT_A_TITLE}'...")
     try:
