@@ -97,7 +97,7 @@ def mutual_main():
         time.sleep(WAIT_TIME)
         print("[/] เข้าสู่หน้า 'บริการประกันภัย'...")
 
-        # 3. กด G
+        # 3. กด M
         main_window.child_window(title=BUTTON_M_TITLE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
         print("[/] กำลังดำเนินการในหน้า 'บริการประกันภัย'...")
@@ -212,15 +212,63 @@ def mutual_transaction(main_window, transaction_title):
 # ----------------- ฟังก์ชันย่อยตามโครงสร้างเดิม (เรียกใช้ Config) -----------------
 
 def mutual_services1():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 1)...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 1 - พร้อมกรอกบาร์โค้ด)...")
     try:
+        # 1.1 นำทางเข้าสู่หน้า Mutual Services ก่อน (เหมือน services 2, 3, 4)
+        if not mutual_main(): 
+            return
+            
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
         
-        mutual_transaction(main_window, S_CFG['MUTUAL_1_TITLE'])
+        # 1.2 กำหนดตัวแปรจาก Config (ใช้ในขั้นตอนต่อไป)
+        SERVICE_TITLE = S_CFG['MUTUAL_1_TITLE']
+        TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
+        NEXT_TITLE = B_CFG['NEXT_TITLE']
+        NEXT_AUTO_ID = B_CFG['NEXT_AUTO_ID']
+        FINISH_BUTTON_TITLE = B_CFG['FINISH_BUTTON_TITLE']
+        
+        # 2. คลิกรายการย่อย
+        print(f"[*] 2. ค้นหาและคลิกรายการ: {SERVICE_TITLE}")
+        main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+
+        # =========================================================================
+        # >>>>> ขั้นตอนใหม่: กรอกบาร์โค้ดและกด 'ตกลง' <<<<<
+        
+        # 3.1 ดึงค่าจาก S_CFG
+        BARCODE_VALUE = S_CFG['BARCODE_VALUE']
+        BARCODE_EDIT_ID = S_CFG['BARCODE_EDIT_AUTO_ID']
+        OK_BUTTON_TITLE = S_CFG['OK_BUTTON_TITLE']
+        
+        # 3.2 กรอกบาร์โค้ด
+        print(f"[*] 3.1. กำลังกรอกเลขบาร์โค้ด: {BARCODE_VALUE} (ID: {BARCODE_EDIT_ID})")
+        barcode_control = main_window.child_window(auto_id=BARCODE_EDIT_ID, control_type="Edit")
+        # ใช้ wait เพื่อมั่นใจว่าช่องกรอกปรากฏ
+        barcode_control.wait('visible', timeout=WAIT_TIME).click_input() 
+        main_window.type_keys(BARCODE_VALUE)
+        time.sleep(0.5)
+        
+        # 3.3 กดปุ่ม 'ตกลง'
+        print(f"[*] 3.2. กดปุ่ม '{OK_BUTTON_TITLE}'")
+        main_window.child_window(title=OK_BUTTON_TITLE, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+        # =========================================================================
+
+        # 4. คลิก 'ถัดไป'
+        print(f"[*] 4. กดปุ่ม '{NEXT_TITLE}'")
+        main_window.child_window(title=NEXT_TITLE, auto_id=NEXT_AUTO_ID, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+        
+        # 5. คลิก 'เสร็จสิ้น'
+        print(f"[*] 5. กดปุ่ม '{FINISH_BUTTON_TITLE}'")
+        main_window.child_window(title=FINISH_BUTTON_TITLE, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+        
+        print(f"\n[V] SUCCESS: ดำเนินการรายการย่อย {SERVICE_TITLE} สำเร็จ!")
         
     except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
+        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS หรือทำรายการ: {e}")
 
 def mutual_services2():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 2)...")
