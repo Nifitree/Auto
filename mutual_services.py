@@ -80,31 +80,38 @@ def mutual_pos_main():
     """ฟังก์ชันหลัก: นำทางเข้าหน้า 'ผู้ฝากส่ง' และกรอกข้อมูลผู้ฝากส่ง"""
     
     # 1. กำหนดตัวแปรจาก Config
-    BUTTON_N_TITLE = B_CFG['BUTTON_N_TITLE']
-    NEXT_BUTTON_TITLE = B_CFG['NEXT_BUTTON_TITLE']
-    NEXT_BUTTON_AUTO_ID = B_CFG['NEXT_BUTTON_AUTO_ID']
-    TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-    
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' โดยการกดปุ่ม '{BUTTON_N_TITLE}'...")
+    BUTTON_A_TITLE = B_CFG['BUTTON_A_TITLE']
+    BUTTON_M_TITLE = B_CFG['BUTTON_M_TITLE']
+    TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE'] # ไม่ได้ใช้ใน main แต่ดึงมา
+    NEXT_TITLE = B_CFG['NEXT_TITLE']
+    NEXT_AUTO_ID = B_CFG['NEXT_AUTO_ID'] # ไม่ได้ใช้ใน main แต่ดึงมา
+    FINISH_TITLE = B_CFG['FINISH_TITLE']
+
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' โดยการกดปุ่ม '{BT_A_TITLE}'...")
     try:
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
         print("[/] เชื่อมต่อหน้าจอสำเร็จ ")
-        
-        # ========= กดปุ่มฟังก์ชัน N =========
-        main_window.child_window(title=BUTTON_N_TITLE, control_type="Text").click_input()
+
+        # 2. กด A
+        main_window.child_window(title=BUTTON_A_TITLE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
-        print("[/] กำลังดำเนินการในหน้า 'ผู้ฝากส่ง'...")
-    
+        print("[/] เข้าสู่หน้า 'บริการกองทุนรวม'...")
+
+        # 3. กด M
+        main_window.child_window(title=BUTTON_M_TITLE, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+        print("[/] กำลังดำเนินการในหน้า 'บริการกองทุนรวม'...")
+
         # --- กด 'อ่านบัตรประชาชน' ---
         print(f"[*] 2.1. ค้นหาและคลิกปุ่ม '{ID_CARD_BUTTON_TITLE}'...")
         main_window.child_window(title=ID_CARD_BUTTON_TITLE, control_type="Text").click_input()
 
-        # --- ค้นหาช่องเลขไปรษณีย์และกรอกข้อมูล ---
+       # --- ค้นหาช่องเลขไปรษณีย์และกรอกข้อมูล ---
         print(f"[*] 2.2.5. กำลังตรวจสอบ/กรอกเลขไปรษณีย์ ID='{POSTAL_CODE_EDIT_AUTO_ID}'")
         postal_control = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
-        
-         #  [จุดที่ 1] ตรวจสอบว่าช่องปรากฏหรือไม่ ก่อน Scroll
+    
+        #  [จุดที่ 1] ตรวจสอบว่าช่องปรากฏหรือไม่ ก่อน Scroll
         if not postal_control.exists(timeout=1):
             print("[!] ช่องไปรษณีย์ไม่ปรากฏทันที, กำลังเลื่อนหน้าจอลง...")
         
@@ -162,15 +169,15 @@ def mutual_pos_main():
             print(f" [-] -> ช่องมีค่าอยู่แล้ว: {phone_control.texts()[0].strip()}, ข้ามการกรอก")
         time.sleep(0.5)
 
-        # --- กด 'ถัดไป' เพื่อยืนยัน ---
-        print(f"[*] 2.3. กดปุ่ม '{NEXT_BUTTON_TITLE}' เพื่อไปหน้าถัดไป...")
-        main_window.child_window(title=NEXT_BUTTON_TITLE, auto_id=NEXT_BUTTON_AUTO_ID, control_type="Text").click_input()
+    # --- กด 'ถัดไป' เพื่อยืนยัน ---
+        print(f"[*] 2.3. กดปุ่ม '{NEXT_TITLE}' เพื่อไปหน้าถัดไป...")
+        main_window.child_window(title=NEXT_TITLE, auto_id=NEXT_AUTO_ID, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
-        
-        print("\n[V] SUCCESS: ดำเนินการขั้นตอน Bank POS (ผู้ฝากส่ง) สำเร็จ!")
+    
+        print("\n[V] SUCCESS: ดำเนินการขั้นตอน สำเร็จ!")
         return True
     except Exception as e:
-        print(f"\n[X] FAILED: เกิดข้อผิดพลาดใน bank_pos_navigate_main: {e}")
+        print(f"\n[X] FAILED: เกิดข้อผิดพลาดใน : {e}")
         return False
 
 # ----------------- ฟังก์ชันแม่แบบสำหรับรายการย่อย -----------------
@@ -205,7 +212,7 @@ def mutual_transaction(main_window, transaction_title):
         
 # ----------------- ฟังก์ชันแม่แบบ step 2 -----------------
 
-def mutual_transaction(main_window, transaction_title):
+def mutual_transaction2(main_window, transaction_title):
     """ฟังก์ชันที่ใช้ร่วมกันสำหรับรายการย่อยทั้งหมด"""
     
     # 1. กำหนดตัวแปรจาก Config
@@ -249,7 +256,7 @@ def mutual_navigate1():
 def mutual_navigate2():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' (รายการ 2)...")
     try:
-        if not mutual_navigate_main(): return
+        if not mutual_pos_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
@@ -262,7 +269,7 @@ def mutual_navigate2():
 def mutual_navigate3():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' (รายการ 3)...")
     try:
-        if not mutual_navigate_main(): return
+        if not mutual_pos_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
@@ -275,7 +282,7 @@ def mutual_navigate3():
 def mutual_navigate4():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' (รายการ 4)...")
     try:
-        if not mutual_navigate_main(): return
+        if not mutual_pos_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
