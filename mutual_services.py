@@ -8,26 +8,27 @@ import sys
 # ชื่อไฟล์ Config
 CONFIG_FILE = "config.ini"
 
-# ----------------- ส่วนจัดการ Config -----------------
+# ==================== CONFIG & HELPER FUNCTIONS ====================
 
 def read_config(filename=CONFIG_FILE):
     """อ่านและโหลดค่าจากไฟล์ config.ini"""
     config = configparser.ConfigParser()
     try:
         if not os.path.exists(filename):
-            print(f"[X] FAILED: ไม่พบไฟล์ {filename} ที่พาธ: {os.path.abspath(filename)}")
+            print(f"[X] ไม่พบไฟล์ config ที่: {os.path.abspath(filename)}")
             return configparser.ConfigParser()
+            
         config.read(filename, encoding='utf-8')
         return config
     except Exception as e:
         print(f"[X] FAILED: ไม่สามารถอ่านไฟล์ {filename} ได้: {e}")
         return configparser.ConfigParser()
 
-# โหลด config ล่วงหน้า
+# โหลด Config
 CONFIG = read_config()
 if not CONFIG.sections():
-    print("ไม่สามารถโหลด config.ini ได้ โปรดตรวจสอบไฟล์และพาธ")
-    sys.exit(1)
+    print("ไม่สามารถโหลด config.ini ได้ โปรดตรวจสอบไฟล์")
+    exit() # ใช้ exit() ตามโค้ดเดิม
 
 # ดึงค่า Global ที่ใช้ร่วมกัน
 WINDOW_TITLE = CONFIG['GLOBAL']['WINDOW_TITLE']
@@ -74,20 +75,18 @@ def force_scroll_down(window, config):
         print(f"[!] Scroll failed: {e}, ใช้ PageDown แทน")
         window.type_keys("{PGDN}")
 
-# ----------------- ฟังก์ชันหลัก: นำทางและกรอกข้อมูล -----------------
+# ==================== MAIN TEST FUNCTION ====================
 
-def mutual_pos_main():
-    """ฟังก์ชันหลัก: นำทางเข้าหน้า 'ผู้ฝากส่ง' และกรอกข้อมูลผู้ฝากส่ง"""
-    
+def mutual_main():
     # 1. กำหนดตัวแปรจาก Config
     BUTTON_A_TITLE = B_CFG['BUTTON_A_TITLE']
     BUTTON_M_TITLE = B_CFG['BUTTON_M_TITLE']
     TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE'] # ไม่ได้ใช้ใน main แต่ดึงมา
     NEXT_TITLE = B_CFG['NEXT_TITLE']
     NEXT_AUTO_ID = B_CFG['NEXT_AUTO_ID'] # ไม่ได้ใช้ใน main แต่ดึงมา
-    FINISH_TITLE = B_CFG['FINISH_TITLE']
+    FINISH_BUTTON_TITLE = B_CFG['FINISH_BUTTON_TITLE']
 
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' โดยการกดปุ่ม '{BUTTON_A_TITLE}'...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' โดยการกดปุ่ม '{BUTTON_A_TITLE}'...")
     try:
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
@@ -96,12 +95,12 @@ def mutual_pos_main():
         # 2. กด A
         main_window.child_window(title=BUTTON_A_TITLE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
-        print("[/] เข้าสู่หน้า 'บริการกองทุนรวม'...")
+        print("[/] เข้าสู่หน้า 'บริการประกันภัย'...")
 
-        # 3. กด M
+        # 3. กด G
         main_window.child_window(title=BUTTON_M_TITLE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
-        print("[/] กำลังดำเนินการในหน้า 'บริการกองทุนรวม'...")
+        print("[/] กำลังดำเนินการในหน้า 'บริการประกันภัย'...")
 
         # --- กด 'อ่านบัตรประชาชน' ---
         print(f"[*] 2.1. ค้นหาและคลิกปุ่ม '{ID_CARD_BUTTON_TITLE}'...")
@@ -179,57 +178,27 @@ def mutual_pos_main():
     except Exception as e:
         print(f"\n[X] FAILED: เกิดข้อผิดพลาดใน : {e}")
         return False
-
+    
 # ----------------- ฟังก์ชันแม่แบบสำหรับรายการย่อย -----------------
 
 def mutual_transaction(main_window, transaction_title):
     """ฟังก์ชันที่ใช้ร่วมกันสำหรับรายการย่อยทั้งหมด"""
     
     # 1. กำหนดตัวแปรจาก Config
-    SUB_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-    NEXT_BUTTON_TITLE = B_CFG['NEXT_BUTTON_TITLE']
-    NEXT_BUTTON_AUTO_ID = B_CFG['NEXT_BUTTON_AUTO_ID']
+    TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
+    NEXT_TITLE = B_CFG['NEXT_TITLE']
+    NEXT_AUTO_ID = B_CFG['NEXT_AUTO_ID']
     FINISH_BUTTON_TITLE = B_CFG['FINISH_BUTTON_TITLE']
     
     try:
         # 2. คลิกรายการย่อย
         print(f"[*] 2. ค้นหาและคลิกรายการ: {transaction_title}")
-        main_window.child_window(title=transaction_title, auto_id=SUB_CONTROL_TYPE, control_type="Text").click_input()
+        main_window.child_window(title=transaction_title, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
         
         # 3. คลิก 'ถัดไป'
-        print(f"[*] 3. กดปุ่ม '{NEXT_BUTTON_TITLE}'")
-        main_window.child_window(title=NEXT_BUTTON_TITLE, auto_id=NEXT_BUTTON_AUTO_ID, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-        
-        # 4. คลิก 'เสร็จสิ้น'
-        print(f"[*] 4. กดปุ่ม '{FINISH_BUTTON_TITLE}'")
-        main_window.child_window(title=FINISH_BUTTON_TITLE, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: เกิดข้อผิดพลาดในการทำรายการย่อย {transaction_title}: {e}")
-        
-# ----------------- ฟังก์ชันแม่แบบ step 2 -----------------
-
-def mutual_transaction2(main_window, transaction_title):
-    """ฟังก์ชันที่ใช้ร่วมกันสำหรับรายการย่อยทั้งหมด"""
-    
-    # 1. กำหนดตัวแปรจาก Config
-    SUB_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-    NEXT_BUTTON_TITLE = B_CFG['NEXT_BUTTON_TITLE']
-    NEXT_BUTTON_AUTO_ID = B_CFG['NEXT_BUTTON_AUTO_ID']
-    FINISH_BUTTON_TITLE = B_CFG['FINISH_BUTTON_TITLE']
-    
-    try:
-        # 2. คลิกรายการย่อย
-        print(f"[*] 2. ค้นหาและคลิกรายการ: {transaction_title}")
-        main_window.child_window(title=transaction_title, auto_id=SUB_CONTROL_TYPE, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-        
-        # 3. คลิก 'ถัดไป'
-        print(f"[*] 3. กดปุ่ม '{NEXT_BUTTON_TITLE}'")
-        main_window.child_window(title=NEXT_BUTTON_TITLE, auto_id=NEXT_BUTTON_AUTO_ID, control_type="Text").click_input()
+        print(f"[*] 3. กดปุ่ม '{NEXT_TITLE}'")
+        main_window.child_window(title=NEXT_TITLE, auto_id=NEXT_AUTO_ID, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
         
         # 4. คลิก 'เสร็จสิ้น'
@@ -242,8 +211,8 @@ def mutual_transaction2(main_window, transaction_title):
 
 # ----------------- ฟังก์ชันย่อยตามโครงสร้างเดิม (เรียกใช้ Config) -----------------
 
-def mutual_navigate1():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' (รายการ 1)...")
+def mutual_services1():
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 1)...")
     try:
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
@@ -253,10 +222,10 @@ def mutual_navigate1():
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
-def mutual_navigate2():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' (รายการ 2)...")
+def mutual_services2():
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 2)...")
     try:
-        if not mutual_pos_main(): return
+        if not mutual_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
@@ -266,10 +235,10 @@ def mutual_navigate2():
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
-def mutual_navigate3():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' (รายการ 3)...")
+def mutual_services3():
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 3)...")
     try:
-        if not mutual_pos_main(): return
+        if not mutual_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
@@ -279,50 +248,57 @@ def mutual_navigate3():
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
-def mutual_navigate4():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' (รายการ 4)...")
+def mutual_services4():
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 4)...") 
     try:
-        if not mutual_pos_main(): return
+        if not mutual_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
-        
-        # เพิ่มการตรวจสอบ/Scroll
+
+       # เพิ่มการตรวจสอบหลัง Scroll
         SERVICE_TITLE = S_CFG['MUTUAL_4_TITLE']
         TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
+        
         target_control = main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text")
         
         max_scrolls = 3
         found = False
         
         print(f"[*] 1.5. กำลังตรวจสอบรายการ '{SERVICE_TITLE}' ก่อน Scroll...")
+        
+        # 1. ตรวจสอบก่อนว่ารายการปรากฏขึ้นแล้วหรือไม่ (ในกรณีที่หน้าจอไม่เต็ม)
         if target_control.exists(timeout=1):
             print("[/] รายการย่อยพบแล้ว, ไม่จำเป็นต้อง Scroll.")
             found = True
         
+        # 2. ถ้าไม่พบ ให้วนลูป Scroll และตรวจสอบซ้ำ
         if not found:
             print(f"[*] 1.5.1. รายการย่อยไม่ปรากฏทันที, เริ่มการ Scroll ({max_scrolls} ครั้ง)...")
             for i in range(max_scrolls):
                 force_scroll_down(main_window, CONFIG) 
+                # ตรวจสอบหลัง Scroll
                 if target_control.exists(timeout=1):
                     print(f"[/] รายการย่อยพบแล้วในการ Scroll ครั้งที่ {i+1}.")
                     found = True
                     break
         
+        # 3. หากยังไม่พบ ให้ยกเลิกการทำงาน
         if not found:
             print(f"[X] FAILED: ไม่สามารถค้นหารายการย่อย '{SERVICE_TITLE}' ได้หลัง Scroll {max_scrolls} ครั้ง")
             return
-            
+        
+        # 4. หากพบแล้ว จึงเรียก Transaction ต่อไป
         mutual_transaction(main_window, SERVICE_TITLE)
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-        
+
 # ----------------- Main Execution -----------------
 
 if __name__ == "__main__":
-    mutual_navigate_main()
-    mutual_navigate1()
-    mutual_navigate2()
-    mutual_navigate3()
-    mutual_navigate4()
+    mutual_main()
+    mutual_services1()
+    mutual_services2()
+    mutual_services3()
+    mutual_services4()
