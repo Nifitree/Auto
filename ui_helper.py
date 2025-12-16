@@ -3,7 +3,6 @@
 import time
 from typing import Optional, Any, Dict
 from pywinauto.base_wrapper import BaseWrapper
-from evidence import save_evidence_context
 
 def find_element_safe(win: BaseWrapper, **kwargs) -> Optional[BaseWrapper]:
     """เช็กว่า element มีไหมก่อนใช้ ถ้าไม่มีก็คืน None"""
@@ -102,24 +101,3 @@ def select_combobox_item(win, combo_auto_id, item_title, sleep=0.5):
     item.click_input()
     time.sleep(sleep)
 
-def run_step(app, step_name: str, func, *args, **kwargs):
-    """รัน 1 Step พร้อม Evidence Context"""
-    print(f"[*] เริ่ม Step: {step_name}")
-
-    try:
-        result = func(*args, **kwargs)
-        print(f"[V] Step '{step_name}' สำเร็จ")
-        return result
-
-    except Exception as e:
-        print(f"[X] Step '{step_name}' ล้มเหลว: {e}")
-
-        # เก็บ context ต่อไปนี้
-        context = {
-            "step_name": step_name,
-            "input_params": kwargs,
-            "error_message": str(e),
-        }
-
-        save_evidence_context(app, context)
-        raise  # เพื่อให้ caller handle ต่อ
