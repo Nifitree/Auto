@@ -413,7 +413,7 @@ def mutual_services3():
 
         # 3.3 กรอกชื่อเจ้าของบัญชี (REFNO5)
         print(f" [-] กรอกชื่อเจ้าของบัญชี: {ACCOUNT_NAME_VALUE}")
-        main_window.child_window(auto_id=ACCOUNT_NAME_AUTO_ID, control_type="Edit").type_keys(ACCOUNT_NAME_VALUE)
+        main_window.child_window(auto_id=ACCOUNT_NUM_AUTO_ID, control_type="Edit").type_keys(ACCOUNT_NAME_VALUE)
         time.sleep(0.5)
 
         # 3.4 กรอกจำนวนเงินที่ชำระ (Amount)
