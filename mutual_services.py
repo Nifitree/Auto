@@ -65,6 +65,12 @@ ACCOUNT_NAME_AUTO_ID = I_CFG['ACCOUNT_NAME_AUTO_ID']
 AMOUNT_TO_PAY_VALUE = I_CFG['AMOUNT_TO_PAY_VALUE']
 AMOUNT_TO_PAY_AUTO_ID = I_CFG['AMOUNT_TO_PAY_AUTO_ID']
 
+LOAN_TYPE_COMBO_ID = I_CFG['LOAN_TYPE_COMBO_ID']
+LOAN_TYPE_SELECT = I_CFG['LOAN_A_SELECT']
+LOAN_B_SELECT = I_CFG['LOAN_B_SELECT']
+LOAN_C_SELECT = I_CFG['LOAN_C_SELECT']
+LOAN_D_SELECT = I_CFG['LOAN_D_SELECT']
+
 # ==================== SCROLL HELPERS mouse ====================
 
 ctx = AppContext(window_title_regex=WINDOW_TITLE)
@@ -111,7 +117,7 @@ def mutual_main():
     NEXT_AUTO_ID = B_CFG['NEXT_AUTO_ID'] # ไม่ได้ใช้ใน main แต่ดึงมา
     FINISH_BUTTON_TITLE = B_CFG['FINISH_BUTTON_TITLE']
 
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' โดยการกดปุ่ม '{BUTTON_A_TITLE}'...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' โดยการกดปุ่ม '{BUTTON_A_TITLE}'...")
     try:
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
@@ -120,12 +126,12 @@ def mutual_main():
         # 2. กด A
         main_window.child_window(title=BUTTON_A_TITLE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
-        print("[/] เข้าสู่หน้า 'บริการประกันภัย'...")
+        print("[/] เข้าสู่หน้า 'บริการกองทุนรวม'...")
 
         # 3. กด M
         main_window.child_window(title=BUTTON_M_TITLE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
-        print("[/] กำลังดำเนินการในหน้า 'บริการประกันภัย'...")
+        print("[/] กำลังดำเนินการในหน้า 'บริการกองทุนรวม'...")
 
         # --- กด 'อ่านบัตรประชาชน' ---
         print(f"[*] 2.1. ค้นหาและคลิกปุ่ม '{ID_CARD_BUTTON_TITLE}'...")
@@ -256,7 +262,7 @@ def mutual_transaction(main_window, transaction_title):
 # ----------------- ฟังก์ชันย่อยตามโครงสร้างเดิม (เรียกใช้ Config) -----------------
 
 def mutual_services1():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 1)...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' (รายการ 1)...")
     try:
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
@@ -276,7 +282,7 @@ def mutual_services2():
     3. ถัดไป (1) -> ถัดไป (2)
     4. กด 'รับเงิน' -> เรียก Payment Flow -> เสร็จสิ้น
     """
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 2 - กรอก 4 ฟิลด์)...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' (รายการ 2 - กรอก 4 ฟิลด์)...")
     try:
         # 1.1 นำทางเข้าสู่หน้า Mutual Services (A -> M)
         if not mutual_main(): 
@@ -362,10 +368,11 @@ def mutual_services3():
     3. ถัดไป (1) -> ถัดไป (2)
     4. กด 'รับเงิน' -> เรียก Payment Flow -> เสร็จสิ้น
     """
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 3 - Loan Type)...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' (รายการ 3 - Loan Type)...")
     try:
         # 1.1 นำทางเข้าสู่หน้า Mutual Services (A -> M) 
-        if not mutual_main(): return
+        if not mutual_main(): 
+            return
             
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
@@ -445,7 +452,7 @@ def mutual_services3():
         print(f"\n[X] FAILED: ไม่สามารถทำรายการย่อย {SERVICE_TITLE}: {e}")
 
 def mutual_services4():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 4)...") 
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' (รายการ 4)...") 
     try:
         if not mutual_main(): return
         
