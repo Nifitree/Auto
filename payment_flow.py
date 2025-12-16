@@ -37,14 +37,15 @@ class PaymentFlow:
             try:
                 click(
                 win,
-                title=self.RS["NEXT_TITLE"],
-                auto_id=self.RS["NEXT_AUTO_ID"],
+                title=self.PM["NEXT_TITLE"],
+                auto_id=self.PM["NEXT_AUTO_ID"],
             )
             except Exception:
                 print("[!] มีเงินทอนไม่เพียงพอ")
                 raise Exception("INSUFFICIENT_CASH_CHANGE")    
             time.sleep(self.SLEEP)
             self._abort_print(win)
+        _inner()
 
 # ---------- 2) เงินพอดี (จ่ายเร็ว) ----------
     def pay_exact(self):
@@ -58,6 +59,7 @@ class PaymentFlow:
             )
             time.sleep(self.SLEEP)
             self._abort_print(win)
+        _inner()
 
  # ---------- 3) QR พร้อมเพย์ ----------
     def pay_qr(self):
@@ -77,6 +79,7 @@ class PaymentFlow:
             )
             time.sleep(self.SLEEP)
             self._abort_print(win)
+        _inner()
 
  # ---------- 4) เช็ค ----------
     def pay_cheque(self):
@@ -110,6 +113,7 @@ class PaymentFlow:
             )
             time.sleep(self.SLEEP)
             self._abort_print(win)
+        _inner()
 
 # ---------- 5) บัตรเครดิต ----------
     def pay_credit(self):

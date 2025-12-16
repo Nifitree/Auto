@@ -418,9 +418,9 @@ def mutual_services4():
 # ----------------- Main Execution -----------------
 
 if __name__ == "__main__":
-    #mutual_main()
-    #mutual_services1()
-    #mutual_services2()
-    #mutual_services3()
-    #mutual_services4()
-    payment.pay_cash()
+    mutual_main()
+    mutual_services1()
+    mutual_services2()
+    mutual_services3()
+    mutual_services4()
+    #payment.pay_cash()
