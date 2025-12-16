@@ -6,6 +6,7 @@ import os
 import sys
 from payment_flow import PaymentFlow
 from app_context import AppContext
+from ui_helper import select_combobox_item
 
 # ชื่อไฟล์ Config
 CONFIG_FILE = "config.ini"
@@ -339,9 +340,6 @@ def mutual_services2():
         # =========================================================================
         # >>>>> ขั้นตอนที่ 7: การเรียก Flow การชำระเงิน (เลือกวิธี) <<<<<
         print("[*] 7. เข้าสู่หน้าจอการชำระเงินและดำเนินการ...")
-        
-        # ** ณ จุดนี้ หน้าจอเลือกวิธีการชำระเงินควรจะเด้งขึ้นมา **
-        # ตัวอย่าง: ชำระด้วยเงินสด (Cash) โดยเรียกใช้ handler ที่ส่งมา
         payment.pay_cash() 
         
         # =========================================================================
@@ -357,17 +355,94 @@ def mutual_services2():
         print(f"\n[X] FAILED: ไม่สามารถทำรายการย่อย {SERVICE_TITLE}: {e}")
 
 def mutual_services3():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 3)...")
+    """
+    [CUSTOM FLOW] สำหรับ MUTUAL_3_TITLE (50413):
+    1. คลิกรายการ
+    2. กรอก 3 ฟิลด์ (สมาชิก, ชื่อ, จำนวนเงิน) และ เลือก Dropdown (ประเภทเงินกู้)
+    3. ถัดไป (1) -> ถัดไป (2)
+    4. กด 'รับเงิน' -> เรียก Payment Flow -> เสร็จสิ้น
+    """
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 3 - Loan Type)...")
     try:
+        # 1.1 นำทางเข้าสู่หน้า Mutual Services (A -> M) 
         if not mutual_main(): return
-        
+            
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
         
-        mutual_transaction(main_window, S_CFG['MUTUAL_3_TITLE'])
+        # 1.2 กำหนดตัวแปรจาก Config
+        SERVICE_TITLE = S_CFG['MUTUAL_3_TITLE']
+        TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
+        NEXT_TITLE = B_CFG['NEXT_TITLE']
+        NEXT_AUTO_ID = B_CFG['NEXT_AUTO_ID']
+        FINISH_BUTTON_TITLE = B_CFG['FINISH_BUTTON_TITLE']
+        
+        # 2. คลิกรายการย่อย (Service 3)
+        print(f"[*] 2. ค้นหาและคลิกรายการ: {SERVICE_TITLE}")
+        main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+        
+        # =========================================================================
+        # >>>>> ขั้นตอนที่ 3: กรอกข้อมูลและเลือก Dropdown (4 ฟิลด์) <<<<<
+        print("[*] 3. กำลังกรอกข้อมูลสมาชิก, เลือกประเภทเงินกู้ และกรอกจำนวนเงิน...")
+
+        # 3.1 กรอกเลขสมาชิก (AcctNo)
+        print(f" [-] กรอกเลขสมาชิก: {MEMBER_ID_VALUE}")
+        main_window.child_window(auto_id=MEMBER_ID_AUTO_ID, control_type="Edit").type_keys(MEMBER_ID_VALUE)
+        time.sleep(0.5)
+
+        # 3.2 เลือกประเภทเงินกู้ (Dropdown - REFNO6_Lookup)
+        print(f" [-] เลือกประเภทเงินกู้: {LOAN_TYPE_SELECT} (ID: {LOAN_TYPE_COMBO_ID})")
+        
+        # 🎯 [จุดที่แก้ไข] ใช้ select_combobox_item โดยอ้างอิงตัวแปร Global
+        # โดย win = main_window, combo_auto_id = LOAN_TYPE_COMBO_ID, item_title = LOAN_TYPE_SELECT, sleep = WAIT_TIME
+        select_combobox_item(
+            main_window, 
+            combo_auto_id=LOAN_TYPE_COMBO_ID, 
+            item_title=LOAN_TYPE_SELECT, 
+            sleep=WAIT_TIME,
+        )
+        time.sleep(WAIT_TIME) # หน่วงเวลาหลังเลือก
+
+        # 3.3 กรอกชื่อเจ้าของบัญชี (REFNO5)
+        print(f" [-] กรอกชื่อเจ้าของบัญชี: {ACCOUNT_NAME_VALUE}")
+        main_window.child_window(auto_id=ACCOUNT_NAME_AUTO_ID, control_type="Edit").type_keys(ACCOUNT_NAME_VALUE)
+        time.sleep(0.5)
+
+        # 3.4 กรอกจำนวนเงินที่ชำระ (Amount)
+        print(f" [-] กรอกจำนวนเงิน: {AMOUNT_TO_PAY_VALUE}")
+        main_window.child_window(auto_id=AMOUNT_TO_PAY_AUTO_ID, control_type="Edit").type_keys(AMOUNT_TO_PAY_VALUE)
+        time.sleep(WAIT_TIME)
+        # =========================================================================
+
+        # 4. คลิก 'ถัดไป' ครั้งที่ 1 (ไปหน้ายืนยัน/สรุป)
+        print(f"[*] 4. กดปุ่ม '{NEXT_TITLE}' (ครั้งที่ 1)")
+        main_window.child_window(title=NEXT_TITLE, auto_id=NEXT_AUTO_ID, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+        
+        # 5. คลิก 'ถัดไป' ครั้งที่ 2 (นำไปสู่หน้าชำระเงิน)
+        print(f"[*] 5. กดปุ่ม '{NEXT_TITLE}' (ครั้งที่ 2)")
+        main_window.child_window(title=NEXT_TITLE, auto_id=NEXT_AUTO_ID, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+        
+        # 6. คลิก 'รับเงิน' (ปุ่มที่นำไปสู่ Payment Flow)
+        print(f"[*] 6. กดปุ่ม '{RECEIVE_PAYMENT_TITLE}'")
+        main_window.child_window(title=RECEIVE_PAYMENT_TITLE, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+
+        # 7. การเรียก Flow การชำระเงิน
+        print("[*] 7. เข้าสู่หน้าจอการชำระเงินและดำเนินการ...")
+        payment.pay_cash() # ใช้ handler 'payment' จาก Global Scope
+        
+        # 8. คลิก 'เสร็จสิ้น'
+        print(f"[*] 8. กดปุ่ม '{FINISH_BUTTON_TITLE}'")
+        main_window.child_window(title=FINISH_BUTTON_TITLE, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+        
+        print(f"\n[V] SUCCESS: ดำเนินการรายการย่อย {SERVICE_TITLE} สำเร็จ!")
         
     except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
+        print(f"\n[X] FAILED: ไม่สามารถทำรายการย่อย {SERVICE_TITLE}: {e}")
 
 def mutual_services4():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 4)...") 
