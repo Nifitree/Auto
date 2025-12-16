@@ -5,6 +5,7 @@ import time
 import os
 import sys
 from payment_flow import PaymentFlow
+from app_context import AppContext
 
 # ชื่อไฟล์ Config
 CONFIG_FILE = "config.ini"
@@ -64,6 +65,10 @@ AMOUNT_TO_PAY_VALUE = I_CFG['AMOUNT_TO_PAY_VALUE']
 AMOUNT_TO_PAY_AUTO_ID = I_CFG['AMOUNT_TO_PAY_AUTO_ID']
 
 # ==================== SCROLL HELPERS mouse ====================
+
+ctx = AppContext(window_title_regex=WINDOW_TITLE)
+payment = PaymentFlow(CONFIG, ctx)
+
 
 def force_scroll_down(window, config):
     """เลื่อนหน้าจอลงโดยใช้ Mouse wheel"""
@@ -337,7 +342,7 @@ def mutual_services2():
         
         # ** ณ จุดนี้ หน้าจอเลือกวิธีการชำระเงินควรจะเด้งขึ้นมา **
         # ตัวอย่าง: ชำระด้วยเงินสด (Cash) โดยเรียกใช้ handler ที่ส่งมา
-        PaymentFlow.pay_cash() 
+        payment.pay_cash() 
         
         # =========================================================================
         
@@ -413,8 +418,9 @@ def mutual_services4():
 # ----------------- Main Execution -----------------
 
 if __name__ == "__main__":
-    mutual_main()
-    mutual_services1()
-    mutual_services2()
-    mutual_services3()
-    mutual_services4()
+    #mutual_main()
+    #mutual_services1()
+    #mutual_services2()
+    #mutual_services3()
+    #mutual_services4()
+    payment.pay_cash()

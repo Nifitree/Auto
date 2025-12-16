@@ -11,9 +11,8 @@ class PaymentFlow:
         self.config = config
         self.ctx = ctx
         self.PM = config["PAYMENT"]
-        self.RS = config["RETAIL_SALES"]
         self.GL = config["GLOBAL"]
-        self.SLEEP = config.getint("GLOBAL", "LOAD_TIME_SEC")
+        self.SLEEP = config.getint("GLOBAL", "WAIT_TIME_SEC")
 
     def _abort_print(self, win):
         click(
@@ -215,4 +214,3 @@ class PaymentFlow:
             )
             time.sleep(self.SLEEP)
             self._abort_print(win)
-            
