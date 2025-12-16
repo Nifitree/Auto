@@ -47,9 +47,7 @@ class PaymentFlow:
             time.sleep(self.SLEEP)
             self._abort_print(win)
 
-        run_step(app, "payment_cash", _inner)
-
-    # ---------- 2) เงินพอดี (จ่ายเร็ว) ----------
+# ---------- 2) เงินพอดี (จ่ายเร็ว) ----------
     def pay_exact(self):
         app, win = self.ctx.connect()
 
@@ -62,9 +60,7 @@ class PaymentFlow:
             time.sleep(self.SLEEP)
             self._abort_print(win)
 
-        run_step(app, "payment_exact", _inner)
-
-    # ---------- 3) QR พร้อมเพย์ ----------
+ # ---------- 3) QR พร้อมเพย์ ----------
     def pay_qr(self):
         app, win = self.ctx.connect()
 
@@ -83,9 +79,7 @@ class PaymentFlow:
             time.sleep(self.SLEEP)
             self._abort_print(win)
 
-        run_step(app, "payment_qr", _inner)
-
-    # ---------- 4) เช็ค ----------
+ # ---------- 4) เช็ค ----------
     def pay_cheque(self):
         app, win = self.ctx.connect()
 
@@ -118,9 +112,7 @@ class PaymentFlow:
             time.sleep(self.SLEEP)
             self._abort_print(win)
 
-        run_step(app, "payment_cheque", _inner)
-
-    # ---------- 5) บัตรเครดิต ----------
+# ---------- 5) บัตรเครดิต ----------
     def pay_credit(self):
         app, win = self.ctx.connect()
 
@@ -140,9 +132,7 @@ class PaymentFlow:
             time.sleep(self.SLEEP)
             self._abort_print(win)
 
-        run_step(app, "payment_credit", _inner)
-
-    # ---------- 6) เดบิต ----------
+# ---------- 6) เดบิต ----------
     def pay_debit(self):
         app, win = self.ctx.connect()
 
@@ -161,9 +151,7 @@ class PaymentFlow:
             time.sleep(self.SLEEP)
             self._abort_print(win)
 
-        run_step(app, "payment_debit", _inner)
-
-    # ---------- 7) อาลีเพย์ ----------
+# ---------- 7) อาลีเพย์ ----------
     def pay_alipay(self):
         app, win = self.ctx.connect()
 
@@ -176,9 +164,7 @@ class PaymentFlow:
             time.sleep(self.SLEEP)
             self._abort_print(win)
 
-        run_step(app, "payment_alipay", _inner)
-
-    # ---------- 8) วีแชท ----------
+# ---------- 8) วีแชท ----------
     def pay_wechat(self):
         app, win = self.ctx.connect()
 
@@ -191,9 +177,7 @@ class PaymentFlow:
             time.sleep(self.SLEEP)
             self._abort_print(win)
 
-        run_step(app, "payment_wechat", _inner)
-
-    # ---------- 9) กระเป๋าตสตางค์@ไปรษณีย์ ----------
+# ---------- 9) กระเป๋าตสตางค์@ไปรษณีย์ ----------
     def pay_thp_wallet(self):
         app, win = self.ctx.connect()
 
@@ -206,9 +190,7 @@ class PaymentFlow:
             time.sleep(self.SLEEP)
             self._abort_print(win)
 
-        run_step(app, "payment_thp_wallet", _inner)
-
-    # ---------- 10) QR เครดิต ----------
+# ---------- 10) QR เครดิต ----------
     def pay_qr_credit(self):
         app, win = self.ctx.connect()
 
@@ -221,9 +203,7 @@ class PaymentFlow:
             time.sleep(self.SLEEP)
             self._abort_print(win)
 
-        run_step(app, "payment_qr_credit", _inner)
-
-    # ---------- 11) ทรูมันนี่ ----------
+# ---------- 11) ทรูมันนี่ ----------
     def pay_truewallet(self):
         app, win = self.ctx.connect()
 
@@ -235,5 +215,4 @@ class PaymentFlow:
             )
             time.sleep(self.SLEEP)
             self._abort_print(win)
-
-        run_step(app, "payment_truewallet", _inner)
+            
