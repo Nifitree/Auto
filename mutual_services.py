@@ -4,6 +4,7 @@ from pywinauto import mouse
 import time
 import os
 import sys
+from payment_flow import PaymentFlow
 
 # ชื่อไฟล์ Config
 CONFIG_FILE = "config.ini"
@@ -336,7 +337,7 @@ def mutual_services2(payment_flow_handler):
         
         # ** ณ จุดนี้ หน้าจอเลือกวิธีการชำระเงินควรจะเด้งขึ้นมา **
         # ตัวอย่าง: ชำระด้วยเงินสด (Cash) โดยเรียกใช้ handler ที่ส่งมา
-        payment_flow_handler.pay_cash() 
+        PaymentFlow.pay_cash() 
         
         # =========================================================================
         

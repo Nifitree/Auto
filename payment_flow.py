@@ -1,7 +1,7 @@
 import time
 from configparser import ConfigParser
-from core.app_context import AppContext
-from core.ui_helper import click, type_keys, run_step, select_combobox_item
+from app_context import AppContext
+from ui_helper import click, type_keys, run_step, select_combobox_item
 
 
 class PaymentFlow:
