@@ -262,7 +262,7 @@ def mutual_services1():
 
 # ----------------- ฟังก์ชันย่อยตามโครงสร้างเดิม (แก้ไข mutual_services2) -----------------
 
-def mutual_services2(payment_flow_handler):
+def mutual_services2():
     """
     [CUSTOM FLOW] สำหรับ MUTUAL_2_TITLE (50412):
     1. คลิกรายการ
