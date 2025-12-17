@@ -206,7 +206,8 @@ def banking_services_transaction(main_window, transaction_title):
         
     except Exception as e:
         print(f"\n[X] FAILED: เกิดข้อผิดพลาดในการทำรายการย่อย {transaction_title}: {e}")
-    
+        raise e    
+
 #------------ ฟังก์ชัน แม่แบบ 2 step -------------------
 
 def banking_services_transaction2(main_window, transaction_title):
@@ -241,11 +242,13 @@ def banking_services_transaction2(main_window, transaction_title):
         
     except Exception as e:
         print(f"\n[X] FAILED: เกิดข้อผิดพลาดในการทำรายการย่อย {transaction_title}: {e}")
+        raise e
 
 # ----------------- ฟังก์ชันย่อยตามโครงสร้างเดิม (เรียกใช้ Config) -----------------
 
 def banking_services1():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 1)...")
+    app = None
     try:
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
@@ -253,10 +256,17 @@ def banking_services1():
         banking_services_transaction2(main_window, S_CFG['BANKING_1_TITLE'])
         
     except Exception as e:
+        error_context = {
+            "test_name": "Banking Services Automation",
+            "step_name": "banking_services1",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def banking_services2():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 2)...")
+    app = None
     try:
         if not banking_services_main(): return
         
@@ -266,10 +276,17 @@ def banking_services2():
         banking_services_transaction(main_window, S_CFG['BANKING_2_TITLE'])
         
     except Exception as e:
+        error_context = {
+            "test_name": "Banking Services Automation",
+            "step_name": "banking_services2",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def banking_services3():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 3)...")
+    app = None
     try:
         if not banking_services_main(): return
         
@@ -279,10 +296,17 @@ def banking_services3():
         banking_services_transaction(main_window, S_CFG['BANKING_3_TITLE'])
         
     except Exception as e:
+        error_context = {
+            "test_name": "Banking Services Automation",
+            "step_name": "banking_services3",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def banking_services4():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 4)...")
+    app = None
     try:
         if not banking_services_main(): return
         
@@ -318,10 +342,17 @@ def banking_services4():
         banking_services_transaction(main_window, SERVICE_TITLE)
         
     except Exception as e:
+        error_context = {
+            "test_name": "Banking Services Automation",
+            "step_name": "banking_services4",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def banking_services5():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 5)...")
+    app = None
     try:
         if not banking_services_main(): return
         
@@ -357,10 +388,17 @@ def banking_services5():
         banking_services_transaction(main_window, SERVICE_TITLE)
         
     except Exception as e:
+        error_context = {
+            "test_name": "Banking Services Automation",
+            "step_name": "banking_services5",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def banking_services6():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 6)...")
+    app = None
     try:
         if not banking_services_main(): return
         
@@ -396,10 +434,17 @@ def banking_services6():
         banking_services_transaction(main_window, SERVICE_TITLE)
         
     except Exception as e:
+        error_context = {
+            "test_name": "Banking Services Automation",
+            "step_name": "banking_services6",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def banking_services7():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 7)...")
+    app = None
     try:
         if not banking_services_main(): return
         
@@ -435,10 +480,17 @@ def banking_services7():
         banking_services_transaction(main_window, SERVICE_TITLE)
         
     except Exception as e:
+        error_context = {
+            "test_name": "Banking Services Automation",
+            "step_name": "banking_services7",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}") 
 
 def banking_services8():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 8)...")
+    app = None
     try:
         if not banking_services_main(): return
         
@@ -474,10 +526,17 @@ def banking_services8():
         banking_services_transaction(main_window, SERVICE_TITLE)
         
     except Exception as e:
+        error_context = {
+            "test_name": "Banking Services Automation",
+            "step_name": "banking_services8",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def banking_services9():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 9)...")
+    app = None
     try:
         if not banking_services_main(): return
         
@@ -513,10 +572,17 @@ def banking_services9():
         banking_services_transaction(main_window, SERVICE_TITLE)
         
     except Exception as e:
+        error_context = {
+            "test_name": "Banking Services Automation",
+            "step_name": "banking_services9",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}") 
 
 def banking_services10():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 10)...")
+    app = None
     try:
         if not banking_services_main(): return
         
@@ -552,10 +618,17 @@ def banking_services10():
         banking_services_transaction(main_window, SERVICE_TITLE)
         
     except Exception as e:
+        error_context = {
+            "test_name": "Banking Services Automation",
+            "step_name": "banking_services10",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def banking_services11():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 11)...")
+    app = None
     try:
         if not banking_services_main(): return
         
@@ -591,10 +664,17 @@ def banking_services11():
         banking_services_transaction(main_window, SERVICE_TITLE)
         
     except Exception as e:
+        error_context = {
+            "test_name": "Banking Services Automation",
+            "step_name": "banking_services11",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}") 
 
 def banking_services12():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 12)...")
+    app = None
     try:
         if not banking_services_main(): return
         
@@ -630,10 +710,17 @@ def banking_services12():
         banking_services_transaction(main_window, SERVICE_TITLE)
         
     except Exception as e:
+        error_context = {
+            "test_name": "Banking Services Automation",
+            "step_name": "banking_services12",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def banking_services13():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 13)...")
+    app = None
     try:
         if not banking_services_main(): return
         
@@ -669,10 +756,17 @@ def banking_services13():
         banking_services_transaction(main_window, SERVICE_TITLE)
         
     except Exception as e:
+        error_context = {
+            "test_name": "Banking Services Automation",
+            "step_name": "banking_services13",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def banking_services14():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 14)...")
+    app = None
     try:
         if not banking_services_main(): return
         
@@ -708,10 +802,17 @@ def banking_services14():
         banking_services_transaction(main_window, SERVICE_TITLE)
         
     except Exception as e:
+        error_context = {
+            "test_name": "Banking Services Automation",
+            "step_name": "banking_services14",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def banking_services15():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 15)...")
+    app = None
     try:
         if not banking_services_main(): return
         
@@ -745,10 +846,14 @@ def banking_services15():
             return
             
         banking_services_transaction(main_window, SERVICE_TITLE)
-        
+    
     except Exception as e:
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-    except Exception as e:
+        error_context = {
+            "test_name": "Banking Services Automation",
+            "step_name": "banking_services15",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")                            
 
 # ----------------- Main Execution -----------------
