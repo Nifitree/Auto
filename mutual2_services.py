@@ -9,18 +9,26 @@ from app_context import AppContext
 from ui_helper import select_combobox_item
 from evidence import save_evidence_context
 
-# ==================== CONFIG & SETUP ====================
+# ==================== 1. CONFIG & GLOBAL SETUP ====================
+CONFIG_FILE = "config.ini"
 
-def read_config(filename="config.ini"):
+def read_config(filename=CONFIG_FILE):
     config = configparser.ConfigParser()
-    config.read(filename, encoding='utf-8')
-    return config
+    try:
+        if not os.path.exists(filename):
+            print(f"[X] ไม่พบไฟล์ config ที่: {os.path.abspath(filename)}")
+            return configparser.ConfigParser()
+        config.read(filename, encoding='utf-8')
+        return config
+    except Exception as e:
+        print(f"[X] FAILED: ไม่สามารถอ่านไฟล์ {filename} ได้: {e}")
+        return configparser.ConfigParser()
 
 CONFIG = read_config()
 if not CONFIG.sections():
-    print("ไม่สามารถโหลด config.ini ได้"); exit()
+    print("ไม่สามารถโหลด config.ini ได้ โปรดตรวจสอบไฟล์"); exit()
 
-# ดึงค่า Global
+# ดึงค่า Config (Global Scope)
 WINDOW_TITLE = CONFIG['GLOBAL']['WINDOW_TITLE']
 WAIT_TIME = CONFIG.getint('GLOBAL', 'WAIT_TIME_SEC')
 PHONE_NUMBER = CONFIG['GLOBAL']['PHONE_NUMBER']
@@ -31,7 +39,6 @@ POSTAL_CODE_EDIT_AUTO_ID = CONFIG['GLOBAL']['POSTAL_CODE_EDIT_AUTO_ID']
 
 B_CFG, S_CFG, I_CFG = CONFIG['MUTUAL_MAIN'], CONFIG['MUTUAL_SERVICES'], CONFIG['INFORMATION']
 
-# ข้อมูลสมาชิก/บัญชี
 RECEIVE_PAYMENT_TITLE = I_CFG['RECEIVE_PAYMENT_TITLE']
 MEMBER_ID_VALUE, MEMBER_ID_AUTO_ID = I_CFG['MEMBER_ID_VALUE'], I_CFG['MEMBER_ID_AUTO_ID'] 
 ACCOUNT_NUM_VALUE, ACCOUNT_NUM_AUTO_ID = I_CFG['ACCOUNT_NUM_VALUE'], I_CFG['ACCOUNT_NUM_AUTO_ID'] 
@@ -42,140 +49,156 @@ LOAN_TYPE_COMBO_ID, LOAN_TYPE_SELECT = I_CFG['LOAN_TYPE_COMBO_ID'], I_CFG['LOAN_
 ctx = AppContext(window_title_regex=WINDOW_TITLE)
 payment = PaymentFlow(CONFIG, ctx)
 
-# ==================== HELPER FUNCTIONS ====================
+# ==================== 2. HELPERS (Scroll & Transaction) ====================
 
 def force_scroll_down(window, config):
-    rect = window.rectangle()
-    center_x = rect.left + config.getint('MOUSE_SCROLL', 'CENTER_X_OFFSET')
-    center_y = rect.top + config.getint('MOUSE_SCROLL', 'CENTER_Y_OFFSET')
-    mouse.click(coords=(center_x, center_y))
-    time.sleep(0.5)
-    mouse.scroll(coords=(center_x, center_y), wheel_dist=config.getint('MOUSE_SCROLL', 'WHEEL_DIST'))
-    time.sleep(1.0)
+    """เลื่อนหน้าจอลงโดยใช้ Mouse wheel"""
+    try:
+        rect = window.rectangle()
+        center_x = rect.left + config.getint('MOUSE_SCROLL', 'CENTER_X_OFFSET')
+        center_y = rect.top + config.getint('MOUSE_SCROLL', 'CENTER_Y_OFFSET')
+        mouse.click(coords=(center_x, center_y))
+        time.sleep(0.5)
+        mouse.scroll(coords=(center_x, center_y), wheel_dist=config.getint('MOUSE_SCROLL', 'WHEEL_DIST'))
+        time.sleep(1.0)
+    except:
+        window.type_keys("{PGDN}")
 
 def mutual_transaction(main_window, transaction_title, BARCODE_EDIT_AUTO_ID):
-    """ฟังก์ชันแม่แบบ: ไม่ดัก Exception เอง แต่จะปล่อยให้ Error พุ่งไปหา Main"""
+    """ฟังก์ชันแม่แบบ: ถ้าเกิด Error จะ raise ออกไปหาฟังก์ชันที่เรียก"""
     TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-    NEXT_TITLE, NEXT_AUTO_ID = B_CFG['NEXT_TITLE'], B_CFG['NEXT_AUTO_ID']
     BARCODE_FLOW_TITLES = [S_CFG['MUTUAL_1_TITLE'], S_CFG['MUTUAL_4_TITLE']]
-
+    
     main_window.child_window(title=transaction_title, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text").click_input()
     time.sleep(WAIT_TIME)
 
     if transaction_title in BARCODE_FLOW_TITLES:
+        print(f"--- [Special Step] กำลังกรอกบาร์โค้ดสำหรับ {transaction_title} ---")
         barcode_control = main_window.child_window(auto_id=BARCODE_EDIT_AUTO_ID, control_type="Edit")
         barcode_control.wait('visible', timeout=WAIT_TIME).click_input()
         main_window.type_keys(S_CFG['BARCODE_VALUE'])
         time.sleep(0.5)
-        main_window.child_window(title=NEXT_TITLE, auto_id=NEXT_AUTO_ID).click_input()
+        main_window.child_window(title=B_CFG['NEXT_TITLE'], auto_id=B_CFG['NEXT_AUTO_ID'], control_type="Text").click_input()
         time.sleep(WAIT_TIME)
 
-    main_window.child_window(title=S_CFG['OK_BUTTON_TITLE']).click_input()
+    main_window.child_window(title=S_CFG['OK_BUTTON_TITLE'], control_type="Text").click_input()
     time.sleep(WAIT_TIME)
-    main_window.child_window(title=B_CFG['FINISH_BUTTON_TITLE']).click_input()
+    main_window.child_window(title=B_CFG['FINISH_BUTTON_TITLE'], control_type="Text").click_input()
     time.sleep(WAIT_TIME)
 
-# ==================== NAV FLOW ====================
+# ==================== 3. MAIN NAV FLOW ====================
 
 def mutual_main():
-    print(f"\n[*] เริ่มต้นหน้าหลัก (A -> M -> อ่านบัตร)...")
+    """Flow นำทางหลัก A -> M -> อ่านบัตร -> กรอกข้อมูลเบื้องต้น"""
     app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
     main_window = app.top_window()
     
-    main_window.child_window(title=B_CFG['BUTTON_A_TITLE']).click_input()
+    main_window.child_window(title=B_CFG['BUTTON_A_TITLE'], control_type="Text").click_input()
     time.sleep(WAIT_TIME)
-    main_window.child_window(title=B_CFG['BUTTON_M_TITLE']).click_input()
+    main_window.child_window(title=B_CFG['BUTTON_M_TITLE'], control_type="Text").click_input()
     time.sleep(WAIT_TIME)
-    main_window.child_window(title=ID_CARD_BUTTON_TITLE).click_input()
+    
+    main_window.child_window(title=ID_CARD_BUTTON_TITLE, control_type="Text").click_input()
+    time.sleep(WAIT_TIME)
 
     postal_control = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
     for _ in range(3):
-        if postal_control.exists(): break
+        if postal_control.exists(timeout=1): break
         force_scroll_down(main_window, CONFIG)
-
+    
     if not postal_control.texts()[0].strip():
-        postal_control.click_input(); main_window.type_keys(POSTAL_CODE)
+        postal_control.click_input()
+        main_window.type_keys(POSTAL_CODE)
     
     main_window.child_window(title=B_CFG['NEXT_TITLE'], auto_id=B_CFG['NEXT_AUTO_ID']).click_input()
     time.sleep(WAIT_TIME)
     return True
 
-# ==================== SERVICE FUNCTIONS (No internal Try-Except) ====================
+# ==================== 4. SERVICES (1, 2, 3, 4) ====================
 
 def mutual_services1():
-    print(f"[*] ดำเนินรายการ 1: {S_CFG['MUTUAL_1_TITLE']}")
+    print(f"\n[*] เริ่มรายการ 1: {S_CFG['MUTUAL_1_TITLE']}")
     app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
     mutual_transaction(app.top_window(), S_CFG['MUTUAL_1_TITLE'], S_CFG['BARCODE_EDIT_AUTO_ID'])
 
 def mutual_services2():
-    print(f"[*] ดำเนินรายการ 2: {S_CFG['MUTUAL_2_TITLE']}")
+    print(f"\n[*] เริ่มรายการ 2: {S_CFG['MUTUAL_2_TITLE']}")
     if not mutual_main(): return
     app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
     win = app.top_window()
-    win.child_window(title=S_CFG['MUTUAL_2_TITLE']).click_input()
+    win.child_window(title=S_CFG['MUTUAL_2_TITLE'], control_type="Text").click_input()
     time.sleep(WAIT_TIME)
-    win.child_window(auto_id=MEMBER_ID_AUTO_ID).type_keys(MEMBER_ID_VALUE)
-    win.child_window(auto_id=ACCOUNT_NUM_AUTO_ID).type_keys(ACCOUNT_NUM_VALUE)
-    win.child_window(auto_id=ACCOUNT_NAME_AUTO_ID).type_keys(ACCOUNT_NAME_VALUE)
-    win.child_window(auto_id=AMOUNT_TO_PAY_AUTO_ID).type_keys(AMOUNT_TO_PAY_VALUE)
-    win.child_window(title=B_CFG['NEXT_TITLE']).click_input()
-    time.sleep(WAIT_TIME); win.child_window(title=B_CFG['NEXT_TITLE']).click_input()
-    time.sleep(WAIT_TIME); win.child_window(title=RECEIVE_PAYMENT_TITLE).click_input()
+    win.child_window(auto_id=MEMBER_ID_AUTO_ID, control_type="Edit").type_keys(MEMBER_ID_VALUE)
+    win.child_window(auto_id=ACCOUNT_NUM_AUTO_ID, control_type="Edit").type_keys(ACCOUNT_NUM_VALUE)
+    win.child_window(auto_id=ACCOUNT_NAME_AUTO_ID, control_type="Edit").type_keys(ACCOUNT_NAME_VALUE)
+    win.child_window(auto_id=AMOUNT_TO_PAY_AUTO_ID, control_type="Edit").type_keys(AMOUNT_TO_PAY_VALUE)
+    win.child_window(title=B_CFG['NEXT_TITLE'], control_type="Text").click_input()
+    time.sleep(WAIT_TIME)
+    win.child_window(title=B_CFG['NEXT_TITLE'], control_type="Text").click_input()
+    time.sleep(WAIT_TIME)
+    win.child_window(title=RECEIVE_PAYMENT_TITLE, control_type="Text").click_input()
     payment.pay_cash()
-    win.child_window(title=B_CFG['FINISH_BUTTON_TITLE']).click_input()
+    win.child_window(title=B_CFG['FINISH_BUTTON_TITLE'], control_type="Text").click_input()
 
 def mutual_services3():
-    print(f"[*] ดำเนินรายการ 3: {S_CFG['MUTUAL_3_TITLE']}")
+    print(f"\n[*] เริ่มรายการ 3: {S_CFG['MUTUAL_3_TITLE']}")
     if not mutual_main(): return
     app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
     win = app.top_window()
-    win.child_window(title=S_CFG['MUTUAL_3_TITLE']).click_input()
+    win.child_window(title=S_CFG['MUTUAL_3_TITLE'], control_type="Text").click_input()
     time.sleep(WAIT_TIME)
-    win.child_window(auto_id=MEMBER_ID_AUTO_ID).type_keys(MEMBER_ID_VALUE)
+    win.child_window(auto_id=MEMBER_ID_AUTO_ID, control_type="Edit").type_keys(MEMBER_ID_VALUE)
     select_combobox_item(win, combo_auto_id=LOAN_TYPE_COMBO_ID, item_title=LOAN_TYPE_SELECT, sleep=WAIT_TIME)
-    win.child_window(auto_id=ACCOUNT_NAME_AUTO_ID).type_keys(ACCOUNT_NAME_VALUE)
-    win.child_window(auto_id=AMOUNT_TO_PAY_AUTO_ID).type_keys(AMOUNT_TO_PAY_VALUE)
-    win.child_window(title=B_CFG['NEXT_TITLE']).click_input()
-    time.sleep(WAIT_TIME); win.child_window(title=B_CFG['NEXT_TITLE']).click_input()
-    time.sleep(WAIT_TIME); win.child_window(title=RECEIVE_PAYMENT_TITLE).click_input()
+    win.child_window(auto_id=ACCOUNT_NAME_AUTO_ID, control_type="Edit").type_keys(ACCOUNT_NAME_VALUE)
+    win.child_window(auto_id=AMOUNT_TO_PAY_AUTO_ID, control_type="Edit").type_keys(AMOUNT_TO_PAY_VALUE)
+    win.child_window(title=B_CFG['NEXT_TITLE'], control_type="Text").click_input()
+    time.sleep(WAIT_TIME)
+    win.child_window(title=B_CFG['NEXT_TITLE'], control_type="Text").click_input()
+    time.sleep(WAIT_TIME)
+    win.child_window(title=RECEIVE_PAYMENT_TITLE, control_type="Text").click_input()
     payment.pay_cash()
-    win.child_window(title=B_CFG['FINISH_BUTTON_TITLE']).click_input()
+    win.child_window(title=B_CFG['FINISH_BUTTON_TITLE'], control_type="Text").click_input()
 
 def mutual_services4():
-    print(f"[*] ดำเนินรายการ 4: {S_CFG['MUTUAL_4_TITLE']}")
+    print(f"\n[*] เริ่มรายการ 4: {S_CFG['MUTUAL_4_TITLE']}")
     if not mutual_main(): return
     app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
     win = app.top_window()
-    target = win.child_window(title=S_CFG['MUTUAL_4_TITLE'])
+    target = win.child_window(title=S_CFG['MUTUAL_4_TITLE'], control_type="Text")
     for _ in range(3):
-        if target.exists(): break
+        if target.exists(timeout=1): break
         force_scroll_down(win, CONFIG)
     mutual_transaction(win, S_CFG['MUTUAL_4_TITLE'], S_CFG['BARCODE2_EDIT_AUTO_ID'])
 
-# ==================== MAIN EXECUTION (GLOBAL ERROR HANDLER) ====================
+# ==================== 5. GLOBAL ERROR HANDLER (MAIN EXECUTION) ====================
 
 if __name__ == "__main__":
     current_app = None
     try:
-        # เชื่อมต่อแอป
-        current_app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        
-        # ลำดับการรัน
+        # พยายามเชื่อมต่อแอปเพื่อใช้เป็นหลักฐานถ้า Error
+        try:
+            current_app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=5)
+        except:
+            current_app = None
+
+        # รันทุกรายการต่อเนื่อง
         mutual_services1()
         mutual_services2()
         mutual_services3()
         mutual_services4()
         
-        print("\n[V] SUCCESS: ทำงานครบทุกรายการ!")
+        print("\n[V] SUCCESS: ทุกรายการทำงานเสร็จสิ้นสมบูรณ์!")
 
     except Exception as e:
-        # 📸 ดักจับทุกความผิดพลาด ณ จุดเดียว
+        # 📸 ดักจับ Error จากทุกฟังก์ชันข้างบน ณ จุดเดียว
         print(f"\n[X] GLOBAL ERROR DETECTED: {e}")
+        
         error_context = {
-            "test_name": "Mutual Services Overall Test",
-            "step_name": "Global_Handler_Catch",
+            "test_name": "Mutual Services Full Test",
+            "step_name": "Execution_Stage",
             "error_message": str(e)
         }
-        # บันทึกรูปและ JSON
+        
+        # บันทึกหลักฐาน (Screenshot + JSON)
         save_evidence_context(current_app, error_context)
-        print("[!] บันทึกหลักฐานเรียบร้อยในโฟลเดอร์ /evidence")
+        print("[!] บันทึกภาพหน้าจอและข้อมูล Error เรียบร้อยแล้วใน /evidence")
