@@ -49,9 +49,7 @@ S_CFG = CONFIG['MUTUAL_SERVICES']
 T_CFG = CONFIG['PAYMENT']
 I_CFG = CONFIG['INFORMATION']
 
-# =======================================================================
-# >>>>> ตำแหน่งที่ถูกต้องในการดึงค่า [INFORMATION] เข้าสู่ Global Scope <<<<<
-# --- [ใหม่] ดึงค่าทั้งหมดจาก Section [INFORMATION] ---
+# --- ดึงค่าทั้งหมดจาก Section [INFORMATION] ---
 RECEIVE_PAYMENT_TITLE = I_CFG['RECEIVE_PAYMENT_TITLE']
 
 MEMBER_ID_VALUE = I_CFG['MEMBER_ID_VALUE']
@@ -76,7 +74,6 @@ LOAN_D_SELECT = I_CFG['LOAN_D_SELECT']
 
 ctx = AppContext(window_title_regex=WINDOW_TITLE)
 payment = PaymentFlow(CONFIG, ctx)
-
 
 def force_scroll_down(window, config):
     """เลื่อนหน้าจอลงโดยใช้ Mouse wheel"""
@@ -384,6 +381,12 @@ def mutual_services2():
         print(f"\n[V] SUCCESS: ดำเนินการรายการย่อย {SERVICE_TITLE} สำเร็จ!")
         
     except Exception as e:
+        error_context = {
+            "test_name": "Mutual Services Automation",
+            "step_name": "mutual_services2",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถทำรายการย่อย {SERVICE_TITLE}: {e}")
 
 def mutual_services3():
@@ -485,6 +488,12 @@ def mutual_services3():
         print(f"\n[V] SUCCESS: ดำเนินการรายการย่อย {SERVICE_TITLE} สำเร็จ!")
         
     except Exception as e:
+        error_context = {
+            "test_name": "Mutual Services Automation",
+            "step_name": "mutual_services3",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถทำรายการย่อย {SERVICE_TITLE}: {e}")
 
 def mutual_services4():
@@ -532,6 +541,11 @@ def mutual_services4():
         mutual_transaction(main_window, SERVICE_TITLE, BARCODE2_EDIT_AUTO_ID)
         
     except Exception as e:
+        error_context = {
+            "test_name": "Mutual Services Automation",
+            "step_name": "mutual_services4",
+            "error_message": str(e)
+        }
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 # ----------------- Main Execution -----------------
