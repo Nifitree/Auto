@@ -228,6 +228,7 @@ def mutual_transaction(main_window, transaction_title, BARCODE_EDIT_AUTO_ID):
     MUTUAL_4_ID = S_CFG['MUTUAL_4_TITLE']
     BARCODE_FLOW_TITLES = [MUTUAL_1_ID, MUTUAL_4_ID]
     BARCODE_VALUE = S_CFG['BARCODE_VALUE']
+    BARCODE_EDIT_AUTO_ID = S_CFG['BARCODE_EDIT_AUTO_ID']
     
     try:
         # 2. คลิกรายการย่อย
