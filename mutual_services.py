@@ -278,8 +278,7 @@ def mutual_services1():
         error_context = {
             "test_name": "Mutual Services Automation",
             "step_name": "mutual_services1",
-            "error_message": str(e),
-            "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            "error_message": str(e)
         }
         
         # เรียกใช้ฟังก์ชันจาก evidence.py
