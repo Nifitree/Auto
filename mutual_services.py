@@ -350,6 +350,16 @@ def mutual_services2():
         # >>>>> ขั้นตอนที่ 7: การเรียก Flow การชำระเงิน (เลือกวิธี) <<<<<
         print("[*] 7. เข้าสู่หน้าจอการชำระเงินและดำเนินการ...")
         payment.pay_cash() 
+        # payment.pay_qr()
+        # payment.pay_exact()
+        # payment.pay_check()
+        # payment.pay_credit()
+        # payment.pay_debit()
+        # payment.pay_alipay()
+        # payment.pay_wechat()
+        # payment.pay_thp()
+        # payment.pay_qr_credit()
+        # payment.pay_truemoney()
         
         # =========================================================================
         
@@ -443,7 +453,17 @@ def mutual_services3():
         # 7. การเรียก Flow การชำระเงิน
         print("[*] 7. เข้าสู่หน้าจอการชำระเงินและดำเนินการ...")
         payment.pay_cash() # ใช้ handler 'payment' จาก Global Scope
-        
+        # payment.pay_qr()
+        # payment.pay_exact()
+        # payment.pay_check()
+        # payment.pay_credit()
+        # payment.pay_debit()
+        # payment.pay_alipay()
+        # payment.pay_wechat()
+        # payment.pay_thp()
+        # payment.pay_qr_credit()
+        # payment.pay_truemoney()
+
         # 8. คลิก 'เสร็จสิ้น'
         print(f"[*] 8. กดปุ่ม '{FINISH_BUTTON_TITLE}'")
         main_window.child_window(title=FINISH_BUTTON_TITLE, control_type="Text").click_input()
@@ -509,4 +529,3 @@ if __name__ == "__main__":
     mutual_services2()
     mutual_services3()
     mutual_services4()
-    #payment.pay_cash()
