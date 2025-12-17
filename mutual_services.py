@@ -7,6 +7,7 @@ import sys
 from payment_flow import PaymentFlow
 from app_context import AppContext
 from ui_helper import select_combobox_item
+from evidence import save_evidence_context
 
 # ชื่อไฟล์ Config
 CONFIG_FILE = "config.ini"
@@ -265,6 +266,7 @@ def mutual_transaction(main_window, transaction_title, BARCODE_EDIT_AUTO_ID):
 
 def mutual_services1():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' (รายการ 1)...")
+    app = None
     BARCODE_EDIT_AUTO_ID = S_CFG['BARCODE_EDIT_AUTO_ID']
     try:
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
@@ -273,7 +275,17 @@ def mutual_services1():
         mutual_transaction(main_window, S_CFG['MUTUAL_1_TITLE'], BARCODE_EDIT_AUTO_ID)
         
     except Exception as e:
+        error_context = {
+            "test_name": "Mutual Services Automation",
+            "step_name": "mutual_services1",
+            "error_message": str(e),
+            "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        
+        # เรียกใช้ฟังก์ชันจาก evidence.py
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
+        print("[!] ตรวจสอบภาพและข้อมูล Error ได้ที่โฟลเดอร์ /evidence")
 
 # ----------------- ฟังก์ชันย่อยตามโครงสร้างเดิม (แก้ไข mutual_services2) -----------------
 
