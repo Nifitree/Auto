@@ -240,7 +240,7 @@ def mutual_transaction(main_window, transaction_title, BARCODE_EDIT_AUTO_ID):
             print("--- [Special Step] รายการนี้ต้องการการกรอกบาร์โค้ด ---")
 
             # 2.5.1 กรอกบาร์โค้ด
-            print(f"[*] 2.5.1. กำลังกรอกเลขบาร์โค้ด: {BARCODE_VALUE} (ID: {BARCODE_EDIT_ID})")
+            print(f"[*] 2.5.1. กำลังกรอกเลขบาร์โค้ด: {BARCODE_VALUE} (ID: {BARCODE_EDIT_AUTO_ID})")
             barcode_control = main_window.child_window(auto_id=BARCODE_EDIT_AUTO_ID, control_type="Edit")
             barcode_control.wait('visible', timeout=WAIT_TIME).click_input()
             main_window.type_keys(BARCODE_VALUE)
