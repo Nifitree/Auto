@@ -212,7 +212,7 @@ def mutual_main():
     
 # ----------------- ฟังก์ชันแม่แบบสำหรับรายการย่อย -----------------
 
-def mutual_transaction(main_window, transaction_title):
+def mutual_transaction(main_window, transaction_title, BARCODE_EDIT_AUTO_ID):
     """ฟังก์ชันที่ใช้ร่วมกันสำหรับรายการย่อยทั้งหมด"""
     
     # 1. กำหนดตัวแปรจาก Config
@@ -238,7 +238,7 @@ def mutual_transaction(main_window, transaction_title):
 
             # 2.5.1 กรอกบาร์โค้ด
             print(f"[*] 2.5.1. กำลังกรอกเลขบาร์โค้ด: {BARCODE_VALUE} (ID: {BARCODE_EDIT_ID})")
-            barcode_control = main_window.child_window(auto_id=BARCODE_EDIT_ID, control_type="Edit")
+            barcode_control = main_window.child_window(auto_id=BARCODE_EDIT_AUTO_ID, control_type="Edit")
             barcode_control.wait('visible', timeout=WAIT_TIME).click_input()
             main_window.type_keys(BARCODE_VALUE)
             time.sleep(0.5)
@@ -265,11 +265,12 @@ def mutual_transaction(main_window, transaction_title):
 
 def mutual_services1():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' (รายการ 1)...")
+    BARCODE_EDIT_AUTO_ID = S_CFG['BARCODE_EDIT_AUTO_ID']
     try:
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
         
-        mutual_transaction(main_window, S_CFG['MUTUAL_1_TITLE'])
+        mutual_transaction(main_window, S_CFG['MUTUAL_1_TITLE'], BARCODE_EDIT_AUTO_ID)
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
@@ -455,6 +456,7 @@ def mutual_services3():
 
 def mutual_services4():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' (รายการ 4)...") 
+    BARCODE2_EDIT_AUTO_ID = S_CFG['BARCODE2_EDIT_AUTO_ID']
     try:
         if not mutual_main(): return
         
@@ -494,7 +496,7 @@ def mutual_services4():
             return
         
         # 4. หากพบแล้ว จึงเรียก Transaction ต่อไป
-        mutual_transaction(main_window, SERVICE_TITLE)
+        mutual_transaction(main_window, SERVICE_TITLE, BARCODE2_EDIT_AUTO_ID)
         
     except Exception as e:
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
