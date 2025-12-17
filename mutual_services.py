@@ -216,17 +216,18 @@ def mutual_main():
 def mutual_transaction(main_window, transaction_title, BARCODE_EDIT_AUTO_ID):
     """ฟังก์ชันที่ใช้ร่วมกันสำหรับรายการย่อยทั้งหมด"""
     
-    # 1. กำหนดตัวแปรจาก Config
+    # 1. ดึงค่า Config ที่จำเป็น
     TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
     NEXT_TITLE = B_CFG['NEXT_TITLE']
     NEXT_AUTO_ID = B_CFG['NEXT_AUTO_ID']
     FINISH_BUTTON_TITLE = B_CFG['FINISH_BUTTON_TITLE']
-    MUTUAL_1_ID = S_CFG['MUTUAL_1_TITLE'] # รหัส 50308
-    MUTUAL_4_ID = S_CFG['MUTUAL_4_TITLE'] # รหัส 51130
-    BARCODE_VALUE = S_CFG['BARCODE_VALUE']
-    BARCODE_EDIT_ID = S_CFG['BARCODE_EDIT_AUTO_ID']
     OK_BUTTON_TITLE = S_CFG['OK_BUTTON_TITLE']
+    
+    # ดึงค่ารายการที่ต้องกรอกบาร์โค้ด (รายการ 1 และ 4)
+    MUTUAL_1_ID = S_CFG['MUTUAL_1_TITLE']
+    MUTUAL_4_ID = S_CFG['MUTUAL_4_TITLE']
     BARCODE_FLOW_TITLES = [MUTUAL_1_ID, MUTUAL_4_ID]
+    BARCODE_VALUE = S_CFG['BARCODE_VALUE']
     
     try:
         # 2. คลิกรายการย่อย
@@ -261,6 +262,7 @@ def mutual_transaction(main_window, transaction_title, BARCODE_EDIT_AUTO_ID):
         
     except Exception as e:
         print(f"\n[X] FAILED: เกิดข้อผิดพลาดในการทำรายการย่อย {transaction_title}: {e}")
+        raise e
 
 # ----------------- ฟังก์ชันย่อยตามโครงสร้างเดิม (เรียกใช้ Config) -----------------
 
@@ -284,7 +286,6 @@ def mutual_services1():
         # เรียกใช้ฟังก์ชันจาก evidence.py
         save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-        print("[!] ตรวจสอบภาพและข้อมูล Error ได้ที่โฟลเดอร์ /evidence")
 
 # ----------------- ฟังก์ชันย่อยตามโครงสร้างเดิม (แก้ไข mutual_services2) -----------------
 
