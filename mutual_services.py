@@ -224,6 +224,7 @@ def mutual_transaction(main_window, transaction_title):
     BARCODE_VALUE = S_CFG['BARCODE_VALUE']
     BARCODE_EDIT_ID = S_CFG['BARCODE_EDIT_AUTO_ID']
     OK_BUTTON_TITLE = S_CFG['OK_BUTTON_TITLE']
+    BARCODE_FLOW_TITLES = [MUTUAL_1_TITLE, MUTUAL_4_TITLE]
     
     try:
         # 2. คลิกรายการย่อย
@@ -231,7 +232,7 @@ def mutual_transaction(main_window, transaction_title):
         main_window.child_window(title=transaction_title, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
 
-        if transaction_title == MUTUAL_1_TITLE:
+        if transaction_title in BARCODE_FLOW_TITLES:
             print("--- [Special Step] รายการนี้ต้องการการกรอกบาร์โค้ด ---")
 
             # 2.5.1 กรอกบาร์โค้ด
