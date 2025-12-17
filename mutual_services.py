@@ -200,11 +200,18 @@ def mutual_main():
     # --- กด 'ถัดไป' เพื่อยืนยัน ---
         print(f"[*] 2.3. กดปุ่ม '{NEXT_TITLE}' เพื่อไปหน้าถัดไป...")
         main_window.child_window(title=NEXT_TITLE, auto_id=NEXT_AUTO_ID, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-    
-        print("\n[V] SUCCESS: ดำเนินการขั้นตอน สำเร็จ!")
+        
+        FIRST_SERVICE = S_CFG['MUTUAL_1_TITLE'] 
+        print(f"[*] กำลังรอหน้าเมนูรายการย่อย (หา: {FIRST_SERVICE})...")
+        
+        # รอให้รายการแรกปรากฏ (ถ้ามาเร็วไปเร็ว ถ้ามาช้าก็รอ ไม่พังง่ายๆ)
+        main_window.child_window(title=FIRST_SERVICE, control_type="Text").wait('visible', timeout=10)
+        
+        print("\n[V] SUCCESS: เข้าสู่หน้าเมนูรายการย่อยเรียบร้อย!")
         return True
+
     except Exception as e:
+        # ดักจับ Error และส่ง False กลับตามโครงสร้างเดิมของคุณ
         print(f"\n[X] FAILED: เกิดข้อผิดพลาดใน : {e}")
         return False
     
