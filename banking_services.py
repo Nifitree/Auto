@@ -76,7 +76,7 @@ def force_scroll_down(window, config):
 
 # ==================== MAIN TEST FUNCTION ====================
 
-def banking_services_main(CONFIG):
+def banking_services_main():
 
     # 1. กำหนดตัวแปรจาก Config
     HOTKEY_AGENCY_TITLE = B_CFG['HOTKEY_AGENCY_TITLE']
@@ -860,7 +860,7 @@ def banking_services15():
 
 
 if __name__ == "__main__":
-    banking_services_main(CONFIG)
+    banking_services_main()
     banking_services1()
     banking_services2()
     banking_services3()
