@@ -1,6 +1,6 @@
 import configparser
 from pywinauto.application import Application
-from pywinauto import mouse 
+from pywinauto import mouse
 import time
 import os
 import sys
@@ -8,7 +8,7 @@ from evidence import save_evidence_context
 
 CONFIG_FILE = "config.ini"
 
-# ==================== CONFIG & HELPER FUNCTIONS ====================
+# ==================== CONFIG ====================
 
 def read_config(filename=CONFIG_FILE):
     """อ่านและโหลดค่าจากไฟล์ config.ini"""
@@ -17,506 +17,193 @@ def read_config(filename=CONFIG_FILE):
         if not os.path.exists(filename):
             print(f"[X] ไม่พบไฟล์ config ที่: {os.path.abspath(filename)}")
             return configparser.ConfigParser()
-            
-        config.read(filename, encoding='utf-8')
+        config.read(filename, encoding="utf-8")
         return config
     except Exception as e:
-        print(f"[X] FAILED: ไม่สามารถอ่านไฟล์ {filename} ได้: {e}")
+        print(f"[X] FAILED: อ่าน config ไม่ได้: {e}")
         return configparser.ConfigParser()
 
 # โหลด Config
 CONFIG = read_config()
 if not CONFIG.sections():
-    print("ไม่สามารถโหลด config.ini ได้ โปรดตรวจสอบไฟล์")
+    print("ไม่สามารถโหลด config.ini ได้")
     exit()
 
-# ดึงค่า Global ที่ใช้ร่วมกัน
-WINDOW_TITLE = CONFIG['GLOBAL']['WINDOW_TITLE']
-WAIT_TIME = CONFIG.getint('GLOBAL', 'WAIT_TIME_SEC')
-PHONE_NUMBER = CONFIG['GLOBAL']['PHONE_NUMBER']
-ID_CARD_BUTTON_TITLE = CONFIG['GLOBAL']['ID_CARD_BUTTON_TITLE']
-PHONE_EDIT_AUTO_ID = CONFIG['GLOBAL']['PHONE_EDIT_AUTO_ID']
-POSTAL_CODE = CONFIG['GLOBAL']['POSTAL_CODE'] 
-POSTAL_CODE_EDIT_AUTO_ID = CONFIG['GLOBAL']['POSTAL_CODE_EDIT_AUTO_ID']
+WINDOW_TITLE = CONFIG["GLOBAL"]["WINDOW_TITLE"]
+WAIT_TIME = CONFIG.getint("GLOBAL", "WAIT_TIME_SEC")
+PHONE_NUMBER = CONFIG["GLOBAL"]["PHONE_NUMBER"]
+ID_CARD_BUTTON_TITLE = CONFIG["GLOBAL"]["ID_CARD_BUTTON_TITLE"]
+PHONE_EDIT_AUTO_ID = CONFIG["GLOBAL"]["PHONE_EDIT_AUTO_ID"]
+POSTAL_CODE = CONFIG["GLOBAL"]["POSTAL_CODE"]
+POSTAL_CODE_EDIT_AUTO_ID = CONFIG["GLOBAL"]["POSTAL_CODE_EDIT_AUTO_ID"]
 
-# ดึง Section หลัก
-B_CFG = CONFIG['UTILITY_MAIN']
-S_CFG = CONFIG['UTILITY_SERVICES']
+B_CFG = CONFIG["UTILITY_MAIN"]
+S_CFG = CONFIG["UTILITY_SERVICES"]
 
-# ==================== SCROLL HELPERS mouse ====================
+# ==================== HELPERS ====================
 
-def force_scroll_down(window, config):
-    """เลื่อนหน้าจอลงโดยใช้ Mouse wheel"""
+def connect_main_window():
+    app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
+    return app, app.top_window()
+
+def force_scroll_down(window):
     try:
-        center_x_offset = config.getint('MOUSE_SCROLL', 'CENTER_X_OFFSET')
-        center_y_offset = config.getint('MOUSE_SCROLL', 'CENTER_Y_OFFSET')
-        wheel_dist = config.getint('MOUSE_SCROLL', 'WHEEL_DIST')
-        focus_delay = config.getfloat('MOUSE_SCROLL', 'FOCUS_DELAY')
-        scroll_delay = config.getfloat('MOUSE_SCROLL', 'SCROLL_DELAY')
-    except ValueError:
-        print("[!] Scroll config invalid. Using defaults.")
+        cfg = CONFIG["MOUSE_SCROLL"]
+        center_x_offset = cfg.getint("CENTER_X_OFFSET")
+        center_y_offset = cfg.getint("CENTER_Y_OFFSET")
+        wheel_dist = cfg.getint("WHEEL_DIST")
+        focus_delay = cfg.getfloat("FOCUS_DELAY")
+        scroll_delay = cfg.getfloat("SCROLL_DELAY")
+    except Exception:
         center_x_offset, center_y_offset, wheel_dist, focus_delay, scroll_delay = 300, 300, -20, 0.5, 1.0
-
-    print(f"...กำลังเลื่อนหน้าจอลง (Mouse Wheel {wheel_dist})...")
 
     try:
         rect = window.rectangle()
-        center_x = rect.left + center_x_offset
-        center_y = rect.top + center_y_offset
-        
-        mouse.click(coords=(center_x, center_y))
+        x = rect.left + center_x_offset
+        y = rect.top + center_y_offset
+        mouse.click(coords=(x, y))
         time.sleep(focus_delay)
-        
-        mouse.scroll(coords=(center_x, center_y), wheel_dist=wheel_dist)
+        mouse.scroll(coords=(x, y), wheel_dist=wheel_dist)
         time.sleep(scroll_delay)
-        print("[/] Scroll สำเร็จ")
-    except Exception as e:
-        print(f"[!] Scroll failed: {e}, ใช้ PageDown แทน")
+    except Exception:
         window.type_keys("{PGDN}")
 
-# ==================== MAIN TEST FUNCTION ====================
+def scroll_until_found(control, window, max_scrolls=3):
+    for _ in range(max_scrolls):
+        if control.exists(timeout=1):
+            return True
+        force_scroll_down(window)
+    return False
+
+def fill_if_empty(window, control, value):
+    if not control.texts()[0].strip():
+        control.click_input()
+        window.type_keys(value)
+
+# ==================== MAIN FLOW ====================
 
 def utility_services_main():
-
-    # 1. กำหนดตัวแปรจาก Config
-    HOTKEY_AGENCY_TITLE = B_CFG['HOTKEY_AGENCY_TITLE']
-    HOTKEY_BaS_TITLE = B_CFG['HOTKEY_BaS_TITLE']
-    NEXT_TITLE = B_CFG['NEXT_TITLE']
-    ID_AUTO_ID = B_CFG['ID_AUTO_ID']
-
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' โดยการกดปุ่ม '{HOTKEY_AGENCY_TITLE}'...")
     try:
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        print("[/] เชื่อมต่อหน้าจอสำเร็จ ")
+        app, main_window = connect_main_window()
 
-        # 2. กด A
-        main_window.child_window(title=HOTKEY_AGENCY_TITLE, control_type="Text").click_input()
+        main_window.child_window(
+            title=B_CFG["HOTKEY_AGENCY_TITLE"], control_type="Text"
+        ).click_input()
         time.sleep(WAIT_TIME)
-        print("[/] เข้าสู่หน้า 'บริการสาธารณูปโภค'...")
-
-        # 3. กด T
-        main_window.child_window(title=HOTKEY_BaS_TITLE, control_type="Text").click_input()
+        main_window.child_window(
+            title=B_CFG["HOTKEY_BaS_TITLE"], control_type="Text"
+        ).click_input()
         time.sleep(WAIT_TIME)
-        print("[/] กำลังดำเนินการในหน้า 'บริการสาธารณูปโภค'...")
 
-        # --- กด 'อ่านบัตรประชาชน' ---
-        print(f"[*] 2.1. ค้นหาและคลิกปุ่ม '{ID_CARD_BUTTON_TITLE}'...")
-        main_window.child_window(title=ID_CARD_BUTTON_TITLE, control_type="Text").click_input()
+        main_window.child_window(
+            title=ID_CARD_BUTTON_TITLE, control_type="Text"
+        ).click_input()
 
-        # --- ค้นหาช่องเลขไปรษณีย์และกรอกข้อมูล ---
-        print(f"[*] 2.2.5. กำลังตรวจสอบ/กรอกเลขไปรษณีย์ ID='{POSTAL_CODE_EDIT_AUTO_ID}'")
-        postal_control = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
-        
-        # [จุดที่ 1] ตรวจสอบว่าช่องปรากฏหรือไม่ ก่อน Scroll
-        if not postal_control.exists(timeout=1):
-            print("[!] ช่องไปรษณีย์ไม่ปรากฏทันที, กำลังเลื่อนหน้าจอลง...")
-        
-        # ใช้การวนลูป Scroll & Check เพื่อความแม่นยำสูงสุด
-        max_scrolls = 3
-        found = False
-        for i in range(max_scrolls):
-            force_scroll_down(main_window, CONFIG)
-            if postal_control.exists(timeout=1):
-                print("[/] ช่องไปรษณีย์พบแล้วหลังการ Scroll")
-                found = True
-                break
-        
-        if not found:
-            print(f"[X] FAILED: ไม่สามารถหาช่องไปรษณีย์ '{POSTAL_CODE_EDIT_AUTO_ID}' ได้หลัง Scroll {max_scrolls} ครั้ง")
-            return False # ยกเลิกการทำงานหากหาไม่พบ
+        postal = main_window.child_window(
+            auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit"
+        )
+        if not scroll_until_found(postal, main_window):
+            return False
+        fill_if_empty(main_window, postal, POSTAL_CODE)
 
-        # [จุดที่ 2] ดำเนินการกรอกข้อมูล (เมื่อแน่ใจว่าพบแล้ว)
-        if not postal_control.texts()[0].strip():
-            # ถ้าช่องว่าง (Empty) ให้ทำการกรอก
-            print(f" [-] -> ช่องว่าง, กรอก: {POSTAL_CODE}")
-            postal_control.click_input() 
-            main_window.type_keys(POSTAL_CODE)
-        else:
-            print(f" [-] -> ช่องมีค่าอยู่แล้ว: {postal_control.texts()[0].strip()}, ข้ามการกรอก")
-        time.sleep(0.5)
-    
-        # --- ค้นหาช่องหมายเลขโทรศัพท์และกรอกข้อมูล ---
-        print(f"[*] 2.2. กำลังตรวจสอบ/กรอกเบอร์โทรศัพท์ ID='{PHONE_EDIT_AUTO_ID}'")
-        phone_control = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
-    
-        # [จุดที่ 2] ตรวจสอบ/Scroll ซ้ำเพื่อหาช่องเบอร์โทรศัพท์
-        if not phone_control.exists(timeout=1):
-            print("[!] ช่องเบอร์โทรศัพท์ไม่ปรากฏทันที, กำลังตรวจสอบ/เลื่อนหน้าจอซ้ำ...")
-        
-        max_scrolls = 3
-        found = False
-        for i in range(max_scrolls):
-            force_scroll_down(main_window, CONFIG)
-            if phone_control.exists(timeout=1):
-                print("[/] ช่องเบอร์โทรศัพท์พบแล้วหลังการ Scroll")
-                found = True
-                break
-        
-        if not found:
-            print(f"[X] FAILED: ไม่สามารถหาช่องเบอร์โทรศัพท์ '{PHONE_EDIT_AUTO_ID}' ได้หลัง Scroll {max_scrolls} ครั้ง")
-            return False # ยกเลิกการทำงานหากหาไม่พบ
-    
-        #  [จุดที่ 3] ดำเนินการกรอกข้อมูล (เมื่อแน่ใจว่าพบแล้ว)
-        if not phone_control.texts()[0].strip():
-            print(f" [-] -> ช่องว่าง, กรอก: {PHONE_NUMBER}")
-            phone_control.click_input()
-            main_window.type_keys(PHONE_NUMBER)
-        else:
-            print(f" [-] -> ช่องมีค่าอยู่แล้ว: {phone_control.texts()[0].strip()}, ข้ามการกรอก")
-        time.sleep(0.5)
+        phone = main_window.child_window(
+            auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit"
+        )
+        if not scroll_until_found(phone, main_window):
+            return False
+        fill_if_empty(main_window, phone, PHONE_NUMBER)
 
-        # --- กด 'ถัดไป' เพื่อยืนยัน ---
-        print(f"[*] 2.3. กดปุ่ม '{NEXT_TITLE}' เพื่อไปหน้าถัดไป...")
-        main_window.child_window(title=NEXT_TITLE, auto_id=ID_AUTO_ID, control_type="Text").click_input()
+        main_window.child_window(
+            title=B_CFG["NEXT_TITLE"],
+            auto_id=B_CFG["ID_AUTO_ID"],
+            control_type="Text",
+        ).click_input()
         time.sleep(WAIT_TIME)
- 
-        print("\n[V] SUCCESS: ดำเนินการขั้นตอน Utility POS (ผู้ฝากส่ง) สำเร็จ!")
+
+        print("[V] SUCCESS: Utility Services Main สำเร็จ")
         return True
+
     except Exception as e:
-        print(f"\n[X] FAILED: เกิดข้อผิดพลาดใน utility_services_main: {e}")
+        print(f"[X] FAILED: utility_services_main error: {e}")
         return False
-    
-# ----------------- ฟังก์ชันแม่แบบสำหรับรายการย่อย -----------------
 
-def utility_services_transaction(main_window, transaction_title):
-    """ฟังก์ชันที่ใช้ร่วมกันสำหรับรายการย่อยทั้งหมด"""
-    
-    # 1. กำหนดตัวแปรจาก Config
-    TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-    NEXT_TITLE = B_CFG['NEXT_TITLE']
-    ID_AUTO_ID = B_CFG['ID_AUTO_ID']
-    FINISH_BUTTON_TITLE = B_CFG['FINISH_BUTTON_TITLE']
-    
+# ==================== TRANSACTIONS ====================
+
+def utility_services_transaction(main_window, title, enter=False):
     try:
-        # 2. คลิกรายการย่อย
-        print(f"[*] 2. ค้นหาและคลิกรายการ: {transaction_title}")
-        main_window.child_window(title=transaction_title, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text").click_input()
+        main_window.child_window(
+            title=title,
+            auto_id=S_CFG["TRANSACTION_CONTROL_TYPE"],
+            control_type="Text",
+        ).click_input()
         time.sleep(WAIT_TIME)
-        
-        # 3. คลิก 'ถัดไป'
-        print(f"[*] 3. กดปุ่ม '{NEXT_TITLE}'")
-        main_window.child_window(title=NEXT_TITLE, auto_id=ID_AUTO_ID, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-        
-        # 4. คลิก 'เสร็จสิ้น'
-        print(f"[*] 4. กดปุ่ม '{FINISH_BUTTON_TITLE}'")
-        main_window.child_window(title=FINISH_BUTTON_TITLE, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: เกิดข้อผิดพลาดในการทำรายการย่อย {transaction_title}: {e}")
-        raise e
 
-# ----------------- ฟังก์ชันแม่แบบ step 2 -----------------
-
-def utility_services_transaction2(main_window, transaction_title):
-    """ฟังก์ชันที่ใช้ร่วมกันสำหรับรายการย่อยทั้งหมด"""
-    
-    # 1. กำหนดตัวแปรจาก Config
-    TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-    NEXT_TITLE = B_CFG['NEXT_TITLE']
-    ID_AUTO_ID = B_CFG['ID_AUTO_ID']
-    FINISH_BUTTON_TITLE = B_CFG['FINISH_BUTTON_TITLE']
-    
-    try:
-        # 2. คลิกรายการย่อย
-        print(f"[*] 2. ค้นหาและคลิกรายการ: {transaction_title}")
-        main_window.child_window(title=transaction_title, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-        
-        # 3. การดำเนินการ: กดปุ่ม ENTER
-        print("[*] 3. ดำเนินการ: กดปุ่ม ENTER")
-        main_window.type_keys("{ENTER}")
-        time.sleep(WAIT_TIME)
-        
-        # 4. คลิก 'เสร็จสิ้น'
-        print(f"[*] 4. กดปุ่ม '{FINISH_BUTTON_TITLE}'")
-        main_window.child_window(title=FINISH_BUTTON_TITLE, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: เกิดข้อผิดพลาดในการทำรายการย่อย {transaction_title}: {e}")
-        raise e
-
-# ----------------- ฟังก์ชันย่อยตามโครงสร้างเดิม (เรียกใช้ Config) -----------------
-
-def utility_services1():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 1)...")
-    app = None
-    try:
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        utility_services_transaction(main_window, S_CFG['UTILITY_1_TITLE'])
-        
-    except Exception as e:
-        error_context = {
-            "test_name": "Utility Services Automation",
-            "step_name": "utility_services1",
-            "error_message": str(e)
-        }
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def utility_services2():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 2)...")
-    app = None
-    try:
-        if not utility_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        utility_services_transaction(main_window, S_CFG['UTILITY_2_TITLE'])
-        
-    except Exception as e:
-        error_context = {
-            "test_name": "Utility Services Automation",
-            "step_name": "utility_services2",
-            "error_message": str(e)
-        }
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def utility_services3():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 3)...")
-    app = None
-    try:
-        if not utility_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        utility_services_transaction(main_window, S_CFG['UTILITY_3_TITLE'])
-        
-    except Exception as e:
-        error_context = {
-            "test_name": "Utility Services Automation",
-            "step_name": "utility_services3",
-            "error_message": str(e)
-        }
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def utility_services4():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 4)...")
-    app = None
-    try:
-        if not utility_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        utility_services_transaction2(main_window, S_CFG['UTILITY_4_TITLE'])
-        
-    except Exception as e:
-        error_context = {
-            "test_name": "Utility Services Automation",
-            "step_name": "utility_services4",
-            "error_message": str(e)
-        }
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def utility_services5():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 5)...")
-    app = None
-    try:
-        if not utility_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        utility_services_transaction2(main_window, S_CFG['UTILITY_5_TITLE'])
-        
-    except Exception as e:
-        error_context = {
-            "test_name": "Utility Services Automation",
-            "step_name": "utility_services5",
-            "error_message": str(e)
-        }
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def utility_services6():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 6)...")
-    app = None
-    try:
-        if not utility_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        # เพิ่มการตรวจสอบ/Scroll
-        SERVICE_TITLE = S_CFG['UTILITY_6_TITLE']
-        TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-        SEARCH_EDIT_ID = S_CFG['SEARCH_EDIT_ID'] 
-        
-        print(f"[*] กำลังค้นหารายการด้วยรหัส: {SERVICE_TITLE}")
-
-        # 2. คลิกและพิมพ์รหัสในช่องค้นหา
-        search_input = main_window.child_window(auto_id=SEARCH_EDIT_ID, control_type="Edit")
-        search_input.click_input()
-        search_input.type_keys(SERVICE_TITLE, with_spaces=True)
-        search_input.type_keys("{ENTER}") # กด Enter เพื่อค้นหา
-        time.sleep(1) # รอรายการปรากฏขึ้นมา
-
-        # 3. ตรวจสอบว่ารายการที่ค้นหาโผล่มาให้คลิกไหม
-        target_control = main_window.child_window(title=SERVICE_TITLE, control_type="Text")
-        
-        if target_control.exists(timeout=3):
-            print(f"[/] พบรายการ {SERVICE_TITLE} จากการค้นหา")
-            # 4. เรียกฟังก์ชันทำรายการต่อ
-            utility_services_transaction(main_window, SERVICE_TITLE)
+        if enter:
+            main_window.type_keys("{ENTER}")
         else:
-            raise Exception(f"ค้นหาด้วยรหัส {SERVICE_TITLE} แล้วแต่ไม่พบรายการในผลลัพธ์")
+            main_window.child_window(
+                title=B_CFG["NEXT_TITLE"],
+                auto_id=B_CFG["ID_AUTO_ID"],
+                control_type="Text",
+            ).click_input()
+
+        time.sleep(WAIT_TIME)
+
+        main_window.child_window(
+            title=B_CFG["FINISH_BUTTON_TITLE"], control_type="Text"
+        ).click_input()
+        time.sleep(WAIT_TIME)
 
     except Exception as e:
-        error_context = {
-            "test_name": "Utility Services Automation",
-            "step_name": "utility_services6",
-            "error_message": str(e)
-        }
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
+        print(f"[X] FAILED: Transaction {title} error: {e}")
+        raise
 
-def utility_services7():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 7)...")
+def search_and_execute(main_window, service_title, enter=False):
+    search = main_window.child_window(
+        auto_id=S_CFG["SEARCH_EDIT_ID"], control_type="Edit"
+    )
+    search.click_input()
+    search.type_keys(service_title, with_spaces=True)
+    search.type_keys("{ENTER}")
+    time.sleep(1)
+
+    target = main_window.child_window(title=service_title, control_type="Text")
+    if not target.exists(timeout=3):
+        raise Exception(f"ไม่พบรายการ {service_title}")
+
+    utility_services_transaction(main_window, service_title, enter)
+
+# ==================== SERVICE WRAPPERS ====================
+
+def run_service(step_name, service_title, use_main=True, enter=False, use_search=False):
     app = None
     try:
-        if not utility_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        # เพิ่มการตรวจสอบ/Scroll
-        SERVICE_TITLE = S_CFG['UTILITY_7_TITLE']
-        TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-        SEARCH_EDIT_ID = S_CFG['SEARCH_EDIT_ID'] 
-        
-        print(f"[*] กำลังค้นหารายการด้วยรหัส: {SERVICE_TITLE}")
+        if use_main and not utility_services_main():
+            return
 
-        # 2. คลิกและพิมพ์รหัสในช่องค้นหา
-        search_input = main_window.child_window(auto_id=SEARCH_EDIT_ID, control_type="Edit")
-        search_input.click_input()
-        search_input.type_keys(SERVICE_TITLE, with_spaces=True)
-        search_input.type_keys("{ENTER}") # กด Enter เพื่อค้นหา
-        time.sleep(1) # รอรายการปรากฏขึ้นมา
+        app, main_window = connect_main_window()
 
-        # 3. ตรวจสอบว่ารายการที่ค้นหาโผล่มาให้คลิกไหม
-        target_control = main_window.child_window(title=SERVICE_TITLE, control_type="Text")
-        
-        if target_control.exists(timeout=3):
-            print(f"[/] พบรายการ {SERVICE_TITLE} จากการค้นหา")
-            # 4. เรียกฟังก์ชันทำรายการต่อ
-            utility_services_transaction2(main_window, SERVICE_TITLE)
+        if use_search:
+            search_and_execute(main_window, service_title, enter)
         else:
-            raise Exception(f"ค้นหาด้วยรหัส {SERVICE_TITLE} แล้วแต่ไม่พบรายการในผลลัพธ์")
+            utility_services_transaction(main_window, service_title, enter)
 
     except Exception as e:
-        error_context = {
+        save_evidence_context(app, {
             "test_name": "Utility Services Automation",
-            "step_name": "utility_services7",
+            "step_name": step_name,
             "error_message": str(e)
-        }
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
+        })
 
-def utility_services8():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 8)...")
-    app = None
-    try:
-        if not utility_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        # เพิ่มการตรวจสอบ/Scroll
-        SERVICE_TITLE = S_CFG['UTILITY_8_TITLE']
-        TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-        SEARCH_EDIT_ID = S_CFG['SEARCH_EDIT_ID'] 
-        
-        print(f"[*] กำลังค้นหารายการด้วยรหัส: {SERVICE_TITLE}")
-
-        # 2. คลิกและพิมพ์รหัสในช่องค้นหา
-        search_input = main_window.child_window(auto_id=SEARCH_EDIT_ID, control_type="Edit")
-        search_input.click_input()
-        search_input.type_keys(SERVICE_TITLE, with_spaces=True)
-        search_input.type_keys("{ENTER}") # กด Enter เพื่อค้นหา
-        time.sleep(1) # รอรายการปรากฏขึ้นมา
-
-        # 3. ตรวจสอบว่ารายการที่ค้นหาโผล่มาให้คลิกไหม
-        target_control = main_window.child_window(title=SERVICE_TITLE, control_type="Text")
-        
-        if target_control.exists(timeout=3):
-            print(f"[/] พบรายการ {SERVICE_TITLE} จากการค้นหา")
-            # 4. เรียกฟังก์ชันทำรายการต่อ
-            utility_services_transaction(main_window, SERVICE_TITLE)
-        else:
-            raise Exception(f"ค้นหาด้วยรหัส {SERVICE_TITLE} แล้วแต่ไม่พบรายการในผลลัพธ์")
-
-    except Exception as e:
-        error_context = {
-            "test_name": "Utility Services Automation",
-            "step_name": "utility_services8",
-            "error_message": str(e)
-        }
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def utility_services9():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 9)...")
-    app = None
-    try:
-        if not utility_services_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        # เพิ่มการตรวจสอบ/Scroll
-        SERVICE_TITLE = S_CFG['UTILITY_9_TITLE']
-        TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-        SEARCH_EDIT_ID = S_CFG['SEARCH_EDIT_ID'] 
-        
-        print(f"[*] กำลังค้นหารายการด้วยรหัส: {SERVICE_TITLE}")
-
-        # 2. คลิกและพิมพ์รหัสในช่องค้นหา
-        search_input = main_window.child_window(auto_id=SEARCH_EDIT_ID, control_type="Edit")
-        search_input.click_input()
-        search_input.type_keys(SERVICE_TITLE, with_spaces=True)
-        search_input.type_keys("{ENTER}") # กด Enter เพื่อค้นหา
-        time.sleep(1) # รอรายการปรากฏขึ้นมา
-
-        # 3. ตรวจสอบว่ารายการที่ค้นหาโผล่มาให้คลิกไหม
-        target_control = main_window.child_window(title=SERVICE_TITLE, control_type="Text")
-        
-        if target_control.exists(timeout=3):
-            print(f"[/] พบรายการ {SERVICE_TITLE} จากการค้นหา")
-            # 4. เรียกฟังก์ชันทำรายการต่อ
-            utility_services_transaction(main_window, SERVICE_TITLE)
-        else:
-            raise Exception(f"ค้นหาด้วยรหัส {SERVICE_TITLE} แล้วแต่ไม่พบรายการในผลลัพธ์")
-
-    except Exception as e:
-        error_context = {
-            "test_name": "Utility Services Automation",
-            "step_name": "utility_services9",
-            "error_message": str(e)
-        }
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}") 
-
-# ----------------- Main Execution -----------------
+# ==================== ENTRY POINT ====================
 
 if __name__ == "__main__":
-    utility_services_main()
-    utility_services1()
-    utility_services2()
-    utility_services3()
-    utility_services4()
-    utility_services5()
-    utility_services6()
-    utility_services7()
-    utility_services8()
-    utility_services9()
+    run_service("utility_services1", S_CFG["UTILITY_1_TITLE"], use_main=False)
+    run_service("utility_services2", S_CFG["UTILITY_2_TITLE"])
+    run_service("utility_services3", S_CFG["UTILITY_3_TITLE"])
+    run_service("utility_services4", S_CFG["UTILITY_4_TITLE"], enter=True)
+    run_service("utility_services5", S_CFG["UTILITY_5_TITLE"], enter=True)
+    run_service("utility_services6", S_CFG["UTILITY_6_TITLE"], use_search=True)
+    run_service("utility_services7", S_CFG["UTILITY_7_TITLE"], enter=True, use_search=True)
+    run_service("utility_services8", S_CFG["UTILITY_8_TITLE"], use_search=True)
+    run_service("utility_services9", S_CFG["UTILITY_9_TITLE"], use_search=True)
