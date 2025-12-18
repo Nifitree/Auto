@@ -85,7 +85,7 @@ def goods_pm_main():
     NEXT_AUTO_ID = B_CFG['NEXT_AUTO_ID'] # ไม่ได้ใช้ใน main แต่ดึงมา
     FINISH_BUTTON_TITLE = B_CFG['FINISH_BUTTON_TITLE']
 
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' โดยการกดปุ่ม '{BT_A_TITLE}'...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการชำระค่าสินค้า' โดยการกดปุ่ม '{BT_A_TITLE}'...")
     try:
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
@@ -94,12 +94,12 @@ def goods_pm_main():
         # 2. กด A
         main_window.child_window(title=BT_A_TITLE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
-        print("[/] เข้าสู่หน้า 'บริการประกันภัย'...")
+        print("[/] เข้าสู่หน้า 'บริการชำระค่าสินค้า'...")
 
         # 3. กด G
         main_window.child_window(title=BT_G_TITLE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
-        print("[/] กำลังดำเนินการในหน้า 'บริการประกันภัย'...")
+        print("[/] กำลังดำเนินการในหน้า 'บริการชำระค่าสินค้า'...")
 
         # --- กด 'อ่านบัตรประชาชน' ---
         print(f"[*] 2.1. ค้นหาและคลิกปุ่ม '{ID_CARD_BUTTON_TITLE}'...")
@@ -212,7 +212,7 @@ def goods_pm_transaction(main_window, transaction_title):
 # ----------------- ฟังก์ชันย่อยตามโครงสร้างเดิม (เรียกใช้ Config) -----------------
 
 def goods_pm_services1():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 1)...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการชำระค่าสินค้า' (รายการ 1)...")
     app = None
     try:
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
@@ -232,7 +232,7 @@ def goods_pm_services1():
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def goods_pm_services2():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 2)...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการชำระค่าสินค้า' (รายการ 2)...")
     app = None
     try:
         if not goods_pm_main(): return
@@ -254,7 +254,7 @@ def goods_pm_services2():
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def goods_pm_services3():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 3)...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการชำระค่าสินค้า' (รายการ 3)...")
     app = None
     try:
         if not goods_pm_main(): return
@@ -276,7 +276,7 @@ def goods_pm_services3():
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def goods_pm_services4():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 4)...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการชำระค่าสินค้า' (รายการ 4)...")
     app = None
     try:
         if not goods_pm_main(): return
@@ -298,7 +298,7 @@ def goods_pm_services4():
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def goods_pm_services5():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 5)...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการชำระค่าสินค้า' (รายการ 5)...")
     app = None
     try:
         if not goods_pm_main(): return
@@ -320,7 +320,7 @@ def goods_pm_services5():
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def goods_pm_services6():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 6)...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการชำระค่าสินค้า' (รายการ 6)...")
     app = None
     try:
         if not goods_pm_main(): return
@@ -342,7 +342,7 @@ def goods_pm_services6():
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def goods_pm_services7():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการประกันภัย' (รายการ 7)...") 
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการชำระค่าสินค้า' (รายการ 7)...") 
     app = None
     try:
         if not goods_pm_main(): return
@@ -386,7 +386,7 @@ def goods_pm_services7():
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def goods_pm_services8():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 8)...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการชำระค่าสินค้า' (รายการ 8)...")
     app = None
     try:
         if not goods_pm_main(): return
@@ -430,7 +430,7 @@ def goods_pm_services8():
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def goods_pm_services9():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 9)...")
+    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการชำระค่าสินค้า' (รายการ 9)...")
     app = None
     try:
         if not goods_pm_main(): return
