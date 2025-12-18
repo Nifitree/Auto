@@ -81,21 +81,21 @@ def utility_services_transaction_logic(main_window, transaction_title, mode=1):
         main_window.child_window(title=B_CFG['NEXT_TITLE'], auto_id=B_CFG['ID_AUTO_ID'], control_type="Text").click_input()
     
     else:
-        # สำหรับ Mode 2 (เช่น รายการที่ 7) ไม่ต้องคลิกซ้ำ ให้ ENTER ต่อไปเลย
-        print(f"[*] Mode 2: ดำเนินการกด ENTER (แทนการคลิก)")
+        # สำหรับ Mode 2 (รายการที่ 7)
+        print(f"[*] Mode 2: กำลังพยายาม Double Click และกด ENTER ที่รายการ...")
+        
+        # 1. ลองหาตัวรายการแล้ว Double Click เพื่อให้มัน Active แน่นอน
+        try:
+            target = main_window.child_window(title=transaction_title, control_type="Text")
+            target.double_click_input() # ดับเบิลคลิกเพื่อเลือกและเข้าหน้าถัดไป
+            time.sleep(1)
+        except:
+            print("[!] Double click ไม่สำเร็จ จะลองกด ENTER แทน")
+
+        # 2. ส่ง Enter ไปที่หน้าต่างหลักโดยตรง (ย้ำอีกรอบ)
+        main_window.set_focus() # บังคับให้หน้าต่าง POS เด้งขึ้นมาข้างหน้า
         main_window.type_keys("{ENTER}")
-    
-    time.sleep(WAIT_TIME)
-    
-    # กดปุ่ม 'เสร็จสิ้น' (ส่วนท้ายของทุกรายการ)
-    print(f"[*] กดปุ่ม '{B_CFG['FINISH_BUTTON_TITLE']}'")
-    try:
-        main_window.child_window(title=B_CFG['FINISH_BUTTON_TITLE'], control_type="Text").click_input()
-    except Exception:
-        # ถ้าหาปุ่มไม่เจอ ให้ลองกด Enter เผื่อ Focus อยู่ที่ปุ่ม
-        main_window.type_keys("{ENTER}")
-    
-    time.sleep(WAIT_TIME)
+        time.sleep(WAIT_TIME)
 
 # ==================== 4. CORE ENGINE ====================
 
