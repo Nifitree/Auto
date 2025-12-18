@@ -206,7 +206,8 @@ def utility_services_transaction(main_window, transaction_title):
         
     except Exception as e:
         print(f"\n[X] FAILED: เกิดข้อผิดพลาดในการทำรายการย่อย {transaction_title}: {e}")
-    
+        raise e
+
 # ----------------- ฟังก์ชันแม่แบบ step 2 -----------------
 
 def utility_services_transaction2(main_window, transaction_title):
@@ -236,11 +237,13 @@ def utility_services_transaction2(main_window, transaction_title):
         
     except Exception as e:
         print(f"\n[X] FAILED: เกิดข้อผิดพลาดในการทำรายการย่อย {transaction_title}: {e}")
+        raise e
 
 # ----------------- ฟังก์ชันย่อยตามโครงสร้างเดิม (เรียกใช้ Config) -----------------
 
 def utility_services1():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 1)...")
+    app = None
     try:
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
@@ -248,10 +251,17 @@ def utility_services1():
         utility_services_transaction(main_window, S_CFG['UTILITY_1_TITLE'])
         
     except Exception as e:
+        error_context = {
+            "test_name": "Utility Services Automation",
+            "step_name": "utility_services1",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def utility_services2():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 2)...")
+    app = None
     try:
         if not utility_services_main(): return
         
@@ -261,10 +271,17 @@ def utility_services2():
         utility_services_transaction(main_window, S_CFG['UTILITY_2_TITLE'])
         
     except Exception as e:
+        error_context = {
+            "test_name": "Utility Services Automation",
+            "step_name": "utility_services2",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def utility_services3():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 3)...")
+    app = None
     try:
         if not utility_services_main(): return
         
@@ -274,88 +291,57 @@ def utility_services3():
         utility_services_transaction(main_window, S_CFG['UTILITY_3_TITLE'])
         
     except Exception as e:
+        error_context = {
+            "test_name": "Utility Services Automation",
+            "step_name": "utility_services3",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def utility_services4():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 4)...")
+    app = None
     try:
         if not utility_services_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
         
-        # เพิ่มการตรวจสอบ/Scroll
-        SERVICE_TITLE = S_CFG['UTILITY_4_TITLE']
-        TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-        target_control = main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text")
-        
-        max_scrolls = 3
-        found = False
-        
-        print(f"[*] 1.5. กำลังตรวจสอบรายการ '{SERVICE_TITLE}' ก่อน Scroll...")
-        if target_control.exists(timeout=1):
-            print("[/] รายการย่อยพบแล้ว, ไม่จำเป็นต้อง Scroll.")
-            found = True
-        
-        if not found:
-            print(f"[*] 1.5.1. รายการย่อยไม่ปรากฏทันที, เริ่มการ Scroll ({max_scrolls} ครั้ง)...")
-            for i in range(max_scrolls):
-                force_scroll_down(main_window, CONFIG) 
-                if target_control.exists(timeout=1):
-                    print(f"[/] รายการย่อยพบแล้วในการ Scroll ครั้งที่ {i+1}.")
-                    found = True
-                    break
-        
-        if not found:
-            print(f"[X] FAILED: ไม่สามารถค้นหารายการย่อย '{SERVICE_TITLE}' ได้หลัง Scroll {max_scrolls} ครั้ง")
-            return
-            
-        utility_services_transaction2(main_window, SERVICE_TITLE)
+        utility_services_transaction2(main_window, S_CFG['UTILITY_4_TITLE'])
         
     except Exception as e:
+        error_context = {
+            "test_name": "Utility Services Automation",
+            "step_name": "utility_services4",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def utility_services5():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 5)...")
+    app = None
     try:
         if not utility_services_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
         
-        # เพิ่มการตรวจสอบ/Scroll
-        SERVICE_TITLE = S_CFG['UTILITY_5_TITLE']
-        TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-        target_control = main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text")
-        
-        max_scrolls = 3
-        found = False
-        
-        print(f"[*] 1.5. กำลังตรวจสอบรายการ '{SERVICE_TITLE}' ก่อน Scroll...")
-        if target_control.exists(timeout=1):
-            print("[/] รายการย่อยพบแล้ว, ไม่จำเป็นต้อง Scroll.")
-            found = True
-        
-        if not found:
-            print(f"[*] 1.5.1. รายการย่อยไม่ปรากฏทันที, เริ่มการ Scroll ({max_scrolls} ครั้ง)...")
-            for i in range(max_scrolls):
-                force_scroll_down(main_window, CONFIG) 
-                if target_control.exists(timeout=1):
-                    print(f"[/] รายการย่อยพบแล้วในการ Scroll ครั้งที่ {i+1}.")
-                    found = True
-                    break
-        
-        if not found:
-            print(f"[X] FAILED: ไม่สามารถค้นหารายการย่อย '{SERVICE_TITLE}' ได้หลัง Scroll {max_scrolls} ครั้ง")
-            return
-            
-        utility_services_transaction2(main_window, SERVICE_TITLE)
+        utility_services_transaction2(main_window, S_CFG['UTILITY_5_TITLE'])
         
     except Exception as e:
+        error_context = {
+            "test_name": "Utility Services Automation",
+            "step_name": "utility_services5",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def utility_services6():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 6)...")
+    app = None
     try:
         if not utility_services_main(): return
         
@@ -365,36 +351,39 @@ def utility_services6():
         # เพิ่มการตรวจสอบ/Scroll
         SERVICE_TITLE = S_CFG['UTILITY_6_TITLE']
         TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-        target_control = main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text")
+        SEARCH_EDIT_ID = S_CFG['SEARCH_EDIT_ID'] 
         
-        max_scrolls = 3
-        found = False
+        print(f"[*] กำลังค้นหารายการด้วยรหัส: {SERVICE_TITLE}")
+
+        # 2. คลิกและพิมพ์รหัสในช่องค้นหา
+        search_input = main_window.child_window(auto_id=SEARCH_EDIT_ID, control_type="Edit")
+        search_input.click_input()
+        search_input.type_keys(SERVICE_TITLE, with_spaces=True)
+        search_input.type_keys("{ENTER}") # กด Enter เพื่อค้นหา
+        time.sleep(1) # รอรายการปรากฏขึ้นมา
+
+        # 3. ตรวจสอบว่ารายการที่ค้นหาโผล่มาให้คลิกไหม
+        target_control = main_window.child_window(title=SERVICE_TITLE, control_type="Text")
         
-        print(f"[*] 1.5. กำลังตรวจสอบรายการ '{SERVICE_TITLE}' ก่อน Scroll...")
-        if target_control.exists(timeout=1):
-            print("[/] รายการย่อยพบแล้ว, ไม่จำเป็นต้อง Scroll.")
-            found = True
-        
-        if not found:
-            print(f"[*] 1.5.1. รายการย่อยไม่ปรากฏทันที, เริ่มการ Scroll ({max_scrolls} ครั้ง)...")
-            for i in range(max_scrolls):
-                force_scroll_down(main_window, CONFIG) 
-                if target_control.exists(timeout=1):
-                    print(f"[/] รายการย่อยพบแล้วในการ Scroll ครั้งที่ {i+1}.")
-                    found = True
-                    break
-        
-        if not found:
-            print(f"[X] FAILED: ไม่สามารถค้นหารายการย่อย '{SERVICE_TITLE}' ได้หลัง Scroll {max_scrolls} ครั้ง")
-            return
-            
-        utility_services_transaction(main_window, SERVICE_TITLE)
-        
+        if target_control.exists(timeout=3):
+            print(f"[/] พบรายการ {SERVICE_TITLE} จากการค้นหา")
+            # 4. เรียกฟังก์ชันทำรายการต่อ
+            utility_services_transaction(main_window, SERVICE_TITLE)
+        else:
+            raise Exception(f"ค้นหาด้วยรหัส {SERVICE_TITLE} แล้วแต่ไม่พบรายการในผลลัพธ์")
+
     except Exception as e:
+        error_context = {
+            "test_name": "Utility Services Automation",
+            "step_name": "utility_services6",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def utility_services7():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 7)...")
+    app = None
     try:
         if not utility_services_main(): return
         
@@ -404,36 +393,39 @@ def utility_services7():
         # เพิ่มการตรวจสอบ/Scroll
         SERVICE_TITLE = S_CFG['UTILITY_7_TITLE']
         TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-        target_control = main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text")
+        SEARCH_EDIT_ID = S_CFG['SEARCH_EDIT_ID'] 
         
-        max_scrolls = 3
-        found = False
+        print(f"[*] กำลังค้นหารายการด้วยรหัส: {SERVICE_TITLE}")
+
+        # 2. คลิกและพิมพ์รหัสในช่องค้นหา
+        search_input = main_window.child_window(auto_id=SEARCH_EDIT_ID, control_type="Edit")
+        search_input.click_input()
+        search_input.type_keys(SERVICE_TITLE, with_spaces=True)
+        search_input.type_keys("{ENTER}") # กด Enter เพื่อค้นหา
+        time.sleep(1) # รอรายการปรากฏขึ้นมา
+
+        # 3. ตรวจสอบว่ารายการที่ค้นหาโผล่มาให้คลิกไหม
+        target_control = main_window.child_window(title=SERVICE_TITLE, control_type="Text")
         
-        print(f"[*] 1.5. กำลังตรวจสอบรายการ '{SERVICE_TITLE}' ก่อน Scroll...")
-        if target_control.exists(timeout=1):
-            print("[/] รายการย่อยพบแล้ว, ไม่จำเป็นต้อง Scroll.")
-            found = True
-        
-        if not found:
-            print(f"[*] 1.5.1. รายการย่อยไม่ปรากฏทันที, เริ่มการ Scroll ({max_scrolls} ครั้ง)...")
-            for i in range(max_scrolls):
-                force_scroll_down(main_window, CONFIG) 
-                if target_control.exists(timeout=1):
-                    print(f"[/] รายการย่อยพบแล้วในการ Scroll ครั้งที่ {i+1}.")
-                    found = True
-                    break
-        
-        if not found:
-            print(f"[X] FAILED: ไม่สามารถค้นหารายการย่อย '{SERVICE_TITLE}' ได้หลัง Scroll {max_scrolls} ครั้ง")
-            return
-            
-        utility_services_transaction2(main_window, SERVICE_TITLE)
-        
+        if target_control.exists(timeout=3):
+            print(f"[/] พบรายการ {SERVICE_TITLE} จากการค้นหา")
+            # 4. เรียกฟังก์ชันทำรายการต่อ
+            utility_services_transaction2(main_window, SERVICE_TITLE)
+        else:
+            raise Exception(f"ค้นหาด้วยรหัส {SERVICE_TITLE} แล้วแต่ไม่พบรายการในผลลัพธ์")
+
     except Exception as e:
+        error_context = {
+            "test_name": "Utility Services Automation",
+            "step_name": "utility_services7",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def utility_services8():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 8)...")
+    app = None
     try:
         if not utility_services_main(): return
         
@@ -443,36 +435,39 @@ def utility_services8():
         # เพิ่มการตรวจสอบ/Scroll
         SERVICE_TITLE = S_CFG['UTILITY_8_TITLE']
         TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-        target_control = main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text")
+        SEARCH_EDIT_ID = S_CFG['SEARCH_EDIT_ID'] 
         
-        max_scrolls = 3
-        found = False
+        print(f"[*] กำลังค้นหารายการด้วยรหัส: {SERVICE_TITLE}")
+
+        # 2. คลิกและพิมพ์รหัสในช่องค้นหา
+        search_input = main_window.child_window(auto_id=SEARCH_EDIT_ID, control_type="Edit")
+        search_input.click_input()
+        search_input.type_keys(SERVICE_TITLE, with_spaces=True)
+        search_input.type_keys("{ENTER}") # กด Enter เพื่อค้นหา
+        time.sleep(1) # รอรายการปรากฏขึ้นมา
+
+        # 3. ตรวจสอบว่ารายการที่ค้นหาโผล่มาให้คลิกไหม
+        target_control = main_window.child_window(title=SERVICE_TITLE, control_type="Text")
         
-        print(f"[*] 1.5. กำลังตรวจสอบรายการ '{SERVICE_TITLE}' ก่อน Scroll...")
-        if target_control.exists(timeout=1):
-            print("[/] รายการย่อยพบแล้ว, ไม่จำเป็นต้อง Scroll.")
-            found = True
-        
-        if not found:
-            print(f"[*] 1.5.1. รายการย่อยไม่ปรากฏทันที, เริ่มการ Scroll ({max_scrolls} ครั้ง)...")
-            for i in range(max_scrolls):
-                force_scroll_down(main_window, CONFIG) 
-                if target_control.exists(timeout=1):
-                    print(f"[/] รายการย่อยพบแล้วในการ Scroll ครั้งที่ {i+1}.")
-                    found = True
-                    break
-        
-        if not found:
-            print(f"[X] FAILED: ไม่สามารถค้นหารายการย่อย '{SERVICE_TITLE}' ได้หลัง Scroll {max_scrolls} ครั้ง")
-            return
-            
-        utility_services_transaction(main_window, SERVICE_TITLE)
-        
+        if target_control.exists(timeout=3):
+            print(f"[/] พบรายการ {SERVICE_TITLE} จากการค้นหา")
+            # 4. เรียกฟังก์ชันทำรายการต่อ
+            utility_services_transaction(main_window, SERVICE_TITLE)
+        else:
+            raise Exception(f"ค้นหาด้วยรหัส {SERVICE_TITLE} แล้วแต่ไม่พบรายการในผลลัพธ์")
+
     except Exception as e:
+        error_context = {
+            "test_name": "Utility Services Automation",
+            "step_name": "utility_services8",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def utility_services9():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการสาธารณูปโภค' (รายการ 9)...")
+    app = None
     try:
         if not utility_services_main(): return
         
@@ -482,36 +477,37 @@ def utility_services9():
         # เพิ่มการตรวจสอบ/Scroll
         SERVICE_TITLE = S_CFG['UTILITY_9_TITLE']
         TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-        target_control = main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text")
+        SEARCH_EDIT_ID = S_CFG['SEARCH_EDIT_ID'] 
         
-        max_scrolls = 3
-        found = False
+        print(f"[*] กำลังค้นหารายการด้วยรหัส: {SERVICE_TITLE}")
+
+        # 2. คลิกและพิมพ์รหัสในช่องค้นหา
+        search_input = main_window.child_window(auto_id=SEARCH_EDIT_ID, control_type="Edit")
+        search_input.click_input()
+        search_input.type_keys(SERVICE_TITLE, with_spaces=True)
+        search_input.type_keys("{ENTER}") # กด Enter เพื่อค้นหา
+        time.sleep(1) # รอรายการปรากฏขึ้นมา
+
+        # 3. ตรวจสอบว่ารายการที่ค้นหาโผล่มาให้คลิกไหม
+        target_control = main_window.child_window(title=SERVICE_TITLE, control_type="Text")
         
-        print(f"[*] 1.5. กำลังตรวจสอบรายการ '{SERVICE_TITLE}' ก่อน Scroll...")
-        if target_control.exists(timeout=1):
-            print("[/] รายการย่อยพบแล้ว, ไม่จำเป็นต้อง Scroll.")
-            found = True
-        
-        if not found:
-            print(f"[*] 1.5.1. รายการย่อยไม่ปรากฏทันที, เริ่มการ Scroll ({max_scrolls} ครั้ง)...")
-            for i in range(max_scrolls):
-                force_scroll_down(main_window, CONFIG) 
-                if target_control.exists(timeout=1):
-                    print(f"[/] รายการย่อยพบแล้วในการ Scroll ครั้งที่ {i+1}.")
-                    found = True
-                    break
-        
-        if not found:
-            print(f"[X] FAILED: ไม่สามารถค้นหารายการย่อย '{SERVICE_TITLE}' ได้หลัง Scroll {max_scrolls} ครั้ง")
-            return
-            
-        utility_services_transaction(main_window, SERVICE_TITLE)
-        
+        if target_control.exists(timeout=3):
+            print(f"[/] พบรายการ {SERVICE_TITLE} จากการค้นหา")
+            # 4. เรียกฟังก์ชันทำรายการต่อ
+            utility_services_transaction(main_window, SERVICE_TITLE)
+        else:
+            raise Exception(f"ค้นหาด้วยรหัส {SERVICE_TITLE} แล้วแต่ไม่พบรายการในผลลัพธ์")
+
     except Exception as e:
+        error_context = {
+            "test_name": "Utility Services Automation",
+            "step_name": "utility_services9",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}") 
 
 # ----------------- Main Execution -----------------
-
 
 if __name__ == "__main__":
     utility_services_main()
