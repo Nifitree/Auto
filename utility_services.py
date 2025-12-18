@@ -3,7 +3,6 @@ from pywinauto.application import Application
 from pywinauto import mouse
 import time
 import os
-import sys
 from evidence import save_evidence_context
 
 CONFIG_FILE = "config.ini"
@@ -11,22 +10,16 @@ CONFIG_FILE = "config.ini"
 # ==================== CONFIG ====================
 
 def read_config(filename=CONFIG_FILE):
-    """อ่านและโหลดค่าจากไฟล์ config.ini"""
     config = configparser.ConfigParser()
-    try:
-        if not os.path.exists(filename):
-            print(f"[X] ไม่พบไฟล์ config ที่: {os.path.abspath(filename)}")
-            return configparser.ConfigParser()
-        config.read(filename, encoding="utf-8")
+    if not os.path.exists(filename):
+        print(f"[X] ไม่พบไฟล์ config: {filename}")
         return config
-    except Exception as e:
-        print(f"[X] FAILED: อ่าน config ไม่ได้: {e}")
-        return configparser.ConfigParser()
+    config.read(filename, encoding="utf-8")
+    return config
 
-# โหลด Config
 CONFIG = read_config()
 if not CONFIG.sections():
-    print("ไม่สามารถโหลด config.ini ได้")
+    print("[X] โหลด config.ini ไม่สำเร็จ")
     exit()
 
 WINDOW_TITLE = CONFIG["GLOBAL"]["WINDOW_TITLE"]
@@ -40,33 +33,22 @@ POSTAL_CODE_EDIT_AUTO_ID = CONFIG["GLOBAL"]["POSTAL_CODE_EDIT_AUTO_ID"]
 B_CFG = CONFIG["UTILITY_MAIN"]
 S_CFG = CONFIG["UTILITY_SERVICES"]
 
-# ==================== HELPERS ====================
+# ==================== COMMON HELPERS ====================
 
 def connect_main_window():
     app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
     return app, app.top_window()
 
 def force_scroll_down(window):
-    try:
-        cfg = CONFIG["MOUSE_SCROLL"]
-        center_x_offset = cfg.getint("CENTER_X_OFFSET")
-        center_y_offset = cfg.getint("CENTER_Y_OFFSET")
-        wheel_dist = cfg.getint("WHEEL_DIST")
-        focus_delay = cfg.getfloat("FOCUS_DELAY")
-        scroll_delay = cfg.getfloat("SCROLL_DELAY")
-    except Exception:
-        center_x_offset, center_y_offset, wheel_dist, focus_delay, scroll_delay = 300, 300, -20, 0.5, 1.0
+    cfg = CONFIG["MOUSE_SCROLL"]
+    rect = window.rectangle()
+    x = rect.left + cfg.getint("CENTER_X_OFFSET")
+    y = rect.top + cfg.getint("CENTER_Y_OFFSET")
 
-    try:
-        rect = window.rectangle()
-        x = rect.left + center_x_offset
-        y = rect.top + center_y_offset
-        mouse.click(coords=(x, y))
-        time.sleep(focus_delay)
-        mouse.scroll(coords=(x, y), wheel_dist=wheel_dist)
-        time.sleep(scroll_delay)
-    except Exception:
-        window.type_keys("{PGDN}")
+    mouse.click(coords=(x, y))
+    time.sleep(cfg.getfloat("FOCUS_DELAY"))
+    mouse.scroll(coords=(x, y), wheel_dist=cfg.getint("WHEEL_DIST"))
+    time.sleep(cfg.getfloat("SCROLL_DELAY"))
 
 def scroll_until_found(control, window, max_scrolls=3):
     for _ in range(max_scrolls):
@@ -80,7 +62,7 @@ def fill_if_empty(window, control, value):
         control.click_input()
         window.type_keys(value)
 
-# ==================== MAIN FLOW ====================
+# ==================== MAIN ENTRY ====================
 
 def utility_services_main():
     try:
@@ -90,6 +72,7 @@ def utility_services_main():
             title=B_CFG["HOTKEY_AGENCY_TITLE"], control_type="Text"
         ).click_input()
         time.sleep(WAIT_TIME)
+
         main_window.child_window(
             title=B_CFG["HOTKEY_BaS_TITLE"], control_type="Text"
         ).click_input()
@@ -103,14 +86,14 @@ def utility_services_main():
             auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit"
         )
         if not scroll_until_found(postal, main_window):
-            return False
+            raise Exception("ไม่พบช่องไปรษณีย์")
         fill_if_empty(main_window, postal, POSTAL_CODE)
 
         phone = main_window.child_window(
             auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit"
         )
         if not scroll_until_found(phone, main_window):
-            return False
+            raise Exception("ไม่พบช่องเบอร์โทรศัพท์")
         fill_if_empty(main_window, phone, PHONE_NUMBER)
 
         main_window.child_window(
@@ -120,45 +103,39 @@ def utility_services_main():
         ).click_input()
         time.sleep(WAIT_TIME)
 
-        print("[V] SUCCESS: Utility Services Main สำเร็จ")
         return True
 
     except Exception as e:
-        print(f"[X] FAILED: utility_services_main error: {e}")
+        print(f"[X] utility_services_main FAILED: {e}")
         return False
 
-# ==================== TRANSACTIONS ====================
+# ==================== TRANSACTION ====================
 
-def utility_services_transaction(main_window, title, enter=False):
-    try:
+def utility_services_transaction(main_window, title, use_enter=False):
+    main_window.child_window(
+        title=title,
+        auto_id=S_CFG["TRANSACTION_CONTROL_TYPE"],
+        control_type="Text",
+    ).click_input()
+    time.sleep(WAIT_TIME)
+
+    if use_enter:
+        main_window.type_keys("{ENTER}")
+    else:
         main_window.child_window(
-            title=title,
-            auto_id=S_CFG["TRANSACTION_CONTROL_TYPE"],
+            title=B_CFG["NEXT_TITLE"],
+            auto_id=B_CFG["ID_AUTO_ID"],
             control_type="Text",
         ).click_input()
-        time.sleep(WAIT_TIME)
 
-        if enter:
-            main_window.type_keys("{ENTER}")
-        else:
-            main_window.child_window(
-                title=B_CFG["NEXT_TITLE"],
-                auto_id=B_CFG["ID_AUTO_ID"],
-                control_type="Text",
-            ).click_input()
+    time.sleep(WAIT_TIME)
 
-        time.sleep(WAIT_TIME)
+    main_window.child_window(
+        title=B_CFG["FINISH_BUTTON_TITLE"], control_type="Text"
+    ).click_input()
+    time.sleep(WAIT_TIME)
 
-        main_window.child_window(
-            title=B_CFG["FINISH_BUTTON_TITLE"], control_type="Text"
-        ).click_input()
-        time.sleep(WAIT_TIME)
-
-    except Exception as e:
-        print(f"[X] FAILED: Transaction {title} error: {e}")
-        raise
-
-def search_and_execute(main_window, service_title, enter=False):
+def search_and_execute(main_window, service_title, use_enter=False):
     search = main_window.child_window(
         auto_id=S_CFG["SEARCH_EDIT_ID"], control_type="Edit"
     )
@@ -167,26 +144,27 @@ def search_and_execute(main_window, service_title, enter=False):
     search.type_keys("{ENTER}")
     time.sleep(1)
 
-    target = main_window.child_window(title=service_title, control_type="Text")
-    if not target.exists(timeout=3):
+    if not main_window.child_window(
+        title=service_title, control_type="Text"
+    ).exists(timeout=3):
         raise Exception(f"ไม่พบรายการ {service_title}")
 
-    utility_services_transaction(main_window, service_title, enter)
+    utility_services_transaction(main_window, service_title, use_enter)
 
-# ==================== SERVICE WRAPPERS ====================
+# ==================== SERVICE RUNNER ====================
 
-def run_service(step_name, service_title, use_main=True, enter=False, use_search=False):
+def run_service(step_name, service_title, use_enter=False, use_search=False):
     app = None
     try:
-        if use_main and not utility_services_main():
+        if not utility_services_main():
             return
 
         app, main_window = connect_main_window()
 
         if use_search:
-            search_and_execute(main_window, service_title, enter)
+            search_and_execute(main_window, service_title, use_enter)
         else:
-            utility_services_transaction(main_window, service_title, enter)
+            utility_services_transaction(main_window, service_title, use_enter)
 
     except Exception as e:
         save_evidence_context(app, {
@@ -195,15 +173,15 @@ def run_service(step_name, service_title, use_main=True, enter=False, use_search
             "error_message": str(e)
         })
 
-# ==================== ENTRY POINT ====================
+# ==================== MAIN ====================
 
 if __name__ == "__main__":
-    run_service("utility_services1", S_CFG["UTILITY_1_TITLE"], use_main=False)
+    run_service("utility_services1", S_CFG["UTILITY_1_TITLE"])
     run_service("utility_services2", S_CFG["UTILITY_2_TITLE"])
     run_service("utility_services3", S_CFG["UTILITY_3_TITLE"])
-    run_service("utility_services4", S_CFG["UTILITY_4_TITLE"], enter=True)
-    run_service("utility_services5", S_CFG["UTILITY_5_TITLE"], enter=True)
+    run_service("utility_services4", S_CFG["UTILITY_4_TITLE"], use_enter=True)
+    run_service("utility_services5", S_CFG["UTILITY_5_TITLE"], use_enter=True)
     run_service("utility_services6", S_CFG["UTILITY_6_TITLE"], use_search=True)
-    run_service("utility_services7", S_CFG["UTILITY_7_TITLE"], enter=True, use_search=True)
+    run_service("utility_services7", S_CFG["UTILITY_7_TITLE"], use_enter=True, use_search=True)
     run_service("utility_services8", S_CFG["UTILITY_8_TITLE"], use_search=True)
     run_service("utility_services9", S_CFG["UTILITY_9_TITLE"], use_search=True)
