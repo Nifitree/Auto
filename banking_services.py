@@ -74,26 +74,6 @@ def force_scroll_down(window, config):
         print(f"[!] Scroll failed: {e}, ใช้ PageDown แทน")
         window.type_keys("{PGDN}")
 
-def scroll_and_find_element(main_window, title, auto_id, max_retries=5):
-    """ฟังก์ชัน: Scroll ไปเรื่อยๆ จนกว่าจะเจอรายการที่ต้องการ"""
-    print(f"[*] กำลังค้นหารายการ '{title}' แบบ Scroll-First...")
-    
-    target_control = main_window.child_window(title=title, auto_id=auto_id, control_type="Text")
-    
-    for i in range(max_retries):
-        # 1. Scroll ก่อนเลยตามความต้องการของคุณ
-        force_scroll_down(main_window, CONFIG)
-        print(f"[-] Scroll ครั้งที่ {i+1}...")
-        
-        # 2. หลังจาก Scroll แล้ว ลองหาดูว่าเจอไหม
-        if target_control.exists(timeout=1.5):
-            print(f"[/] เจอรายการ '{title}' แล้ว!")
-            return True
-            
-    # ถ้าวนจนครบแล้วไม่เจอ
-    print(f"[X] หาไม่เจอหลัง Scroll {max_retries} ครั้ง")
-    return False
-
 # ==================== MAIN TEST FUNCTION ====================
 
 def banking_services_main():
@@ -606,37 +586,31 @@ def banking_services11():
         # [NEW] เพิ่มการตรวจสอบ/Scroll (แทนที่การเรียก force_scroll_down() เดิม)
         SERVICE_TITLE = S_CFG['BANKING_11_TITLE']
         TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-        target_control = main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text")
+        SEARCH_EDIT_ID = S_CFG['SEARCH_EDIT_ID'] # สมมติชื่อ Auto ID ของช่องค้นหา
         
-        max_scrolls = 3
-        found = False
+        print(f"[*] กำลังค้นหารายการด้วยรหัส: {SERVICE_TITLE}")
+
+        # 2. คลิกและพิมพ์รหัสในช่องค้นหา
+        search_input = main_window.child_window(auto_id=SEARCH_EDIT_ID, control_type="Edit")
+        search_input.click_input()
+        search_input.type_keys(SERVICE_TITLE, with_spaces=True)
+        search_input.type_keys("{ENTER}") # กด Enter เพื่อค้นหา
+        time.sleep(1) # รอรายการปรากฏขึ้นมา
+
+        # 3. ตรวจสอบว่ารายการที่ค้นหาโผล่มาให้คลิกไหม
+        target_control = main_window.child_window(title=SERVICE_TITLE, control_type="Text")
         
-        print(f"[*] 1.5. กำลังตรวจสอบรายการ '{SERVICE_TITLE}' ก่อน Scroll...")
-        for i in range(max_scrolls):
-            # 1. สั่งเลื่อนก่อนเลย (ตามที่คุณต้องการ)
-            force_scroll_down(main_window, CONFIG)
-            print(f"[-] เลื่อนครั้งที่ {i+1}...")
-            
-            # 2. ค่อยตรวจสอบว่าเจอไหม
-            target_control = main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text")
-            if target_control.exists(timeout=1):
-                print(f"[/] รายการย่อยพบแล้วหลังเลื่อนครั้งที่ {i+1}.")
-                found = True
-                break
-        
-        # 3. ตรวจสอบผลลัพธ์สุดท้าย
-        if not found:
-            print(f"[X] FAILED: ไม่สามารถค้นหารายการย่อย '{SERVICE_TITLE}' ได้หลัง Scroll {max_scrolls} ครั้ง")
-            # โยน error เพื่อไปเข้ากระบวนการแคปภาพใน except
-            raise Exception(f"Scroll จนครบ {max_scrolls} ครั้งแล้วยังไม่เจอรายการ")
-            
-        # 4. ถ้าเจอ ก็ทำรายการต่อ
-        banking_services_transaction(main_window, SERVICE_TITLE)
-        
+        if target_control.exists(timeout=3):
+            print(f"[/] พบรายการ {SERVICE_TITLE} จากการค้นหา")
+            # 4. เรียกฟังก์ชันทำรายการต่อ
+            banking_services_transaction(main_window, SERVICE_TITLE)
+        else:
+            raise Exception(f"ค้นหาด้วยรหัส {SERVICE_TITLE} แล้วแต่ไม่พบรายการในผลลัพธ์")
+
     except Exception as e:
         error_context = {
             "test_name": "Banking Services Automation",
-            "step_name": "banking_services6",
+            "step_name": "banking_services11_search",
             "error_message": str(e)
         }
         save_evidence_context(app, error_context)
