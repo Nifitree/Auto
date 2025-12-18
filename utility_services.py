@@ -180,7 +180,7 @@ def utility_services_main_nav():
 # ==================== 5. EXECUTION ====================
 
 if __name__ == "__main__":
-    # รายการ 1-3: โหมดปกติ (Mode 1)
+    # รายการ 1-3: โหมดปกติ (Mode 1 - คลิกปุ่มถัดไป)
     run_utility_service('UTILITY_1_TITLE', mode=1)
     run_utility_service('UTILITY_2_TITLE', mode=1)
     run_utility_service('UTILITY_3_TITLE', mode=1)
@@ -189,8 +189,12 @@ if __name__ == "__main__":
     run_utility_service('UTILITY_4_TITLE', mode=2)
     run_utility_service('UTILITY_5_TITLE', mode=2)
     
-    # รายการ 6-9: โหมดใช้การค้นหา (Search)
-    for i in range(6, 10):
-        run_utility_service(f'UTILITY_{i}_TITLE', mode=1, use_search=True)
+    # รายการ 6: โหมด Search (ใช้ Mode 1 - คลิกถัดไป)
+    run_utility_service('UTILITY_6_TITLE', mode=1, use_search=True)
 
-    print(f"\n{'='*50}\n[V] จบการรัน Utility Services ทั้งหมด")
+    # >>> รายการ 7: แก้จาก mode=1 เป็น mode=2 (เพื่อให้กด ENTER แทนคลิกถัดไป) <<<
+    run_utility_service('UTILITY_7_TITLE', mode=2, use_search=True)
+
+    # รายการ 8-9: โหมด Search (ถ้าต้องการ ENTER ให้เปลี่ยนเป็น mode=2 เช่นกัน)
+    run_utility_service('UTILITY_8_TITLE', mode=1, use_search=True)
+    run_utility_service('UTILITY_9_TITLE', mode=1, use_search=True)
