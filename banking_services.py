@@ -74,6 +74,26 @@ def force_scroll_down(window, config):
         print(f"[!] Scroll failed: {e}, ใช้ PageDown แทน")
         window.type_keys("{PGDN}")
 
+def scroll_and_find_element(main_window, title, auto_id, max_retries=5):
+    """ฟังก์ชัน: Scroll ไปเรื่อยๆ จนกว่าจะเจอรายการที่ต้องการ"""
+    print(f"[*] กำลังค้นหารายการ '{title}' แบบ Scroll-First...")
+    
+    target_control = main_window.child_window(title=title, auto_id=auto_id, control_type="Text")
+    
+    for i in range(max_retries):
+        # 1. Scroll ก่อนเลยตามความต้องการของคุณ
+        force_scroll_down(main_window, CONFIG)
+        print(f"[-] Scroll ครั้งที่ {i+1}...")
+        
+        # 2. หลังจาก Scroll แล้ว ลองหาดูว่าเจอไหม
+        if target_control.exists(timeout=1.5):
+            print(f"[/] เจอรายการ '{title}' แล้ว!")
+            return True
+            
+    # ถ้าวนจนครบแล้วไม่เจอ
+    print(f"[X] หาไม่เจอหลัง Scroll {max_retries} ครั้ง")
+    return False
+
 # ==================== MAIN TEST FUNCTION ====================
 
 def banking_services_main():
@@ -313,33 +333,7 @@ def banking_services4():
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
         
-        # [NEW] เพิ่มการตรวจสอบ/Scroll
-        SERVICE_TITLE = S_CFG['BANKING_4_TITLE']
-        TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-        target_control = main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text")
-        
-        max_scrolls = 3
-        found = False
-        
-        print(f"[*] 1.5. กำลังตรวจสอบรายการ '{SERVICE_TITLE}' ก่อน Scroll...")
-        if target_control.exists(timeout=1):
-            print("[/] รายการย่อยพบแล้ว, ไม่จำเป็นต้อง Scroll.")
-            found = True
-        
-        if not found:
-            print(f"[*] 1.5.1. รายการย่อยไม่ปรากฏทันที, เริ่มการ Scroll ({max_scrolls} ครั้ง)...")
-            for i in range(max_scrolls):
-                force_scroll_down(main_window, CONFIG) 
-                if target_control.exists(timeout=1):
-                    print(f"[/] รายการย่อยพบแล้วในการ Scroll ครั้งที่ {i+1}.")
-                    found = True
-                    break
-        
-        if not found:
-            print(f"[X] FAILED: ไม่สามารถค้นหารายการย่อย '{SERVICE_TITLE}' ได้หลัง Scroll {max_scrolls} ครั้ง")
-            return
-            
-        banking_services_transaction(main_window, SERVICE_TITLE)
+        banking_services_transaction(main_window, S_CFG['BANKING_4_TITLE'])
         
     except Exception as e:
         error_context = {
@@ -358,34 +352,8 @@ def banking_services5():
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
-        
-        # [NEW] เพิ่มการตรวจสอบ/Scroll
-        SERVICE_TITLE = S_CFG['BANKING_5_TITLE']
-        TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-        target_control = main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text")
-        
-        max_scrolls = 3
-        found = False
-        
-        print(f"[*] 1.5. กำลังตรวจสอบรายการ '{SERVICE_TITLE}' ก่อน Scroll...")
-        if target_control.exists(timeout=1):
-            print("[/] รายการย่อยพบแล้ว, ไม่จำเป็นต้อง Scroll.")
-            found = True
-        
-        if not found:
-            print(f"[*] 1.5.1. รายการย่อยไม่ปรากฏทันที, เริ่มการ Scroll ({max_scrolls} ครั้ง)...")
-            for i in range(max_scrolls):
-                force_scroll_down(main_window, CONFIG) 
-                if target_control.exists(timeout=1):
-                    print(f"[/] รายการย่อยพบแล้วในการ Scroll ครั้งที่ {i+1}.")
-                    found = True
-                    break
-        
-        if not found:
-            print(f"[X] FAILED: ไม่สามารถค้นหารายการย่อย '{SERVICE_TITLE}' ได้หลัง Scroll {max_scrolls} ครั้ง")
-            return
             
-        banking_services_transaction(main_window, SERVICE_TITLE)
+        banking_services_transaction(main_window, S_CFG['BANKING_5_TITLE'])
         
     except Exception as e:
         error_context = {
@@ -638,39 +606,16 @@ def banking_services11():
         # [NEW] เพิ่มการตรวจสอบ/Scroll (แทนที่การเรียก force_scroll_down() เดิม)
         SERVICE_TITLE = S_CFG['BANKING_11_TITLE']
         TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-        target_control = main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text")
-        
-        max_scrolls = 3
-        found = False
-        
-        print(f"[*] 1.5. กำลังตรวจสอบรายการ '{SERVICE_TITLE}' ก่อน Scroll...")
-        if target_control.exists(timeout=1):
-            print("[/] รายการย่อยพบแล้ว, ไม่จำเป็นต้อง Scroll.")
-            found = True
-        
-        if not found:
-            print(f"[*] 1.5.1. รายการย่อยไม่ปรากฏทันที, เริ่มการ Scroll ({max_scrolls} ครั้ง)...")
-            for i in range(max_scrolls):
-                force_scroll_down(main_window, CONFIG) 
-                if target_control.exists(timeout=1):
-                    print(f"[/] รายการย่อยพบแล้วในการ Scroll ครั้งที่ {i+1}.")
-                    found = True
-                    break
-        
-        if not found:
-            print(f"[X] FAILED: ไม่สามารถค้นหารายการย่อย '{SERVICE_TITLE}' ได้หลัง Scroll {max_scrolls} ครั้ง")
-            return
+        if scroll_and_find_element(main_window, SERVICE_TITLE, TRANSACTION_CONTROL_TYPE):
+            banking_services_transaction(main_window, SERVICE_TITLE)
+        else:
+            # ถ้าหาไม่เจอจริงๆ ให้โยน Error ไปแคปภาพ
+            raise Exception(f"ไม่พบรายการ {SERVICE_TITLE} หลังจากพยายาม Scroll")
             
-        banking_services_transaction(main_window, SERVICE_TITLE)
-        
     except Exception as e:
-        error_context = {
-            "test_name": "Banking Services Automation",
-            "step_name": "banking_services11",
-            "error_message": str(e)
-        }
+        error_context = {"test_name": "Banking Services", "step_name": "banking_services6", "error_message": str(e)}
         save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}") 
+        print(f"\n[X] FAILED: {e}") 
 
 def banking_services12():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 12)...")
