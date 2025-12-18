@@ -194,7 +194,7 @@ def run_service(step_name, service_title, use_main=True, enter=False, use_search
 
 if __name__ == "__main__":
     # รายการ 1-3
-    run_service("utility_services1", S_CFG["UTILITY_1_TITLE"], use_main=False)
+    run_service("utility_services1", S_CFG["UTILITY_1_TITLE"], use_main=True)
     run_service("utility_services2", S_CFG["UTILITY_2_TITLE"])
     run_service("utility_services3", S_CFG["UTILITY_3_TITLE"])
     
