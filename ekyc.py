@@ -88,7 +88,7 @@ def run_ekyc_step(service_name, service_title):
     7. กด 'ESC' เพื่อออก
     """
     print(f"\n{'='*50}\n[*] เริ่มทำรายการ: {service_name} (รหัส: {service_title})")
-    
+    app = None
     # ดึงค่า Config ที่จำเป็น
     HOTKEY_AGENCY_TITLE = B_CFG['HOTKEY_AGENCY_TITLE']
     HOTKEY_BaS_TITLE = B_CFG['HOTKEY_BaS_TITLE']
@@ -192,7 +192,16 @@ def run_ekyc_step(service_name, service_title):
         print(f"[V] รายการ {service_name} เสร็จสิ้น")
         
     except Exception as e:
+        # ใส่ตัวนี้เพื่อให้ระบบแคปภาพทำงาน
+        error_context = {
+            "test_name": "EKYC Automation",
+            "step_name": service_name,
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
+
         print(f"\n[X] FAILED: เกิดข้อผิดพลาดในรายการ {service_name}: {e}")
+        # ไม่ต้องใส่ raise e ถ้าคุณต้องการให้มันไปรัน Service ถัดไปต่อได้เลย
 
 # ----------------- Main Execution -----------------
 
