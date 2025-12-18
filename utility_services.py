@@ -9,7 +9,7 @@ from evidence import save_evidence_context
 # ชื่อไฟล์ Config
 CONFIG_FILE = "config.ini"
 
-# ==================== 1. CONFIG & SETUP ====================
+# ==================== 1. CONFIGURATION LOADING ====================
 
 def read_config(filename=CONFIG_FILE):
     """อ่านและโหลดค่าจากไฟล์ config.ini"""
@@ -30,7 +30,7 @@ if not CONFIG or not CONFIG.sections():
     print("ไม่สามารถโหลด config.ini ได้ โปรดตรวจสอบไฟล์")
     sys.exit(1)
 
-# ดึงค่า Global ที่ใช้ร่วมกัน
+# ดึงค่า Global
 WINDOW_TITLE = CONFIG['GLOBAL']['WINDOW_TITLE']
 WAIT_TIME = CONFIG.getint('GLOBAL', 'WAIT_TIME_SEC')
 PHONE_NUMBER = CONFIG['GLOBAL']['PHONE_NUMBER']
@@ -39,11 +39,11 @@ PHONE_EDIT_AUTO_ID = CONFIG['GLOBAL']['PHONE_EDIT_AUTO_ID']
 POSTAL_CODE = CONFIG['GLOBAL']['POSTAL_CODE'] 
 POSTAL_CODE_EDIT_AUTO_ID = CONFIG['GLOBAL']['POSTAL_CODE_EDIT_AUTO_ID']
 
-# ดึง Section หลักของ Utility
+# ดึง Section ของ Utility
 B_CFG = CONFIG['UTILITY_MAIN']
 S_CFG = CONFIG['UTILITY_SERVICES']
 
-# ==================== 2. HELPERS ====================
+# ==================== 2. MOUSE & SCROLL HELPERS ====================
 
 def force_scroll_down(window, config):
     """เลื่อนหน้าจอลงโดยใช้ Mouse wheel"""
@@ -60,141 +60,148 @@ def force_scroll_down(window, config):
         
         mouse.click(coords=(center_x, center_y))
         time.sleep(focus_delay)
-        
         mouse.scroll(coords=(center_x, center_y), wheel_dist=wheel_dist)
         time.sleep(scroll_delay)
-        print("[/] Scroll สำเร็จ")
-    except Exception as e:
-        print(f"[!] Scroll failed: {e}, ใช้ PageDown แทน")
+    except Exception:
         window.type_keys("{PGDN}")
 
-# ==================== 3. TEMPLATES & ENGINE ====================
+# ==================== 3. TRANSACTION LOGIC ====================
 
 def utility_services_transaction_logic(main_window, transaction_title, mode=1):
-    """ฟังก์ชันจัดการ Flow การกดปุ่มในหน้า Transaction (Mode 1: Next, Mode 2: Enter)"""
-    # 1. คลิกรายการย่อย
-    print(f"[*] ค้นหาและคลิกรายการ: {transaction_title}")
-    main_window.child_window(title=transaction_title, auto_id=S_CFG['TRANSACTION_CONTROL_TYPE'], control_type="Text").click_input()
-    time.sleep(WAIT_TIME)
-    
-    # 2. การดำเนินการ (ถัดไป หรือ Enter)
+    """
+    Mode 1: คลิกรายการแล้วกดปุ่ม 'ถัดไป'
+    Mode 2: เน้นกด ENTER (สำหรับรายการที่ Search เจอแล้วเลือกให้อัตโนมัติ)
+    """
     if mode == 1:
-        print(f"[*] กดปุ่ม '{B_CFG['NEXT_TITLE']}'")
+        print(f"[*] Mode 1: คลิกรายการ '{transaction_title}'")
+        main_window.child_window(title=transaction_title, auto_id=S_CFG['TRANSACTION_CONTROL_TYPE'], control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+        
+        print(f"[*] คลิกปุ่ม '{B_CFG['NEXT_TITLE']}'")
         main_window.child_window(title=B_CFG['NEXT_TITLE'], auto_id=B_CFG['ID_AUTO_ID'], control_type="Text").click_input()
+    
     else:
-        print("[*] ดำเนินการ: กดปุ่ม ENTER")
+        # สำหรับ Mode 2 (เช่น รายการที่ 7) ไม่ต้องคลิกซ้ำ ให้ ENTER ต่อไปเลย
+        print(f"[*] Mode 2: ดำเนินการกด ENTER (แทนการคลิก)")
         main_window.type_keys("{ENTER}")
     
     time.sleep(WAIT_TIME)
     
-    # 3. กดเสร็จสิ้น
+    # กดปุ่ม 'เสร็จสิ้น' (ส่วนท้ายของทุกรายการ)
     print(f"[*] กดปุ่ม '{B_CFG['FINISH_BUTTON_TITLE']}'")
-    main_window.child_window(title=B_CFG['FINISH_BUTTON_TITLE'], control_type="Text").click_input()
+    try:
+        main_window.child_window(title=B_CFG['FINISH_BUTTON_TITLE'], control_type="Text").click_input()
+    except Exception:
+        # ถ้าหาปุ่มไม่เจอ ให้ลองกด Enter เผื่อ Focus อยู่ที่ปุ่ม
+        main_window.type_keys("{ENTER}")
+    
     time.sleep(WAIT_TIME)
 
+# ==================== 4. CORE ENGINE ====================
+
 def run_utility_service(service_key, mode=1, use_search=False):
-    """
-    หัวใจหลักในการรันรายการ: จัดการ Connect App, Search, และดัก Error แคปภาพ
-    """
+    """ฟังก์ชันหลัก: รวมการนำทาง ค้นหา และจัดการ Error"""
     service_title = S_CFG[service_key]
-    print(f"\n{'='*50}\n[*] ดำเนินรายการ: {service_title}")
+    print(f"\n{'='*50}\n[*] รายการ: {service_title} (Key: {service_key})")
     
     app = None
     try:
-        # 1. นำทางหน้าหลัก (Agency -> BaS -> อ่านบัตร)
+        # 1. เข้าหน้าหลัก เตรียมข้อมูลผู้ฝากส่ง
         if not utility_services_main_nav(): return
 
-        # 2. เชื่อมต่อ Application หลัง Navigation สำเร็จ
+        # 2. เชื่อมต่อ Application
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
 
-        # 3. การค้นหารายการ (ถ้าเป็นรายการที่ 6-9)
+        # 3. ถ้าเป็นรายการที่ต้องการการ Search (6-9)
         if use_search:
-            print(f"[*] ค้นหารหัส: {service_title}")
+            print(f"[*] ค้นหารหัสรายการ: {service_title}")
             search_input = main_window.child_window(auto_id=S_CFG['SEARCH_EDIT_ID'], control_type="Edit")
             search_input.click_input()
+            # เคลียร์ค่าเก่าก่อนพิมพ์ (Ctrl+A -> Backspace)
+            search_input.type_keys("^a{BACKSPACE}")
             search_input.type_keys(service_title, with_spaces=True)
             search_input.type_keys("{ENTER}")
             time.sleep(1.5)
             
-            # ตรวจสอบหลังค้นหา
-            target = main_window.child_window(title=service_title, control_type="Text")
-            if not target.exists(timeout=3):
-                raise Exception(f"ไม่พบรายการ {service_title} จากการ Search")
+            # เช็คว่าเจอรายการนั้นบนหน้าจอไหม
+            if not main_window.child_window(title=service_title, control_type="Text").exists(timeout=3):
+                raise Exception(f"ค้นหารหัส {service_title} แล้วแต่ไม่ปรากฏในผลลัพธ์")
 
-        # 4. เข้าสู่ขั้นตอนกดปุ่ม Transaction
+        # 4. ทำ Transaction ตาม Mode ที่กำหนด
         utility_services_transaction_logic(main_window, service_title, mode=mode)
-        print(f"[V] SUCCESS: {service_title} สำเร็จ")
+        print(f"[V] SUCCESS: {service_title} เสร็จสมบูรณ์")
 
     except Exception as e:
-        # แคปภาพหลักฐานเมื่อเกิด Error ทันที
+        # แคปภาพหลักฐานเมื่อเกิด Error
         error_context = {"test_name": "Utility Services", "step_name": service_key, "error_message": str(e)}
         save_evidence_context(app, error_context)
         print(f"[X] FAILED: {service_key} -> {e}")
 
-# ==================== 4. NAVIGATION FLOW ====================
+# ==================== 5. NAVIGATION FLOW ====================
 
 def utility_services_main_nav():
-    """ขั้นตอนเตรียมการหน้าหลัก (Agency -> BaS -> อ่านบัตร -> กรอกข้อมูลเบื้องต้น)"""
+    """เตรียมความพร้อมหน้าจอ Agency -> BaS -> กรอกเบอร์/ไปรษณีย์"""
     try:
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         win = app.top_window()
         
-        # กด Agency และ BaS
+        # เข้าเมนู
         win.child_window(title=B_CFG['HOTKEY_AGENCY_TITLE'], control_type="Text").click_input()
         time.sleep(WAIT_TIME)
         win.child_window(title=B_CFG['HOTKEY_BaS_TITLE'], control_type="Text").click_input()
         time.sleep(WAIT_TIME)
         
-        # อ่านบัตร
+        # อ่านบัตรประชาชน
         win.child_window(title=ID_CARD_BUTTON_TITLE, control_type="Text").click_input()
         
-        # ตรวจสอบ/กรอกข้อมูลเบื้องต้น (ไปรษณีย์ และ เบอร์โทร)
-        for ctrl_id, val, name in [
+        # กรอก ไปรษณีย์ และ เบอร์โทร (พร้อม Scroll ถ้าหาไม่เจอ)
+        for ctrl_id, val, label in [
             (POSTAL_CODE_EDIT_AUTO_ID, POSTAL_CODE, "ไปรษณีย์"),
             (PHONE_EDIT_AUTO_ID, PHONE_NUMBER, "เบอร์โทรศัพท์")
         ]:
-            ctrl = win.child_window(auto_id=ctrl_id, control_type="Edit")
-            # ถ้าไม่เห็นให้เลื่อนหา
-            if not ctrl.exists(timeout=1):
+            target = win.child_window(auto_id=ctrl_id, control_type="Edit")
+            if not target.exists(timeout=1):
                 for _ in range(3):
                     force_scroll_down(win, CONFIG)
-                    if ctrl.exists(timeout=1): break
+                    if target.exists(timeout=1): break
             
-            if not ctrl.exists(): 
-                print(f"[X] หาช่อง {name} ไม่เจอ"); return False
+            if not target.exists():
+                print(f"[X] ไม่พบช่อง {label}"); return False
             
-            if not ctrl.texts()[0].strip():
-                ctrl.click_input()
+            if not target.texts()[0].strip():
+                target.click_input()
                 win.type_keys(val)
             time.sleep(0.5)
 
-        # กดถัดไปเพื่อเข้าหน้าเลือกรายการย่อย
+        # กดถัดไปเพื่อไปหน้าเลือกรายการ
         win.child_window(title=B_CFG['NEXT_TITLE'], auto_id=B_CFG['ID_AUTO_ID'], control_type="Text").click_input()
         time.sleep(WAIT_TIME)
         return True
     except Exception as e:
-        print(f"[X] Navigation Error: {e}")
+        print(f"[X] Navigation Failed: {e}")
         return False
 
-# ==================== 5. EXECUTION ====================
+# ==================== 6. EXECUTION SECTION ====================
 
 if __name__ == "__main__":
-    # รายการ 1-3: โหมดปกติ (Mode 1 - คลิกปุ่มถัดไป)
+    # รายการ 1-3: คลิกรายการ -> คลิกถัดไป
     run_utility_service('UTILITY_1_TITLE', mode=1)
     run_utility_service('UTILITY_2_TITLE', mode=1)
     run_utility_service('UTILITY_3_TITLE', mode=1)
     
-    # รายการ 4-5: โหมดกด ENTER (Mode 2)
+    # รายการ 4-5: คลิกรายการ -> กด ENTER
     run_utility_service('UTILITY_4_TITLE', mode=2)
     run_utility_service('UTILITY_5_TITLE', mode=2)
     
-    # รายการ 6: โหมด Search (ใช้ Mode 1 - คลิกถัดไป)
+    # รายการ 6: ค้นหารหัส -> คลิกรายการ -> คลิกถัดไป
     run_utility_service('UTILITY_6_TITLE', mode=1, use_search=True)
-
-    # >>> รายการ 7: แก้จาก mode=1 เป็น mode=2 (เพื่อให้กด ENTER แทนคลิกถัดไป) <<<
+    
+    # รายการ 7: ค้นหารหัส -> กด ENTER (ตามที่คุณต้องการ)
     run_utility_service('UTILITY_7_TITLE', mode=2, use_search=True)
-
-    # รายการ 8-9: โหมด Search (ถ้าต้องการ ENTER ให้เปลี่ยนเป็น mode=2 เช่นกัน)
+    
+    # รายการ 8-9: ค้นหารหัส -> คลิกรายการ -> คลิกถัดไป
     run_utility_service('UTILITY_8_TITLE', mode=1, use_search=True)
     run_utility_service('UTILITY_9_TITLE', mode=1, use_search=True)
+
+    print(f"\n{'='*50}\n[V] จบพาร์ท Utility Services ทั้งหมดแล้ว")
