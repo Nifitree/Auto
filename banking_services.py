@@ -606,16 +606,41 @@ def banking_services11():
         # [NEW] เพิ่มการตรวจสอบ/Scroll (แทนที่การเรียก force_scroll_down() เดิม)
         SERVICE_TITLE = S_CFG['BANKING_11_TITLE']
         TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-        if scroll_and_find_element(main_window, SERVICE_TITLE, TRANSACTION_CONTROL_TYPE):
-            banking_services_transaction(main_window, SERVICE_TITLE)
-        else:
-            # ถ้าหาไม่เจอจริงๆ ให้โยน Error ไปแคปภาพ
-            raise Exception(f"ไม่พบรายการ {SERVICE_TITLE} หลังจากพยายาม Scroll")
+        target_control = main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text")
+        
+        max_scrolls = 3
+        found = False
+        
+        print(f"[*] 1.5. กำลังตรวจสอบรายการ '{SERVICE_TITLE}' ก่อน Scroll...")
+        for i in range(max_scrolls):
+            # 1. สั่งเลื่อนก่อนเลย (ตามที่คุณต้องการ)
+            force_scroll_down(main_window, CONFIG)
+            print(f"[-] เลื่อนครั้งที่ {i+1}...")
             
+            # 2. ค่อยตรวจสอบว่าเจอไหม
+            target_control = main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text")
+            if target_control.exists(timeout=1):
+                print(f"[/] รายการย่อยพบแล้วหลังเลื่อนครั้งที่ {i+1}.")
+                found = True
+                break
+        
+        # 3. ตรวจสอบผลลัพธ์สุดท้าย
+        if not found:
+            print(f"[X] FAILED: ไม่สามารถค้นหารายการย่อย '{SERVICE_TITLE}' ได้หลัง Scroll {max_scrolls} ครั้ง")
+            # โยน error เพื่อไปเข้ากระบวนการแคปภาพใน except
+            raise Exception(f"Scroll จนครบ {max_scrolls} ครั้งแล้วยังไม่เจอรายการ")
+            
+        # 4. ถ้าเจอ ก็ทำรายการต่อ
+        banking_services_transaction(main_window, SERVICE_TITLE)
+        
     except Exception as e:
-        error_context = {"test_name": "Banking Services", "step_name": "banking_services6", "error_message": str(e)}
+        error_context = {
+            "test_name": "Banking Services Automation",
+            "step_name": "banking_services6",
+            "error_message": str(e)
+        }
         save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: {e}") 
+        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}") 
 
 def banking_services12():
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการธนาคาร' (รายการ 12)...")
