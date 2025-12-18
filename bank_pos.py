@@ -1,6 +1,6 @@
 import configparser
 from pywinauto.application import Application
-from pywinauto import mouse 
+from pywinauto import mouse
 import time
 import os
 import sys
@@ -9,406 +9,182 @@ from evidence import save_evidence_context
 # ชื่อไฟล์ Config
 CONFIG_FILE = "config.ini"
 
-# ----------------- ส่วนจัดการ Config -----------------
+# ==================== 1. CONFIGURATION ====================
 
 def read_config(filename=CONFIG_FILE):
     """อ่านและโหลดค่าจากไฟล์ config.ini"""
     config = configparser.ConfigParser()
     try:
         if not os.path.exists(filename):
-            print(f"[X] FAILED: ไม่พบไฟล์ {filename} ที่พาธ: {os.path.abspath(filename)}")
+            print(f"[X] ไม่พบไฟล์ config ที่: {os.path.abspath(filename)}")
             return configparser.ConfigParser()
-        config.read(filename, encoding='utf-8')
+        config.read(filename, encoding="utf-8")
         return config
     except Exception as e:
-        print(f"[X] FAILED: ไม่สามารถอ่านไฟล์ {filename} ได้: {e}")
+        print(f"[X] FAILED: อ่าน config ไม่ได้: {e}")
         return configparser.ConfigParser()
 
 # โหลด config ล่วงหน้า
 CONFIG = read_config()
 if not CONFIG.sections():
-    print("ไม่สามารถโหลด config.ini ได้ โปรดตรวจสอบไฟล์และพาธ")
+    print("ไม่สามารถโหลด config.ini ได้")
     sys.exit(1)
 
-# ดึงค่า Global ที่ใช้ร่วมกัน
-WINDOW_TITLE = CONFIG['GLOBAL']['WINDOW_TITLE']
-WAIT_TIME = CONFIG.getint('GLOBAL', 'WAIT_TIME_SEC')
-PHONE_NUMBER = CONFIG['GLOBAL']['PHONE_NUMBER']
-ID_CARD_BUTTON_TITLE = CONFIG['GLOBAL']['ID_CARD_BUTTON_TITLE']
-PHONE_EDIT_AUTO_ID = CONFIG['GLOBAL']['PHONE_EDIT_AUTO_ID']
-POSTAL_CODE = CONFIG['GLOBAL']['POSTAL_CODE'] 
-POSTAL_CODE_EDIT_AUTO_ID = CONFIG['GLOBAL']['POSTAL_CODE_EDIT_AUTO_ID']
+# ดึงค่า Global
+WINDOW_TITLE = CONFIG["GLOBAL"]["WINDOW_TITLE"]
+WAIT_TIME = CONFIG.getint("GLOBAL", "WAIT_TIME_SEC")
+PHONE_NUMBER = CONFIG["GLOBAL"]["PHONE_NUMBER"]
+ID_CARD_BUTTON_TITLE = CONFIG["GLOBAL"]["ID_CARD_BUTTON_TITLE"]
+PHONE_EDIT_AUTO_ID = CONFIG["GLOBAL"]["PHONE_EDIT_AUTO_ID"]
+POSTAL_CODE = CONFIG["GLOBAL"]["POSTAL_CODE"]
+POSTAL_CODE_EDIT_AUTO_ID = CONFIG["GLOBAL"]["POSTAL_CODE_EDIT_AUTO_ID"]
 
-# ดึง Section หลัก
-B_CFG = CONFIG['BANK_POS_MAIN']
-S_CFG = CONFIG['BANK_POS_SUB_TRANSACTIONS']
+B_CFG = CONFIG["BANK_POS_MAIN"]
+S_CFG = CONFIG["BANK_POS_SUB_TRANSACTIONS"]
 
-# ==================== SCROLL HELPERS mouse ====================
+# ==================== 2. HELPERS ====================
 
-def force_scroll_down(window, config):
-    """เลื่อนหน้าจอลงโดยใช้ Mouse wheel"""
+def connect_main_window():
+    """เชื่อมต่อหน้าต่างหลักของ POS"""
+    app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
+    return app, app.top_window()
+
+def force_scroll_down(window):
+    """เลื่อนหน้าจอลงเมื่อหา Object ไม่เจอ"""
     try:
-        center_x_offset = config.getint('MOUSE_SCROLL', 'CENTER_X_OFFSET')
-        center_y_offset = config.getint('MOUSE_SCROLL', 'CENTER_Y_OFFSET')
-        wheel_dist = config.getint('MOUSE_SCROLL', 'WHEEL_DIST')
-        focus_delay = config.getfloat('MOUSE_SCROLL', 'FOCUS_DELAY')
-        scroll_delay = config.getfloat('MOUSE_SCROLL', 'SCROLL_DELAY')
-    except ValueError:
-        print("[!] Scroll config invalid. Using defaults.")
-        center_x_offset, center_y_offset, wheel_dist, focus_delay, scroll_delay = 300, 300, -20, 0.5, 1.0
-
-    print(f"...กำลังเลื่อนหน้าจอลง (Mouse Wheel {wheel_dist})...")
-
-    try:
+        cfg = CONFIG["MOUSE_SCROLL"]
+        center_x_offset = cfg.getint("CENTER_X_OFFSET")
+        center_y_offset = cfg.getint("CENTER_Y_OFFSET")
+        wheel_dist = cfg.getint("WHEEL_DIST")
+        focus_delay = cfg.getfloat("FOCUS_DELAY")
+        scroll_delay = cfg.getfloat("SCROLL_DELAY")
+        
         rect = window.rectangle()
-        center_x = rect.left + center_x_offset
-        center_y = rect.top + center_y_offset
-        
-        mouse.click(coords=(center_x, center_y))
+        x = rect.left + center_x_offset
+        y = rect.top + center_y_offset
+        mouse.click(coords=(x, y))
         time.sleep(focus_delay)
-        
-        mouse.scroll(coords=(center_x, center_y), wheel_dist=wheel_dist)
+        mouse.scroll(coords=(x, y), wheel_dist=wheel_dist)
         time.sleep(scroll_delay)
-        print("[/] Scroll สำเร็จ")
-    except Exception as e:
-        print(f"[!] Scroll failed: {e}, ใช้ PageDown แทน")
+    except Exception:
         window.type_keys("{PGDN}")
 
-# ----------------- ฟังก์ชันหลัก: นำทางและกรอกข้อมูล -----------------
+def scroll_until_found(control, window, max_scrolls=3):
+    """วนลูป Scroll จนกว่าจะเจอ Object"""
+    for _ in range(max_scrolls):
+        if control.exists(timeout=1):
+            return True
+        force_scroll_down(window)
+    return False
+
+def fill_if_empty(window, control, value):
+    """กรอกข้อมูลเฉพาะในกรณีที่ช่องว่าง"""
+    if not control.texts()[0].strip():
+        control.click_input()
+        window.type_keys(value)
+
+# ==================== 3. MAIN NAVIGATION ====================
 
 def bank_pos_navigate_main():
-    """ฟังก์ชันหลัก: นำทางเข้าหน้า 'ผู้ฝากส่ง' และกรอกข้อมูลผู้ฝากส่ง"""
-    
-    # 1. กำหนดตัวแปรจาก Config
-    BUTTON_N_TITLE = B_CFG['BUTTON_N_TITLE']
-    NEXT_BUTTON_TITLE = B_CFG['NEXT_BUTTON_TITLE']
-    NEXT_BUTTON_AUTO_ID = B_CFG['NEXT_BUTTON_AUTO_ID']
-    TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-    
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'ตัวแทนธนาคาร' โดยการกดปุ่ม '{BUTTON_N_TITLE}'...")
+    """ขั้นตอนการนำทางเข้าหน้า 'ผู้ฝากส่ง' และกรอกข้อมูล"""
     try:
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        print("[/] เชื่อมต่อหน้าจอสำเร็จ ")
-        
-        # ========= กดปุ่มฟังก์ชัน N =========
-        main_window.child_window(title=BUTTON_N_TITLE, control_type="Text").click_input()
+        app, main_window = connect_main_window()
+
+        # กดปุ่มฟังก์ชัน N
+        main_window.child_window(title=B_CFG['BUTTON_N_TITLE'], control_type="Text").click_input()
         time.sleep(WAIT_TIME)
-        print("[/] กำลังดำเนินการในหน้า 'ผู้ฝากส่ง'...")
-    
-        # --- กด 'อ่านบัตรประชาชน' ---
-        print(f"[*] 2.1. ค้นหาและคลิกปุ่ม '{ID_CARD_BUTTON_TITLE}'...")
+
+        # กดอ่านบัตรประชาชน
         main_window.child_window(title=ID_CARD_BUTTON_TITLE, control_type="Text").click_input()
 
-        # --- ค้นหาช่องเลขไปรษณีย์และกรอกข้อมูล ---
-        print(f"[*] 2.2.5. กำลังตรวจสอบ/กรอกเลขไปรษณีย์ ID='{POSTAL_CODE_EDIT_AUTO_ID}'")
-        postal_control = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
-        
-         #  [จุดที่ 1] ตรวจสอบว่าช่องปรากฏหรือไม่ ก่อน Scroll
-        if not postal_control.exists(timeout=1):
-            print("[!] ช่องไปรษณีย์ไม่ปรากฏทันที, กำลังเลื่อนหน้าจอลง...")
-        
-        # ใช้การวนลูป Scroll & Check เพื่อความแม่นยำสูงสุด
-        max_scrolls = 3
-        found = False
-        for i in range(max_scrolls):
-            force_scroll_down(main_window, CONFIG)
-            if postal_control.exists(timeout=1):
-                print("[/] ช่องไปรษณีย์พบแล้วหลังการ Scroll")
-                found = True
-                break
-        
-        if not found:
-            print(f"[X] FAILED: ไม่สามารถหาช่องไปรษณีย์ '{POSTAL_CODE_EDIT_AUTO_ID}' ได้หลัง Scroll {max_scrolls} ครั้ง")
-            return False # ยกเลิกการทำงานหากหาไม่พบ
+        # ตรวจสอบและกรอกรหัสไปรษณีย์
+        postal = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
+        if not scroll_until_found(postal, main_window):
+            return False
+        fill_if_empty(main_window, postal, POSTAL_CODE)
 
-        # [จุดที่ 2] ดำเนินการกรอกข้อมูล (เมื่อแน่ใจว่าพบแล้ว)
-        if not postal_control.texts()[0].strip():
-            # ถ้าช่องว่าง (Empty) ให้ทำการกรอก
-            print(f" [-] -> ช่องว่าง, กรอก: {POSTAL_CODE}")
-            postal_control.click_input() 
-            main_window.type_keys(POSTAL_CODE)
-        else:
-            print(f" [-] -> ช่องมีค่าอยู่แล้ว: {postal_control.texts()[0].strip()}, ข้ามการกรอก")
-        time.sleep(0.5)
-    
-        # --- ค้นหาช่องหมายเลขโทรศัพท์และกรอกข้อมูล ---
-        print(f"[*] 2.2. กำลังตรวจสอบ/กรอกเบอร์โทรศัพท์ ID='{PHONE_EDIT_AUTO_ID}'")
-        phone_control = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
-    
-        # [จุดที่ 2] ตรวจสอบ/Scroll ซ้ำเพื่อหาช่องเบอร์โทรศัพท์
-        if not phone_control.exists(timeout=1):
-            print("[!] ช่องเบอร์โทรศัพท์ไม่ปรากฏทันที, กำลังตรวจสอบ/เลื่อนหน้าจอซ้ำ...")
-        
-        max_scrolls = 3
-        found = False
-        for i in range(max_scrolls):
-            force_scroll_down(main_window, CONFIG)
-            if phone_control.exists(timeout=1):
-                print("[/] ช่องเบอร์โทรศัพท์พบแล้วหลังการ Scroll")
-                found = True
-                break
-        
-        if not found:
-            print(f"[X] FAILED: ไม่สามารถหาช่องเบอร์โทรศัพท์ '{PHONE_EDIT_AUTO_ID}' ได้หลัง Scroll {max_scrolls} ครั้ง")
-            return False # ยกเลิกการทำงานหากหาไม่พบ
-    
-        #  [จุดที่ 3] ดำเนินการกรอกข้อมูล (เมื่อแน่ใจว่าพบแล้ว)
-        if not phone_control.texts()[0].strip():
-            print(f" [-] -> ช่องว่าง, กรอก: {PHONE_NUMBER}")
-            phone_control.click_input()
-            main_window.type_keys(PHONE_NUMBER)
-        else:
-            print(f" [-] -> ช่องมีค่าอยู่แล้ว: {phone_control.texts()[0].strip()}, ข้ามการกรอก")
-        time.sleep(0.5)
+        # ตรวจสอบและกรอกเบอร์โทร
+        phone = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
+        if not scroll_until_found(phone, main_window):
+            return False
+        fill_if_empty(main_window, phone, PHONE_NUMBER)
 
-        # --- กด 'ถัดไป' เพื่อยืนยัน ---
-        print(f"[*] 2.3. กดปุ่ม '{NEXT_BUTTON_TITLE}' เพื่อไปหน้าถัดไป...")
-        main_window.child_window(title=NEXT_BUTTON_TITLE, auto_id=NEXT_BUTTON_AUTO_ID, control_type="Text").click_input()
+        # กดถัดไป
+        main_window.child_window(
+            title=B_CFG["NEXT_BUTTON_TITLE"],
+            auto_id=B_CFG["NEXT_BUTTON_AUTO_ID"],
+            control_type="Text"
+        ).click_input()
         time.sleep(WAIT_TIME)
-        
-        print("\n[V] SUCCESS: ดำเนินการขั้นตอน Bank POS (ผู้ฝากส่ง) สำเร็จ!")
+
+        print("[V] SUCCESS: เตรียมหน้าข้อมูลผู้ฝากส่งสำเร็จ")
         return True
+
     except Exception as e:
-        print(f"\n[X] FAILED: เกิดข้อผิดพลาดใน bank_pos_navigate_main: {e}")
+        print(f"[X] FAILED: bank_pos_navigate_main error: {e}")
         return False
 
-# ----------------- ฟังก์ชันแม่แบบสำหรับรายการย่อย -----------------
+# ==================== 4. TRANSACTION ENGINE ====================
 
-def run_sub_transaction(main_window, transaction_title):
-    """ฟังก์ชันที่ใช้ร่วมกันสำหรับรายการย่อยทั้งหมด"""
-    
-    # 1. กำหนดตัวแปรจาก Config
-    SUB_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-    NEXT_BUTTON_TITLE = B_CFG['NEXT_BUTTON_TITLE']
-    NEXT_BUTTON_AUTO_ID = B_CFG['NEXT_BUTTON_AUTO_ID']
-    FINISH_BUTTON_TITLE = B_CFG['FINISH_BUTTON_TITLE']
-    
-    try:
-        # 2. คลิกรายการย่อย
-        print(f"[*] 2. ค้นหาและคลิกรายการ: {transaction_title}")
-        main_window.child_window(title=transaction_title, auto_id=SUB_CONTROL_TYPE, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-        
-        # 3. คลิก 'ถัดไป'
-        print(f"[*] 3. กดปุ่ม '{NEXT_BUTTON_TITLE}'")
-        main_window.child_window(title=NEXT_BUTTON_TITLE, auto_id=NEXT_BUTTON_AUTO_ID, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-        
-        # 4. คลิก 'เสร็จสิ้น'
-        print(f"[*] 4. กดปุ่ม '{FINISH_BUTTON_TITLE}'")
-        main_window.child_window(title=FINISH_BUTTON_TITLE, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: เกิดข้อผิดพลาดในการทำรายการย่อย {transaction_title}: {e}")
-        raise e
-        
-# ----------------- ฟังก์ชันย่อยตามโครงสร้างเดิม (เรียกใช้ Config) -----------------
+def run_bank_transaction(main_window, title):
+    """ทำรายการย่อย (คลิกรายการ -> ถัดไป -> เสร็จสิ้น)"""
+    # คลิกที่รายการย่อย
+    main_window.child_window(
+        title=title,
+        auto_id=S_CFG["TRANSACTION_CONTROL_TYPE"],
+        control_type="Text"
+    ).click_input()
+    time.sleep(WAIT_TIME)
 
-def bank_pos_navigate1():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'ตัวแทนธนาคาร' (รายการ 1)...")
+    # คลิกปุ่มถัดไป
+    main_window.child_window(
+        title=B_CFG["NEXT_BUTTON_TITLE"],
+        auto_id=B_CFG["NEXT_BUTTON_AUTO_ID"],
+        control_type="Text"
+    ).click_input()
+    time.sleep(WAIT_TIME)
+
+    # กดปุ่มเสร็จสิ้น
+    main_window.child_window(title=B_CFG["FINISH_BUTTON_TITLE"], control_type="Text").click_input()
+    time.sleep(WAIT_TIME)
+
+def run_service(step_name, service_title, use_main=True):
+    """หุ้มการทำงานทั้งหมดพร้อมดักจับ Error เพื่อแคปภาพ"""
     app = None
     try:
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        run_sub_transaction(main_window, S_CFG['TRANSACTION_1_TITLE'])
-        
-    except Exception as e:
-        error_context = {
-            "test_name": "Bank POS Automation",
-            "step_name": "bank_pos_navigate1",
-            "error_message": str(e)
-        }
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def bank_pos_navigate2():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'ตัวแทนธนาคาร' (รายการ 2)...")
-    app = None
-    try:
-        if not bank_pos_navigate_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        run_sub_transaction(main_window, S_CFG['TRANSACTION_2_TITLE'])
-        
-    except Exception as e:
-        error_context = {
-            "test_name": "Bank POS Automation",
-            "step_name": "bank_pos_navigate2",
-            "error_message": str(e)
-        }
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def bank_pos_navigate3():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'ตัวแทนธนาคาร' (รายการ 3)...")
-    app = None
-    try:
-        if not bank_pos_navigate_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        run_sub_transaction(main_window, S_CFG['TRANSACTION_3_TITLE'])
-        
-    except Exception as e:
-        error_context = {
-            "test_name": "Bank POS Automation",
-            "step_name": "bank_pos_navigate3",
-            "error_message": str(e)
-        }
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def bank_pos_navigate4():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'ตัวแทนธนาคาร' (รายการ 4)...")
-    app = None
-    try:
-        if not bank_pos_navigate_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        # เพิ่มการตรวจสอบ/Scroll
-        SERVICE_TITLE = S_CFG['TRANSACTION_4_TITLE']
-        TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-        target_control = main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text")
-        
-        max_scrolls = 3
-        found = False
-        
-        print(f"[*] 1.5. กำลังตรวจสอบรายการ '{SERVICE_TITLE}' ก่อน Scroll...")
-        if target_control.exists(timeout=1):
-            print("[/] รายการย่อยพบแล้ว, ไม่จำเป็นต้อง Scroll.")
-            found = True
-        
-        if not found:
-            print(f"[*] 1.5.1. รายการย่อยไม่ปรากฏทันที, เริ่มการ Scroll ({max_scrolls} ครั้ง)...")
-            for i in range(max_scrolls):
-                force_scroll_down(main_window, CONFIG) 
-                if target_control.exists(timeout=1):
-                    print(f"[/] รายการย่อยพบแล้วในการ Scroll ครั้งที่ {i+1}.")
-                    found = True
-                    break
-        
-        if not found:
-            print(f"[X] FAILED: ไม่สามารถค้นหารายการย่อย '{SERVICE_TITLE}' ได้หลัง Scroll {max_scrolls} ครั้ง")
+        # เริ่มต้นใหม่ทุกครั้งเพื่อให้ State หน้าจอถูกต้อง
+        if use_main and not bank_pos_navigate_main():
             return
-            
-        run_sub_transaction(main_window, SERVICE_TITLE)
-        
-    except Exception as e:
-        error_context = {
-            "test_name": "Bank POS Automation",
-            "step_name": "bank_pos_navigate4",
-            "error_message": str(e)
-        }
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
-def bank_pos_navigate5():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'ตัวแทนธนาคาร' (รายการ 5)...")
-    app = None
-    try:
-        if not bank_pos_navigate_main(): return
+        app, main_window = connect_main_window()
         
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        # เพิ่มการตรวจสอบ/Scroll
-        SERVICE_TITLE = S_CFG['TRANSACTION_5_TITLE']
-        TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-        target_control = main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text")
-        
-        max_scrolls = 3
-        found = False
-        
-        print(f"[*] 1.5. กำลังตรวจสอบรายการ '{SERVICE_TITLE}' ก่อน Scroll...")
-        if target_control.exists(timeout=1):
-            print("[/] รายการย่อยพบแล้ว, ไม่จำเป็นต้อง Scroll.")
-            found = True
-        
-        if not found:
-            print(f"[*] 1.5.1. รายการย่อยไม่ปรากฏทันที, เริ่มการ Scroll ({max_scrolls} ครั้ง)...")
-            for i in range(max_scrolls):
-                force_scroll_down(main_window, CONFIG) 
-                if target_control.exists(timeout=1):
-                    print(f"[/] รายการย่อยพบแล้วในการ Scroll ครั้งที่ {i+1}.")
-                    found = True
-                    break
-        
-        if not found:
-            print(f"[X] FAILED: ไม่สามารถค้นหารายการย่อย '{SERVICE_TITLE}' ได้หลัง Scroll {max_scrolls} ครั้ง")
-            return
-            
-        run_sub_transaction(main_window, SERVICE_TITLE)
-        
-    except Exception as e:
-        error_context = {
-            "test_name": "Bank POS Automation",
-            "step_name": "bank_pos_navigate5",
-            "error_message": str(e)
-        }
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
+        # ตรวจสอบว่ารายการอยู่บนหน้าจอหรือไม่ (ถ้าไม่อยู่ให้ Scroll หา)
+        target = main_window.child_window(title=service_title, auto_id=S_CFG["TRANSACTION_CONTROL_TYPE"], control_type="Text")
+        if not scroll_until_found(target, main_window):
+            raise Exception(f"ไม่พบรายการ {service_title} หลังการ Scroll")
 
-def bank_pos_navigate6():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'ตัวแทนธนาคาร' (รายการ 6)...")
-    app = None
-    try:
-        if not bank_pos_navigate_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        # เพิ่มการตรวจสอบ/Scroll
-        SERVICE_TITLE = S_CFG['TRANSACTION_6_TITLE']
-        TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-        target_control = main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text")
-        
-        max_scrolls = 3
-        found = False
-        
-        print(f"[*] 1.5. กำลังตรวจสอบรายการ '{SERVICE_TITLE}' ก่อน Scroll...")
-        if target_control.exists(timeout=1):
-            print("[/] รายการย่อยพบแล้ว, ไม่จำเป็นต้อง Scroll.")
-            found = True
-        
-        if not found:
-            print(f"[*] 1.5.1. รายการย่อยไม่ปรากฏทันที, เริ่มการ Scroll ({max_scrolls} ครั้ง)...")
-            for i in range(max_scrolls):
-                force_scroll_down(main_window, CONFIG) 
-                if target_control.exists(timeout=1):
-                    print(f"[/] รายการย่อยพบแล้วในการ Scroll ครั้งที่ {i+1}.")
-                    found = True
-                    break
-        
-        if not found:
-            print(f"[X] FAILED: ไม่สามารถค้นหารายการย่อย '{SERVICE_TITLE}' ได้หลัง Scroll {max_scrolls} ครั้ง")
-            return
-            
-        run_sub_transaction(main_window, SERVICE_TITLE)
-        
+        run_bank_transaction(main_window, service_title)
+        print(f"[V] SUCCESS: {step_name} ({service_title}) ดำเนินการสำเร็จ")
+
     except Exception as e:
-        error_context = {
+        save_evidence_context(app, {
             "test_name": "Bank POS Automation",
-            "step_name": "bank_pos_navigate6",
+            "step_name": step_name,
             "error_message": str(e)
-        }
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-        
-# ----------------- Main Execution -----------------
+        })
+        print(f"[X] FAILED: {step_name} error: {e}")
+
+# ==================== 5. ENTRY POINT ====================
 
 if __name__ == "__main__":
-    bank_pos_navigate_main()
-    bank_pos_navigate1()
-    bank_pos_navigate2()
-    bank_pos_navigate3()
-    bank_pos_navigate4()
-    bank_pos_navigate5()
-    bank_pos_navigate6()
+    # รันรายการ 1-6 โดยใช้ระบบ Engine กลาง
+    # รายการ 1: เริ่มต้น (ใช้ use_main=True เพื่อความเสถียรตามที่คุณต้องการ)
+    run_service("bank_pos_navigate1", S_CFG["TRANSACTION_1_TITLE"], use_main=True)
+    
+    run_service("bank_pos_navigate2", S_CFG["TRANSACTION_2_TITLE"])
+    run_service("bank_pos_navigate3", S_CFG["TRANSACTION_3_TITLE"])
+    run_service("bank_pos_navigate4", S_CFG["TRANSACTION_4_TITLE"])
+    run_service("bank_pos_navigate5", S_CFG["TRANSACTION_5_TITLE"])
+    run_service("bank_pos_navigate6", S_CFG["TRANSACTION_6_TITLE"])
+
+    print(f"\n{'='*50}\n[V] จบพาร์ท Bank POS ทั้งหมด")
