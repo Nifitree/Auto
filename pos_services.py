@@ -206,6 +206,7 @@ def praisani_pos_transaction(main_window, transaction_title):
         
     except Exception as e:
         print(f"\n[X] FAILED: เกิดข้อผิดพลาดในการทำรายการย่อย {transaction_title}: {e}")
+        raise e
 
 # ----------------- ฟังก์ชันย่อยตามโครงสร้างเดิม (เรียกใช้ Config) -----------------
 
@@ -218,6 +219,12 @@ def pos_services1():
         praisani_pos_transaction(main_window, S_CFG['PRAISANI_1_TITLE'])
         
     except Exception as e:
+        error_context = {
+            "test_name": "Banking Services Automation",
+            "step_name": "pos_services1",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def pos_services2():
@@ -231,6 +238,12 @@ def pos_services2():
         praisani_pos_transaction(main_window, S_CFG['PRAISANI_2_TITLE'])
         
     except Exception as e:
+        error_context = {
+            "test_name": "Banking Services Automation",
+            "step_name": "pos_services2",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def pos_services3():
@@ -244,6 +257,12 @@ def pos_services3():
         praisani_pos_transaction(main_window, S_CFG['PRAISANI_3_TITLE'])
         
     except Exception as e:
+        error_context = {
+            "test_name": "Banking Services Automation",
+            "step_name": "pos_services3",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def pos_services4():
@@ -257,6 +276,12 @@ def pos_services4():
         praisani_pos_transaction(main_window, S_CFG['PRAISANI_4_TITLE'])
         
     except Exception as e:
+        error_context = {
+            "test_name": "Banking Services Automation",
+            "step_name": "pos_services4",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def pos_services5():
@@ -270,6 +295,12 @@ def pos_services5():
         praisani_pos_transaction(main_window, S_CFG['PRAISANI_5_TITLE'])
         
     except Exception as e:
+        error_context = {
+            "test_name": "Banking Services Automation",
+            "step_name": "pos_services5",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def pos_services6():
@@ -279,10 +310,37 @@ def pos_services6():
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
+        # เพิ่มการตรวจสอบหลัง Scroll
+        SERVICE_TITLE = S_CFG['PRAISANI_6_TITLE']
+        TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
+        SEARCH_EDIT_ID = S_CFG['SEARCH_EDIT_ID'] 
         
-        praisani_pos_transaction(main_window, S_CFG['PRAISANI_6_TITLE'])
+        print(f"[*] กำลังค้นหารายการด้วยรหัส: {SERVICE_TITLE}")
+
+        # 2. คลิกและพิมพ์รหัสในช่องค้นหา
+        search_input = main_window.child_window(auto_id=SEARCH_EDIT_ID, control_type="Edit")
+        search_input.click_input()
+        search_input.type_keys(SERVICE_TITLE, with_spaces=True)
+        search_input.type_keys("{ENTER}") # กด Enter เพื่อค้นหา
+        time.sleep(1) # รอรายการปรากฏขึ้นมา
+
+        # 3. ตรวจสอบว่ารายการที่ค้นหาโผล่มาให้คลิกไหม
+        target_control = main_window.child_window(title=SERVICE_TITLE, control_type="Text")
         
+        if target_control.exists(timeout=3):
+            print(f"[/] พบรายการ {SERVICE_TITLE} จากการค้นหา")
+            # 4. เรียกฟังก์ชันทำรายการต่อ
+            praisani_pos_transaction(main_window, SERVICE_TITLE)
+        else:
+            raise Exception(f"ค้นหาด้วยรหัส {SERVICE_TITLE} แล้วแต่ไม่พบรายการในผลลัพธ์")
+
     except Exception as e:
+        error_context = {
+            "test_name": "Banking Services Automation",
+            "step_name": "pos_services6",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def pos_services7():
@@ -296,39 +354,34 @@ def pos_services7():
        # เพิ่มการตรวจสอบหลัง Scroll
         SERVICE_TITLE = S_CFG['PRAISANI_7_TITLE']
         TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
+        SEARCH_EDIT_ID = S_CFG['SEARCH_EDIT_ID'] 
         
-        target_control = main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text")
+        print(f"[*] กำลังค้นหารายการด้วยรหัส: {SERVICE_TITLE}")
+
+        # 2. คลิกและพิมพ์รหัสในช่องค้นหา
+        search_input = main_window.child_window(auto_id=SEARCH_EDIT_ID, control_type="Edit")
+        search_input.click_input()
+        search_input.type_keys(SERVICE_TITLE, with_spaces=True)
+        search_input.type_keys("{ENTER}") # กด Enter เพื่อค้นหา
+        time.sleep(1) # รอรายการปรากฏขึ้นมา
+
+        # 3. ตรวจสอบว่ารายการที่ค้นหาโผล่มาให้คลิกไหม
+        target_control = main_window.child_window(title=SERVICE_TITLE, control_type="Text")
         
-        max_scrolls = 3
-        found = False
-        
-        print(f"[*] 1.5. กำลังตรวจสอบรายการ '{SERVICE_TITLE}' ก่อน Scroll...")
-        
-        # 1. ตรวจสอบก่อนว่ารายการปรากฏขึ้นแล้วหรือไม่ (ในกรณีที่หน้าจอไม่เต็ม)
-        if target_control.exists(timeout=1):
-            print("[/] รายการย่อยพบแล้ว, ไม่จำเป็นต้อง Scroll.")
-            found = True
-        
-        # 2. ถ้าไม่พบ ให้วนลูป Scroll และตรวจสอบซ้ำ
-        if not found:
-            print(f"[*] 1.5.1. รายการย่อยไม่ปรากฏทันที, เริ่มการ Scroll ({max_scrolls} ครั้ง)...")
-            for i in range(max_scrolls):
-                force_scroll_down(main_window, CONFIG) 
-                # ตรวจสอบหลัง Scroll
-                if target_control.exists(timeout=1):
-                    print(f"[/] รายการย่อยพบแล้วในการ Scroll ครั้งที่ {i+1}.")
-                    found = True
-                    break
-        
-        # 3. หากยังไม่พบ ให้ยกเลิกการทำงาน
-        if not found:
-            print(f"[X] FAILED: ไม่สามารถค้นหารายการย่อย '{SERVICE_TITLE}' ได้หลัง Scroll {max_scrolls} ครั้ง")
-            return
-        
-        # 4. หากพบแล้ว จึงเรียก Transaction ต่อไป
-        praisani_pos_transaction(main_window, SERVICE_TITLE)
-        
+        if target_control.exists(timeout=3):
+            print(f"[/] พบรายการ {SERVICE_TITLE} จากการค้นหา")
+            # 4. เรียกฟังก์ชันทำรายการต่อ
+            praisani_pos_transaction(main_window, SERVICE_TITLE)
+        else:
+            raise Exception(f"ค้นหาด้วยรหัส {SERVICE_TITLE} แล้วแต่ไม่พบรายการในผลลัพธ์")
+
     except Exception as e:
+        error_context = {
+            "test_name": "Banking Services Automation",
+            "step_name": "pos_services7",
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 # ----------------- Main Execution -----------------
