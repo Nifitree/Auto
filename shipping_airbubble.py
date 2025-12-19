@@ -242,9 +242,17 @@ def execute_shipping_flow(main_window):
     press_next(main_window) # ถัดไป (11)
     press_next(main_window) # ถัดไป (12)
 
-    # --- Phase 11: เสร็จสิ้น (Z) ---
-    print("[*] 13. กดเสร็จสิ้น (Z)")
-    click_menu_button(main_window, S_CFG['BUTTON_Z_TITLE'])
+    # --- Phase 11: เสร็จสิ้น (Settle) ---
+    settle_id = S_CFG['SETTLE_BUTTON_ID']
+    print(f"[*] 13. กดเสร็จสิ้น (ID: {settle_id})")
+    
+    # ค้นหาปุ่ม SettleCommand (ถ้าไม่เจอก็ Scroll หา)
+    settle_btn = main_window.child_window(auto_id=settle_id)
+    if not scroll_until_found(settle_btn, main_window):
+        raise Exception(f"ไม่พบปุ่มเสร็จสิ้น (ID: {settle_id})")
+        
+    settle_btn.click_input()
+    time.sleep(WAIT_TIME)
 
 # ==================== 4. ENGINE (STOP ON ERROR) ====================
 
