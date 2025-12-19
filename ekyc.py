@@ -8,26 +8,30 @@ from evidence import save_evidence_context
 
 CONFIG_FILE = "config.ini"
 
-# ==================== 1. CONFIGURATION ====================
+# ==================== CONFIG & HELPER FUNCTIONS ====================
 
 def read_config(filename=CONFIG_FILE):
+    """อ่านและโหลดค่าจากไฟล์ config.ini"""
     config = configparser.ConfigParser()
     try:
         if not os.path.exists(filename):
             print(f"[X] ไม่พบไฟล์ config ที่: {os.path.abspath(filename)}")
             return configparser.ConfigParser()
+            
         config.read(filename, encoding='utf-8')
         return config
     except Exception as e:
-        print(f"[X] FAILED: อ่าน config ไม่ได้: {e}")
+        print(f"[X] FAILED: ไม่สามารถอ่านไฟล์ {filename} ได้: {e}")
         return configparser.ConfigParser()
 
+# โหลด Config
 CONFIG = read_config()
 if not CONFIG.sections():
-    print("ไม่สามารถโหลด config.ini ได้")
-    sys.exit(1)
+    print("ไม่สามารถโหลด config.ini ได้ โปรดตรวจสอบไฟล์")
+    # ใช้ sys.exit(1) เพื่อให้แน่ใจว่าโปรแกรมหยุดทำงาน
+    sys.exit(1) 
 
-# ดึงค่า Global
+# ดึงค่า Global ที่ใช้ร่วมกัน
 WINDOW_TITLE = CONFIG['GLOBAL']['WINDOW_TITLE']
 WAIT_TIME = CONFIG.getint('GLOBAL', 'WAIT_TIME_SEC')
 PHONE_NUMBER = CONFIG['GLOBAL']['PHONE_NUMBER']
@@ -35,155 +39,177 @@ PHONE_EDIT_AUTO_ID = CONFIG['GLOBAL']['PHONE_EDIT_AUTO_ID']
 POSTAL_CODE = CONFIG['GLOBAL']['POSTAL_CODE'] 
 POSTAL_CODE_EDIT_AUTO_ID = CONFIG['GLOBAL']['POSTAL_CODE_EDIT_AUTO_ID'] 
 
+# ดึง Section หลัก
 B_CFG = CONFIG['EKYC_MAIN']
 S_CFG = CONFIG['EKYC_SERVICES']
 
-# ==================== 2. HELPERS ====================
+# ==================== SCROLL HELPERS mouse ====================
 
-def connect_main_window():
-    """เชื่อมต่อหน้าต่างหลัก"""
-    app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-    return app, app.top_window()
-
-def force_scroll_down(window):
-    """เลื่อนหน้าจอลง"""
+def force_scroll_down(window, config):
+    """เลื่อนหน้าจอลงโดยใช้ Mouse wheel"""
     try:
-        cfg = CONFIG["MOUSE_SCROLL"]
-        center_x = cfg.getint("CENTER_X_OFFSET", fallback=300)
-        center_y = cfg.getint("CENTER_Y_OFFSET", fallback=300)
-        wheel_dist = cfg.getint("WHEEL_DIST", fallback=-20)
-        focus_delay = cfg.getfloat("FOCUS_DELAY", fallback=0.5)
-        scroll_delay = cfg.getfloat("SCROLL_DELAY", fallback=1.0)
-        
+        center_x_offset = config.getint('MOUSE_SCROLL', 'CENTER_X_OFFSET')
+        center_y_offset = config.getint('MOUSE_SCROLL', 'CENTER_Y_OFFSET')
+        wheel_dist = config.getint('MOUSE_SCROLL', 'WHEEL_DIST')
+        focus_delay = config.getfloat('MOUSE_SCROLL', 'FOCUS_DELAY')
+        scroll_delay = config.getfloat('MOUSE_SCROLL', 'SCROLL_DELAY')
+    except ValueError:
+        print("[!] Scroll config invalid. Using defaults.")
+        center_x_offset, center_y_offset, wheel_dist, focus_delay, scroll_delay = 300, 300, -20, 0.5, 1.0
+
+    print(f"...กำลังเลื่อนหน้าจอลง (Mouse Wheel {wheel_dist})...")
+
+    try:
         rect = window.rectangle()
-        x = rect.left + center_x
-        y = rect.top + center_y
+        center_x = rect.left + center_x_offset
+        center_y = rect.top + center_y_offset
         
-        mouse.click(coords=(x, y))
+        mouse.click(coords=(center_x, center_y))
         time.sleep(focus_delay)
-        mouse.scroll(coords=(x, y), wheel_dist=wheel_dist)
+        
+        mouse.scroll(coords=(center_x, center_y), wheel_dist=wheel_dist)
         time.sleep(scroll_delay)
-    except Exception:
+        print("[/] Scroll สำเร็จ")
+    except Exception as e:
+        print(f"[!] Scroll failed: {e}, ใช้ PageDown แทน")
         window.type_keys("{PGDN}")
 
-def check_and_scroll_find(main_window, control, error_msg):
+# ==================== MAIN LOGIC ====================
+
+def run_ekyc_step(service_name, service_title):
     """
-    Logic เดิมของคุณ: ตรวจสอบก่อน 1 รอบ ถ้าไม่เจอค่อยวนลูป Scroll
+    Flow การทำงาน:
+    1. กด 'A' (Agency)
+    2. กด 'K' (BaS)
+    3. เลือกรายการย่อย (Service Title)
+    4. ตรวจสอบ/กรอกเลขไปรษณีย์
+    5. ตรวจสอบ/กรอกเบอร์โทรศัพท์
+    6. กด 'ถัดไป'
+    7. กด 'ESC' เพื่อออก
     """
-    # 1. เช็คก่อน Scroll
-    if not control.exists(timeout=1):
-        print("[!] ไม่พบ Element ทันที... เริ่มการ Scroll")
+    print(f"\n{'='*50}\n[*] เริ่มทำรายการ: {service_name} (รหัส: {service_title})")
+    app = None
+    # ดึงค่า Config ที่จำเป็น
+    HOTKEY_AGENCY_TITLE = B_CFG['HOTKEY_AGENCY_TITLE']
+    HOTKEY_BaS_TITLE = B_CFG['HOTKEY_BaS_TITLE']
+    TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
+    NEXT_TITLE = B_CFG['NEXT_TITLE']
+    ID_AUTO_ID = B_CFG['ID_AUTO_ID']
+    
+    try:
+        # เชื่อมต่อ Application
+        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
+        main_window = app.top_window()
+        print("[/] เชื่อมต่อหน้าจอสำเร็จ")
+
+        # 1. กด A (Agency)
+        print(f"[*] 1. กดปุ่ม '{HOTKEY_AGENCY_TITLE}' (Agency)")
+        main_window.child_window(title=HOTKEY_AGENCY_TITLE, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+
+        # 2. กด K (BaS)
+        print(f"[*] 2. กดปุ่ม '{HOTKEY_BaS_TITLE}' (BaS)")
+        main_window.child_window(title=HOTKEY_BaS_TITLE, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+
+        # 3. เลือกรายการย่อย
+        print(f"[*] 3. เลือกรายการ: {service_title}")
+        main_window.child_window(title=service_title, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+
+        # 4. [การตรวจสอบ/กรอก] เลขไปรษณีย์
+        print(f"[*] 4. กำลังตรวจสอบ/กรอกเลขไปรษณีย์ ID='{POSTAL_CODE_EDIT_AUTO_ID}'")
+        postal_control = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
         
-        # 2. วนลูป Scroll (3 รอบ)
+        #  [จุดที่ 1] ตรวจสอบว่าช่องปรากฏหรือไม่ ก่อน Scroll
+        if not postal_control.exists(timeout=1):
+            print("[!] ช่องไปรษณีย์ไม่ปรากฏทันที, กำลังเลื่อนหน้าจอลง...")
+        
+        # ใช้การวนลูป Scroll & Check เพื่อความแม่นยำสูงสุด
         max_scrolls = 3
         found = False
         for i in range(max_scrolls):
-            force_scroll_down(main_window)
-            if control.exists(timeout=1):
-                print(f"[/] พบแล้วหลัง Scroll ครั้งที่ {i+1}")
+            force_scroll_down(main_window, CONFIG)
+            if postal_control.exists(timeout=1):
+                print("[/] ช่องไปรษณีย์พบแล้วหลังการ Scroll")
                 found = True
                 break
         
-        # 3. ถ้ายังไม่เจออีก -> RAISE ERROR (เพื่อให้ไปเข้า except แคปรูปและหยุด)
         if not found:
-            raise Exception(f"{error_msg} (หาไม่เจอหลัง Scroll {max_scrolls} ครั้ง)")
+            print(f"[X] FAILED: ไม่สามารถหาช่องไปรษณีย์ '{POSTAL_CODE_EDIT_AUTO_ID}' ได้หลัง Scroll {max_scrolls} ครั้ง")
+            return False # ยกเลิกการทำงานหากหาไม่พบ
 
-    return True
-
-def fill_if_empty(window, control, value):
-    """กรอกข้อมูลถ้าช่องว่าง"""
-    if not control.texts()[0].strip():
-        control.click_input()
-        window.type_keys(value)
-
-# ==================== 3. EKYC LOGIC ====================
-
-def execute_ekyc_transaction(main_window, service_title):
-    # 1. เข้าเมนู
-    print(f"[*] เข้าเมนู Agency -> BaS")
-    main_window.child_window(title=B_CFG['HOTKEY_AGENCY_TITLE'], control_type="Text").click_input()
-    time.sleep(WAIT_TIME)
-    main_window.child_window(title=B_CFG['HOTKEY_BaS_TITLE'], control_type="Text").click_input()
-    time.sleep(WAIT_TIME)
-
-    # 2. เลือกรายการย่อย
-    print(f"[*] เลือกรายการ: {service_title}")
-    service_btn = main_window.child_window(title=service_title, auto_id=S_CFG['TRANSACTION_CONTROL_TYPE'], control_type="Text")
-    
-    # ใช้ Logic เดิม: เช็ค -> ถ้าไม่มีค่อย Scroll -> ถ้าไม่มีอีก Raise Error
-    check_and_scroll_find(main_window, service_btn, f"ไม่พบปุ่มรายการ {service_title}")
-    
-    service_btn.click_input()
-    time.sleep(WAIT_TIME)
-
-    # 3. กรอกรหัสไปรษณีย์
-    print(f"[*] กรอกรหัสไปรษณีย์")
-    postal = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
-    
-    check_and_scroll_find(main_window, postal, "ไม่พบช่องรหัสไปรษณีย์")
-    fill_if_empty(main_window, postal, POSTAL_CODE)
-    time.sleep(0.5)
-
-    # 4. กรอกเบอร์โทร
-    print(f"[*] กรอกเบอร์โทรศัพท์")
-    phone = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
-    
-    check_and_scroll_find(main_window, phone, "ไม่พบช่องเบอร์โทรศัพท์")
-    fill_if_empty(main_window, phone, PHONE_NUMBER)
-    time.sleep(0.5)
-
-    # 5. กดถัดไป
-    print(f"[*] กดถัดไป")
-    main_window.child_window(title=B_CFG['NEXT_TITLE'], auto_id=B_CFG['ID_AUTO_ID'], control_type="Text").click_input()
-    time.sleep(WAIT_TIME)
-
-    # 6. กด ESC
-    print(f"[*] กด ESC")
-    main_window.type_keys("{ESC}")
-    time.sleep(WAIT_TIME)
-
-# ==================== 4. RUNNER (STOP ON ERROR) ====================
-
-def run_service(step_name, service_title):
-    """Wrapper: รัน -> ถ้าพัง -> แคป -> หยุดทันที (raise)"""
-    app = None
-    print(f"\n{'='*50}\n[*] เริ่มทำรายการ: {step_name} (รหัส: {service_title})")
-    
-    try:
-        app, main_window = connect_main_window()
-        execute_ekyc_transaction(main_window, service_title)
-        print(f"[V] SUCCESS: {step_name} สำเร็จ")
-
-    except Exception as e:
-        print(f"\n[X] FAILED: {step_name} -> {e}")
-        
-        # --- แคปภาพ (ทำงานแน่นอนถ้า connect ผ่านแล้ว) ---
-        if app:
-            try:
-                save_evidence_context(app, {
-                    "test_name": "EKYC Automation",
-                    "step_name": step_name,
-                    "error_message": str(e)
-                })
-                print("[/] บันทึกภาพ Error เรียบร้อย")
-            except Exception as img_err:
-                print(f"[!] บันทึกภาพไม่สำเร็จ: {img_err}")
+        # [จุดที่ 2] ดำเนินการกรอกข้อมูล (เมื่อแน่ใจว่าพบแล้ว)
+        if not postal_control.texts()[0].strip():
+            # ถ้าช่องว่าง (Empty) ให้ทำการกรอก
+            print(f" [-] -> ช่องว่าง, กรอก: {POSTAL_CODE}")
+            postal_control.click_input() 
+            main_window.type_keys(POSTAL_CODE)
         else:
-            print("[!] ไม่สามารถบันทึกภาพได้ (Application ยังไม่ถูกเชื่อมต่อ)")
+            print(f" [-] -> ช่องมีค่าอยู่แล้ว: {postal_control.texts()[0].strip()}, ข้ามการกรอก")
+        time.sleep(0.5)
+    
+        # --- ค้นหาช่องหมายเลขโทรศัพท์และกรอกข้อมูล ---
+        print(f"[*] 2.2. กำลังตรวจสอบ/กรอกเบอร์โทรศัพท์ ID='{PHONE_EDIT_AUTO_ID}'")
+        phone_control = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
+    
+        # [จุดที่ 2] ตรวจสอบ/Scroll ซ้ำเพื่อหาช่องเบอร์โทรศัพท์
+        if not phone_control.exists(timeout=1):
+            print("[!] ช่องเบอร์โทรศัพท์ไม่ปรากฏทันที, กำลังตรวจสอบ/เลื่อนหน้าจอซ้ำ...")
+        
+        max_scrolls = 3
+        found = False
+        for i in range(max_scrolls):
+            force_scroll_down(main_window, CONFIG)
+            if phone_control.exists(timeout=1):
+                print("[/] ช่องเบอร์โทรศัพท์พบแล้วหลังการ Scroll")
+                found = True
+                break
+        
+        if not found:
+            print(f"[X] FAILED: ไม่สามารถหาช่องเบอร์โทรศัพท์ '{PHONE_EDIT_AUTO_ID}' ได้หลัง Scroll {max_scrolls} ครั้ง")
+            return False # ยกเลิกการทำงานหากหาไม่พบ
+    
+        #  [จุดที่ 3] ดำเนินการกรอกข้อมูล (เมื่อแน่ใจว่าพบแล้ว)
+        if not phone_control.texts()[0].strip():
+            print(f" [-] -> ช่องว่าง, กรอก: {PHONE_NUMBER}")
+            phone_control.click_input()
+            main_window.type_keys(PHONE_NUMBER)
+        else:
+            print(f" [-] -> ช่องมีค่าอยู่แล้ว: {phone_control.texts()[0].strip()}, ข้ามการกรอก")
+        time.sleep(0.5)
 
-        # --- หยุดการทำงานทันที (CRITICAL) ---
-        print("!!! หยุดการทำงานตามคำสั่ง (Stop Execution) !!!")
-        raise e  # การใช้ raise จะทำให้โปรแกรม Crash และหยุดทันที ไม่ไปต่อ
+        # 6. กด 'ถัดไป'
+        print(f"[*] 6. กดปุ่ม '{NEXT_TITLE}'")
+        main_window.child_window(title=NEXT_TITLE, auto_id=ID_AUTO_ID, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
 
-# ==================== 5. ENTRY POINT ====================
+        # 7. กด ESC
+        print(f"[*] 7. กดปุ่ม ESC เพื่อย้อนกลับ")
+        main_window.type_keys("{ESC}")
+        time.sleep(WAIT_TIME)
+        
+        print(f"[V] รายการ {service_name} เสร็จสิ้น")
+        
+    except Exception as e:
+        # ใส่ตัวนี้เพื่อให้ระบบแคปภาพทำงาน
+        error_context = {
+            "test_name": "EKYC Automation",
+            "step_name": service_name,
+            "error_message": str(e)
+        }
+        save_evidence_context(app, error_context)
+
+        print(f"\n[X] FAILED: เกิดข้อผิดพลาดในรายการ {service_name}: {e}")
+        # ไม่ต้องใส่ raise e ถ้าคุณต้องการให้มันไปรัน Service ถัดไปต่อได้เลย
+
+# ----------------- Main Execution -----------------
 
 if __name__ == "__main__":
-    # การใช้ raise ด้านบนจะทำให้ script หยุดทำงานทันทีที่รายการใดรายการหนึ่งพัง
-    
     if 'EKYC_1_TITLE' in S_CFG:
-        run_service("EKYC_Service_1", S_CFG['EKYC_1_TITLE'])
+        run_ekyc_step("Service 1", S_CFG['EKYC_1_TITLE'])
         
     if 'EKYC_2_TITLE' in S_CFG:
-        run_service("EKYC_Service_2", S_CFG['EKYC_2_TITLE'])
+        run_ekyc_step("Service 2", S_CFG['EKYC_2_TITLE'])
         
     print(f"\n{'='*50}\n[V] จบการทำงานทั้งหมด")
