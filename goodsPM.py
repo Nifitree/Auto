@@ -1,6 +1,6 @@
 import configparser
 from pywinauto.application import Application
-from pywinauto import mouse 
+from pywinauto import mouse
 import time
 import os
 import sys
@@ -8,481 +8,205 @@ from evidence import save_evidence_context
 
 CONFIG_FILE = "config.ini"
 
-# ==================== CONFIG & HELPER FUNCTIONS ====================
+# ==================== 1. CONFIGURATION ====================
 
 def read_config(filename=CONFIG_FILE):
-    """อ่านและโหลดค่าจากไฟล์ config.ini"""
     config = configparser.ConfigParser()
     try:
         if not os.path.exists(filename):
             print(f"[X] ไม่พบไฟล์ config ที่: {os.path.abspath(filename)}")
             return configparser.ConfigParser()
-            
-        config.read(filename, encoding='utf-8')
+        config.read(filename, encoding="utf-8")
         return config
     except Exception as e:
-        print(f"[X] FAILED: ไม่สามารถอ่านไฟล์ {filename} ได้: {e}")
+        print(f"[X] FAILED: อ่าน config ไม่ได้: {e}")
         return configparser.ConfigParser()
 
-# โหลด Config
 CONFIG = read_config()
 if not CONFIG.sections():
-    print("ไม่สามารถโหลด config.ini ได้ โปรดตรวจสอบไฟล์")
-    exit() # ใช้ exit() ตามโค้ดเดิม
+    print("ไม่สามารถโหลด config.ini ได้")
+    sys.exit(1)
 
-# ดึงค่า Global ที่ใช้ร่วมกัน
-WINDOW_TITLE = CONFIG['GLOBAL']['WINDOW_TITLE']
-WAIT_TIME = CONFIG.getint('GLOBAL', 'WAIT_TIME_SEC')
-PHONE_NUMBER = CONFIG['GLOBAL']['PHONE_NUMBER']
-ID_CARD_BUTTON_TITLE = CONFIG['GLOBAL']['ID_CARD_BUTTON_TITLE']
-PHONE_EDIT_AUTO_ID = CONFIG['GLOBAL']['PHONE_EDIT_AUTO_ID']
-POSTAL_CODE = CONFIG['GLOBAL']['POSTAL_CODE'] 
-POSTAL_CODE_EDIT_AUTO_ID = CONFIG['GLOBAL']['POSTAL_CODE_EDIT_AUTO_ID']
+# ดึงค่า Global
+WINDOW_TITLE = CONFIG["GLOBAL"]["WINDOW_TITLE"]
+WAIT_TIME = CONFIG.getint("GLOBAL", "WAIT_TIME_SEC")
+PHONE_NUMBER = CONFIG["GLOBAL"]["PHONE_NUMBER"]
+ID_CARD_BUTTON_TITLE = CONFIG["GLOBAL"]["ID_CARD_BUTTON_TITLE"]
+PHONE_EDIT_AUTO_ID = CONFIG["GLOBAL"]["PHONE_EDIT_AUTO_ID"]
+POSTAL_CODE = CONFIG["GLOBAL"]["POSTAL_CODE"]
+POSTAL_CODE_EDIT_AUTO_ID = CONFIG["GLOBAL"]["POSTAL_CODE_EDIT_AUTO_ID"]
 
-# ดึง Section หลัก
-B_CFG = CONFIG['GOODSPM_MAIN']
-S_CFG = CONFIG['GOODSPM_SERVICES']
+B_CFG = CONFIG["GOODSPM_MAIN"]
+S_CFG = CONFIG["GOODSPM_SERVICES"]
 
-# ==================== SCROLL HELPERS mouse ====================
+# ==================== 2. HELPERS ====================
 
-def force_scroll_down(window, config):
-    """เลื่อนหน้าจอลงโดยใช้ Mouse wheel"""
+def connect_main_window():
+    """เชื่อมต่อหน้าต่างหลักของ POS"""
+    app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
+    return app, app.top_window()
+
+def force_scroll_down(window):
+    """เลื่อนหน้าจอลงเมื่อหา Object ไม่เจอ"""
     try:
-        center_x_offset = config.getint('MOUSE_SCROLL', 'CENTER_X_OFFSET')
-        center_y_offset = config.getint('MOUSE_SCROLL', 'CENTER_Y_OFFSET')
-        wheel_dist = config.getint('MOUSE_SCROLL', 'WHEEL_DIST')
-        focus_delay = config.getfloat('MOUSE_SCROLL', 'FOCUS_DELAY')
-        scroll_delay = config.getfloat('MOUSE_SCROLL', 'SCROLL_DELAY')
-    except ValueError:
-        print("[!] Scroll config invalid. Using defaults.")
+        cfg = CONFIG["MOUSE_SCROLL"]
+        center_x_offset = cfg.getint("CENTER_X_OFFSET")
+        center_y_offset = cfg.getint("CENTER_Y_OFFSET")
+        wheel_dist = cfg.getint("WHEEL_DIST")
+        focus_delay = cfg.getfloat("FOCUS_DELAY")
+        scroll_delay = cfg.getfloat("SCROLL_DELAY")
+    except Exception:
         center_x_offset, center_y_offset, wheel_dist, focus_delay, scroll_delay = 300, 300, -20, 0.5, 1.0
-
-    print(f"...กำลังเลื่อนหน้าจอลง (Mouse Wheel {wheel_dist})...")
 
     try:
         rect = window.rectangle()
-        center_x = rect.left + center_x_offset
-        center_y = rect.top + center_y_offset
-        
-        mouse.click(coords=(center_x, center_y))
+        x = rect.left + center_x_offset
+        y = rect.top + center_y_offset
+        mouse.click(coords=(x, y))
         time.sleep(focus_delay)
-        
-        mouse.scroll(coords=(center_x, center_y), wheel_dist=wheel_dist)
+        mouse.scroll(coords=(x, y), wheel_dist=wheel_dist)
         time.sleep(scroll_delay)
-        print("[/] Scroll สำเร็จ")
-    except Exception as e:
-        print(f"[!] Scroll failed: {e}, ใช้ PageDown แทน")
+    except Exception:
         window.type_keys("{PGDN}")
 
-# ==================== MAIN TEST FUNCTION ====================
+def scroll_until_found(control, window, max_scrolls=3):
+    """วนลูป Scroll จนกว่าจะเจอ Object"""
+    for _ in range(max_scrolls):
+        if control.exists(timeout=1):
+            return True
+        force_scroll_down(window)
+    return False
+
+def fill_if_empty(window, control, value):
+    """กรอกข้อมูลเฉพาะในกรณีที่ช่องว่าง"""
+    if not control.texts()[0].strip():
+        control.click_input()
+        window.type_keys(value)
+
+# ==================== 3. NAVIGATION ====================
 
 def goods_pm_main():
-    # 1. กำหนดตัวแปรจาก Config
-    BT_A_TITLE = B_CFG['BT_A_TITLE']
-    BT_G_TITLE = B_CFG['BT_G_TITLE']
-    TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE'] # ไม่ได้ใช้ใน main แต่ดึงมา
-    NEXT_TITLE = B_CFG['NEXT_TITLE']
-    NEXT_AUTO_ID = B_CFG['NEXT_AUTO_ID'] # ไม่ได้ใช้ใน main แต่ดึงมา
-    FINISH_BUTTON_TITLE = B_CFG['FINISH_BUTTON_TITLE']
-
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการชำระค่าสินค้า' โดยการกดปุ่ม '{BT_A_TITLE}'...")
+    """ขั้นตอนการนำทางเข้าหน้าบริการชำระค่าสินค้า A -> G -> กรอกข้อมูล"""
     try:
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        print("[/] เชื่อมต่อหน้าจอสำเร็จ ")
+        app, main_window = connect_main_window()
 
-        # 2. กด A
-        main_window.child_window(title=BT_A_TITLE, control_type="Text").click_input()
+        # กดปุ่ม A (Agency)
+        main_window.child_window(title=B_CFG['BT_A_TITLE'], control_type="Text").click_input()
         time.sleep(WAIT_TIME)
-        print("[/] เข้าสู่หน้า 'บริการชำระค่าสินค้า'...")
 
-        # 3. กด G
-        main_window.child_window(title=BT_G_TITLE, control_type="Text").click_input()
+        # กดปุ่ม G (Goods Payment)
+        main_window.child_window(title=B_CFG['BT_G_TITLE'], control_type="Text").click_input()
         time.sleep(WAIT_TIME)
-        print("[/] กำลังดำเนินการในหน้า 'บริการชำระค่าสินค้า'...")
 
-        # --- กด 'อ่านบัตรประชาชน' ---
-        print(f"[*] 2.1. ค้นหาและคลิกปุ่ม '{ID_CARD_BUTTON_TITLE}'...")
+        # กดอ่านบัตรประชาชน
         main_window.child_window(title=ID_CARD_BUTTON_TITLE, control_type="Text").click_input()
 
-       # --- ค้นหาช่องเลขไปรษณีย์และกรอกข้อมูล ---
-        print(f"[*] 2.2.5. กำลังตรวจสอบ/กรอกเลขไปรษณีย์ ID='{POSTAL_CODE_EDIT_AUTO_ID}'")
-        postal_control = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
-    
-        #  [จุดที่ 1] ตรวจสอบว่าช่องปรากฏหรือไม่ ก่อน Scroll
-        if not postal_control.exists(timeout=1):
-            print("[!] ช่องไปรษณีย์ไม่ปรากฏทันที, กำลังเลื่อนหน้าจอลง...")
-        
-        # ใช้การวนลูป Scroll & Check เพื่อความแม่นยำสูงสุด
-        max_scrolls = 3
-        found = False
-        for i in range(max_scrolls):
-            force_scroll_down(main_window, CONFIG)
-            if postal_control.exists(timeout=1):
-                print("[/] ช่องไปรษณีย์พบแล้วหลังการ Scroll")
-                found = True
-                break
-        
-        if not found:
-            print(f"[X] FAILED: ไม่สามารถหาช่องไปรษณีย์ '{POSTAL_CODE_EDIT_AUTO_ID}' ได้หลัง Scroll {max_scrolls} ครั้ง")
-            return False # ยกเลิกการทำงานหากหาไม่พบ
+        # ตรวจสอบและกรอกรหัสไปรษณีย์
+        postal = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
+        if not scroll_until_found(postal, main_window):
+            return False
+        fill_if_empty(main_window, postal, POSTAL_CODE)
 
-        # [จุดที่ 2] ดำเนินการกรอกข้อมูล (เมื่อแน่ใจว่าพบแล้ว)
-        if not postal_control.texts()[0].strip():
-            # ถ้าช่องว่าง (Empty) ให้ทำการกรอก
-            print(f" [-] -> ช่องว่าง, กรอก: {POSTAL_CODE}")
-            postal_control.click_input() 
-            main_window.type_keys(POSTAL_CODE)
-        else:
-            print(f" [-] -> ช่องมีค่าอยู่แล้ว: {postal_control.texts()[0].strip()}, ข้ามการกรอก")
-        time.sleep(0.5)
-    
-        # --- ค้นหาช่องหมายเลขโทรศัพท์และกรอกข้อมูล ---
-        print(f"[*] 2.2. กำลังตรวจสอบ/กรอกเบอร์โทรศัพท์ ID='{PHONE_EDIT_AUTO_ID}'")
-        phone_control = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
-    
-        # [จุดที่ 2] ตรวจสอบ/Scroll ซ้ำเพื่อหาช่องเบอร์โทรศัพท์
-        if not phone_control.exists(timeout=1):
-            print("[!] ช่องเบอร์โทรศัพท์ไม่ปรากฏทันที, กำลังตรวจสอบ/เลื่อนหน้าจอซ้ำ...")
-        
-        max_scrolls = 3
-        found = False
-        for i in range(max_scrolls):
-            force_scroll_down(main_window, CONFIG)
-            if phone_control.exists(timeout=1):
-                print("[/] ช่องเบอร์โทรศัพท์พบแล้วหลังการ Scroll")
-                found = True
-                break
-        
-        if not found:
-            print(f"[X] FAILED: ไม่สามารถหาช่องเบอร์โทรศัพท์ '{PHONE_EDIT_AUTO_ID}' ได้หลัง Scroll {max_scrolls} ครั้ง")
-            return False # ยกเลิกการทำงานหากหาไม่พบ
-    
-        #  [จุดที่ 3] ดำเนินการกรอกข้อมูล (เมื่อแน่ใจว่าพบแล้ว)
-        if not phone_control.texts()[0].strip():
-            print(f" [-] -> ช่องว่าง, กรอก: {PHONE_NUMBER}")
-            phone_control.click_input()
-            main_window.type_keys(PHONE_NUMBER)
-        else:
-            print(f" [-] -> ช่องมีค่าอยู่แล้ว: {phone_control.texts()[0].strip()}, ข้ามการกรอก")
-        time.sleep(0.5)
+        # ตรวจสอบและกรอกเบอร์โทร
+        phone = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
+        if not scroll_until_found(phone, main_window):
+            return False
+        fill_if_empty(main_window, phone, PHONE_NUMBER)
 
-    # --- กด 'ถัดไป' เพื่อยืนยัน ---
-        print(f"[*] 2.3. กดปุ่ม '{NEXT_TITLE}' เพื่อไปหน้าถัดไป...")
-        main_window.child_window(title=NEXT_TITLE, auto_id=NEXT_AUTO_ID, control_type="Text").click_input()
+        # กดถัดไป
+        main_window.child_window(
+            title=B_CFG["NEXT_TITLE"],
+            auto_id=B_CFG["NEXT_AUTO_ID"],
+            control_type="Text"
+        ).click_input()
         time.sleep(WAIT_TIME)
-    
-        print("\n[V] SUCCESS: ดำเนินการขั้นตอน สำเร็จ!")
+
+        print("[V] SUCCESS: เตรียมหน้าบริการชำระค่าสินค้าสำเร็จ")
         return True
+
     except Exception as e:
-        print(f"\n[X] FAILED: เกิดข้อผิดพลาดใน : {e}")
+        print(f"[X] FAILED: goods_pm_main error: {e}")
         return False
-    
-# ----------------- ฟังก์ชันแม่แบบสำหรับรายการย่อย -----------------
 
-def goods_pm_transaction(main_window, transaction_title):
-    """ฟังก์ชันที่ใช้ร่วมกันสำหรับรายการย่อยทั้งหมด"""
-    
-    # 1. กำหนดตัวแปรจาก Config
-    TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-    NEXT_TITLE = B_CFG['NEXT_TITLE']
-    NEXT_AUTO_ID = B_CFG['NEXT_AUTO_ID']
-    FINISH_BUTTON_TITLE = B_CFG['FINISH_BUTTON_TITLE']
-    
-    try:
-        # 2. คลิกรายการย่อย
-        print(f"[*] 2. ค้นหาและคลิกรายการ: {transaction_title}")
-        main_window.child_window(title=transaction_title, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-        
-        # 3. คลิก 'ถัดไป'
-        print(f"[*] 3. กดปุ่ม '{NEXT_TITLE}'")
-        main_window.child_window(title=NEXT_TITLE, auto_id=NEXT_AUTO_ID, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-        
-        # 4. คลิก 'เสร็จสิ้น'
-        print(f"[*] 4. กดปุ่ม '{FINISH_BUTTON_TITLE}'")
-        main_window.child_window(title=FINISH_BUTTON_TITLE, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-        
-    except Exception as e:
-        print(f"\n[X] FAILED: เกิดข้อผิดพลาดในการทำรายการย่อย {transaction_title}: {e}")
-        raise e
+# ==================== 4. TRANSACTION ENGINE ====================
 
-# ----------------- ฟังก์ชันย่อยตามโครงสร้างเดิม (เรียกใช้ Config) -----------------
+def run_goods_transaction(main_window, title):
+    """ทำรายการย่อย (คลิกรายการ -> ถัดไป -> เสร็จสิ้น)"""
+    # คลิกที่รายการย่อย
+    main_window.child_window(
+        title=title,
+        auto_id=S_CFG["TRANSACTION_CONTROL_TYPE"],
+        control_type="Text"
+    ).click_input()
+    time.sleep(WAIT_TIME)
 
-def goods_pm_services1():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการชำระค่าสินค้า' (รายการ 1)...")
+    # คลิกปุ่มถัดไป
+    main_window.child_window(
+        title=B_CFG["NEXT_TITLE"],
+        auto_id=B_CFG["NEXT_AUTO_ID"],
+        control_type="Text"
+    ).click_input()
+    time.sleep(WAIT_TIME)
+
+    # กดปุ่มเสร็จสิ้น
+    main_window.child_window(title=B_CFG["FINISH_BUTTON_TITLE"], control_type="Text").click_input()
+    time.sleep(WAIT_TIME)
+
+def run_service(step_name, service_title, use_main=True, use_search=False):
+    """Wrapper สำหรับรันแต่ละ Service พร้อมระบบ Search และ Error Handling"""
     app = None
     try:
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        goods_pm_transaction(main_window, S_CFG['GOODSPM_1_TITLE'])
-        
-    except Exception as e:
-        error_context = {
-            "test_name": "Mutual Services Automation",
-            "step_name": "goods_pm_services1",
-            "error_message": str(e)
-        }
-        
-        # เรียกใช้ฟังก์ชันจาก evidence.py
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
+        # เริ่มต้นใหม่ทุกครั้งเพื่อให้ State หน้าจอถูกต้อง
+        if use_main and not goods_pm_main():
+            return
 
-def goods_pm_services2():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการชำระค่าสินค้า' (รายการ 2)...")
-    app = None
-    try:
-        if not goods_pm_main(): return
+        app, main_window = connect_main_window()
         
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        goods_pm_transaction(main_window, S_CFG['GOODSPM_2_TITLE'])
-        
-    except Exception as e:
-        error_context = {
-            "test_name": "Mutual Services Automation",
-            "step_name": "goods_pm_services2",
-            "error_message": str(e)
-        }
-        
-        # เรียกใช้ฟังก์ชันจาก evidence.py
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
+        # ส่วนจัดการการค้นหา (Search) สำหรับรายการ 7-9
+        if use_search:
+            print(f"[*] ค้นหารหัสรายการ: {service_title}")
+            search_input = main_window.child_window(auto_id=S_CFG["SEARCH_EDIT_ID"], control_type="Edit")
+            search_input.click_input()
+            search_input.type_keys("^a{BACKSPACE}") # ลบค่าเก่า
+            search_input.type_keys(service_title, with_spaces=True)
+            search_input.type_keys("{ENTER}")
+            time.sleep(1.5)
 
-def goods_pm_services3():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการชำระค่าสินค้า' (รายการ 3)...")
-    app = None
-    try:
-        if not goods_pm_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        goods_pm_transaction(main_window, S_CFG['GOODSPM_3_TITLE'])
-        
-    except Exception as e:
-        error_context = {
-            "test_name": "Mutual Services Automation",
-            "step_name": "goods_pm_services3",
-            "error_message": str(e)
-        }
-        
-        # เรียกใช้ฟังก์ชันจาก evidence.py
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
+            # ตรวจสอบว่ารายการขึ้นมาหรือไม่
+            target = main_window.child_window(title=service_title, control_type="Text")
+            if not target.exists(timeout=3):
+                raise Exception(f"ไม่พบรายการ {service_title} จากการ Search")
 
-def goods_pm_services4():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการชำระค่าสินค้า' (รายการ 4)...")
-    app = None
-    try:
-        if not goods_pm_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        goods_pm_transaction(main_window, S_CFG['GOODSPM_4_TITLE'])
-        
-    except Exception as e:
-        error_context = {
-            "test_name": "Mutual Services Automation",
-            "step_name": "goods_pm_services4",
-            "error_message": str(e)
-        }
-        
-        # เรียกใช้ฟังก์ชันจาก evidence.py
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def goods_pm_services5():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการชำระค่าสินค้า' (รายการ 5)...")
-    app = None
-    try:
-        if not goods_pm_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        goods_pm_transaction(main_window, S_CFG['GOODSPM_5_TITLE'])
-        
-    except Exception as e:
-        error_context = {
-            "test_name": "Mutual Services Automation",
-            "step_name": "goods_pm_services5",
-            "error_message": str(e)
-        }
-        
-        # เรียกใช้ฟังก์ชันจาก evidence.py
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def goods_pm_services6():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการชำระค่าสินค้า' (รายการ 6)...")
-    app = None
-    try:
-        if not goods_pm_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        goods_pm_transaction(main_window, S_CFG['GOODSPM_6_TITLE'])
-        
-    except Exception as e:
-        error_context = {
-            "test_name": "Mutual Services Automation",
-            "step_name": "goods_pm_services6",
-            "error_message": str(e)
-        }
-        
-        # เรียกใช้ฟังก์ชันจาก evidence.py
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def goods_pm_services7():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการชำระค่าสินค้า' (รายการ 7)...") 
-    app = None
-    try:
-        if not goods_pm_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-
-       # เพิ่มการตรวจสอบหลัง Scroll
-        SERVICE_TITLE = S_CFG['GOODSPM_7_TITLE']
-        TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-        SEARCH_EDIT_ID = S_CFG['SEARCH_EDIT_ID'] 
-        
-        print(f"[*] กำลังค้นหารายการด้วยรหัส: {SERVICE_TITLE}")
-
-        # 2. คลิกและพิมพ์รหัสในช่องค้นหา
-        search_input = main_window.child_window(auto_id=SEARCH_EDIT_ID, control_type="Edit")
-        search_input.click_input()
-        search_input.type_keys(SERVICE_TITLE, with_spaces=True)
-        search_input.type_keys("{ENTER}") # กด Enter เพื่อค้นหา
-        time.sleep(1) # รอรายการปรากฏขึ้นมา
-
-        # 3. ตรวจสอบว่ารายการที่ค้นหาโผล่มาให้คลิกไหม
-        target_control = main_window.child_window(title=SERVICE_TITLE, control_type="Text")
-        
-        if target_control.exists(timeout=3):
-            print(f"[/] พบรายการ {SERVICE_TITLE} จากการค้นหา")
-            # 4. เรียกฟังก์ชันทำรายการต่อ
-            goods_pm_transaction(main_window, SERVICE_TITLE)
-        else:
-            raise Exception(f"ค้นหาด้วยรหัส {SERVICE_TITLE} แล้วแต่ไม่พบรายการในผลลัพธ์")
+        # เรียกใช้ Transaction Logic
+        run_goods_transaction(main_window, service_title)
+        print(f"[V] SUCCESS: {step_name} ({service_title}) ดำเนินการสำเร็จ")
 
     except Exception as e:
-        error_context = {
-            "test_name": "Mutual Services Automation",
-            "step_name": "goods_pm_services7",
+        save_evidence_context(app, {
+            "test_name": "Goods Payment Automation",
+            "step_name": step_name,
             "error_message": str(e)
-        }
-        
-        # เรียกใช้ฟังก์ชันจาก evidence.py
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
+        })
+        print(f"[X] FAILED: {step_name} error: {e}")
 
-def goods_pm_services8():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการชำระค่าสินค้า' (รายการ 8)...")
-    app = None
-    try:
-        if not goods_pm_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        # เพิ่มการตรวจสอบ/Scroll
-        SERVICE_TITLE = S_CFG['GOODSPM_8_TITLE']
-        TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-        SEARCH_EDIT_ID = S_CFG['SEARCH_EDIT_ID'] 
-        
-        print(f"[*] กำลังค้นหารายการด้วยรหัส: {SERVICE_TITLE}")
-
-        # 2. คลิกและพิมพ์รหัสในช่องค้นหา
-        search_input = main_window.child_window(auto_id=SEARCH_EDIT_ID, control_type="Edit")
-        search_input.click_input()
-        search_input.type_keys(SERVICE_TITLE, with_spaces=True)
-        search_input.type_keys("{ENTER}") # กด Enter เพื่อค้นหา
-        time.sleep(1) # รอรายการปรากฏขึ้นมา
-
-        # 3. ตรวจสอบว่ารายการที่ค้นหาโผล่มาให้คลิกไหม
-        target_control = main_window.child_window(title=SERVICE_TITLE, control_type="Text")
-        
-        if target_control.exists(timeout=3):
-            print(f"[/] พบรายการ {SERVICE_TITLE} จากการค้นหา")
-            # 4. เรียกฟังก์ชันทำรายการต่อ
-            goods_pm_transaction(main_window, SERVICE_TITLE)
-        else:
-            raise Exception(f"ค้นหาด้วยรหัส {SERVICE_TITLE} แล้วแต่ไม่พบรายการในผลลัพธ์")
-
-    except Exception as e:
-        error_context = {
-            "test_name": "Mutual Services Automation",
-            "step_name": "goods_pm_services8",
-            "error_message": str(e)
-        }
-        
-        # เรียกใช้ฟังก์ชันจาก evidence.py
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-def goods_pm_services9():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการชำระค่าสินค้า' (รายการ 9)...")
-    app = None
-    try:
-        if not goods_pm_main(): return
-        
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        # เพิ่มการตรวจสอบ/Scroll
-        SERVICE_TITLE = S_CFG['GOODSPM_9_TITLE']
-        TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-        SEARCH_EDIT_ID = S_CFG['SEARCH_EDIT_ID'] 
-        
-        print(f"[*] กำลังค้นหารายการด้วยรหัส: {SERVICE_TITLE}")
-
-        # 2. คลิกและพิมพ์รหัสในช่องค้นหา
-        search_input = main_window.child_window(auto_id=SEARCH_EDIT_ID, control_type="Edit")
-        search_input.click_input()
-        search_input.type_keys(SERVICE_TITLE, with_spaces=True)
-        search_input.type_keys("{ENTER}") # กด Enter เพื่อค้นหา
-        time.sleep(1) # รอรายการปรากฏขึ้นมา
-
-        # 3. ตรวจสอบว่ารายการที่ค้นหาโผล่มาให้คลิกไหม
-        target_control = main_window.child_window(title=SERVICE_TITLE, control_type="Text")
-        
-        if target_control.exists(timeout=3):
-            print(f"[/] พบรายการ {SERVICE_TITLE} จากการค้นหา")
-            # 4. เรียกฟังก์ชันทำรายการต่อ
-            goods_pm_transaction(main_window, SERVICE_TITLE)
-        else:
-            raise Exception(f"ค้นหาด้วยรหัส {SERVICE_TITLE} แล้วแต่ไม่พบรายการในผลลัพธ์")
-
-    except Exception as e:
-        error_context = {
-            "test_name": "Mutual Services Automation",
-            "step_name": "goods_pm_services9",
-            "error_message": str(e)
-        }
-        
-        # เรียกใช้ฟังก์ชันจาก evidence.py
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
-
-# ----------------- Main Execution -----------------
+# ==================== 5. ENTRY POINT ====================
 
 if __name__ == "__main__":
-    goods_pm_main()
-    goods_pm_services1()
-    goods_pm_services2()
-    goods_pm_services3()
-    goods_pm_services4()
-    goods_pm_services5()
-    goods_pm_services6()
-    goods_pm_services7()
-    goods_pm_services8()
-    goods_pm_services9()
+    # รายการ 1-6: แบบปกติ (ไม่ต้อง Search)
+    # ใช้ use_main=True ทุกรายการเพื่อความเสถียร (Reset หน้าจอทุกรอบ)
+    run_service("goods_pm_services1", S_CFG["GOODSPM_1_TITLE"], use_main=True)
+    run_service("goods_pm_services2", S_CFG["GOODSPM_2_TITLE"])
+    run_service("goods_pm_services3", S_CFG["GOODSPM_3_TITLE"])
+    run_service("goods_pm_services4", S_CFG["GOODSPM_4_TITLE"])
+    run_service("goods_pm_services5", S_CFG["GOODSPM_5_TITLE"])
+    run_service("goods_pm_services6", S_CFG["GOODSPM_6_TITLE"])
+    
+    # รายการ 7-9: ใช้ระบบ Search
+    for i in range(7, 10):
+        title_key = f"GOODSPM_{i}_TITLE"
+        step_name = f"goods_pm_services{i}"
+        
+        if title_key in S_CFG:
+            run_service(step_name, S_CFG[title_key], use_search=True)
+
+    print(f"\n{'='*50}\n[V] จบพาร์ท Goods Payment ทั้งหมด")
