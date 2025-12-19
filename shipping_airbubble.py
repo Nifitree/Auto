@@ -98,7 +98,7 @@ def click_menu_button(main_window, title):
 # ==================== 3. SHIPPING LOGIC ====================
 
 def execute_shipping_flow(main_window):
-    # --- Phase 1: เริ่มต้น (คลิก S -> ข้อมูลผู้ส่ง) ---
+    # --- Phase 1: เริ่มต้น ---
     click_menu_button(main_window, S_CFG['BUTTON_S_TITLE'])
 
     print("[*] 2. อ่านบัตรประชาชน")
@@ -115,7 +115,7 @@ def execute_shipping_flow(main_window):
 
     press_next(main_window) # ถัดไป (1)
 
-    # --- Phase 2: เลือกเมนู (W -> A -> A) ---
+    # --- Phase 2: เลือกเมนู ---
     print("[*] 4. เลือกเมนู W -> A -> A")
     click_menu_button(main_window, S_CFG['BUTTON_W_TITLE']) 
     click_menu_button(main_window, S_CFG['BUTTON_A_TITLE'])
@@ -124,7 +124,7 @@ def execute_shipping_flow(main_window):
     press_next(main_window) # ถัดไป (2)
 
     # --- Phase 3: กรอกน้ำหนัก ---
-    print(f"[*] 5. กรอกน้ำหนัก: {S_CFG['WEIGHT_VALUE']} (ID: {S_CFG['WEIGHT_EDIT_ID']})")
+    print(f"[*] 5. กรอกน้ำหนัก: {S_CFG['WEIGHT_VALUE']}")
     weight_input = main_window.child_window(auto_id=S_CFG['WEIGHT_EDIT_ID'], control_type="Edit")
     if not scroll_until_found(weight_input, main_window): raise Exception(f"ไม่พบช่องกรอกน้ำหนัก")
     weight_input.click_input()
@@ -134,25 +134,22 @@ def execute_shipping_flow(main_window):
 
     # --- Phase 4: รหัสไปรษณีย์ปลายทาง ---
     dest_id = S_CFG['POSTAL_DEST_EDIT_ID']
-    print(f"[*] 6. กรอกรหัสไปรษณีย์ปลายทาง: {POSTAL_CODE} (ID: {dest_id})")
+    print(f"[*] 6. กรอกรหัสไปรษณีย์ปลายทาง: {POSTAL_CODE}")
     postal_dest = main_window.child_window(auto_id=dest_id, control_type="Edit")
     if not scroll_until_found(postal_dest, main_window): raise Exception(f"ไม่พบช่องไปรษณีย์ปลายทาง")
     fill_if_empty(main_window, postal_dest, POSTAL_CODE)
 
     press_next(main_window) # ถัดไป (4)
 
-    # --- Phase 5: ดำเนินการ (ENTER) -> คลิก A (แก้ไข AutoID) ---
+    # --- Phase 5: ดำเนินการ (ENTER) -> คลิก A ---
     print("[*] 7. กดดำเนินการ (ENTER)")
     main_window.type_keys("{ENTER}") 
     time.sleep(WAIT_TIME)
     
-    # [แก้ไขจุดนี้] ใช้ Auto ID แทนการหาจากชื่อ A
-    service_a_id = S_CFG['SERVICE_A_BUTTON_ID'] # ShippingService_363235
+    service_a_id = S_CFG['SERVICE_A_BUTTON_ID']
     print(f"[*] 7.1 คลิกปุ่ม A (ID: {service_a_id})")
-    
     btn_a = main_window.child_window(auto_id=service_a_id)
-    if not scroll_until_found(btn_a, main_window):
-        raise Exception(f"ไม่พบปุ่ม A (ID: {service_a_id})")
+    if not scroll_until_found(btn_a, main_window): raise Exception(f"ไม่พบปุ่ม A")
     btn_a.click_input()
     time.sleep(WAIT_TIME)
 
@@ -182,25 +179,54 @@ def execute_shipping_flow(main_window):
     
     press_next(main_window) # ถัดไป (9)
 
+    # =================================================================
+    # แก้ไข Phase 9 และ Phase 10: เพิ่ม Wait และปรับการค้นหาช่องชื่อลูกค้า
+    # =================================================================
+    
     # --- Phase 9: เลือก Title ที่อยู่ ---
     print(f"[*] 11. เลือกที่อยู่: {S_CFG['SELECTED_ADDRESS_TITLE']}")
     addr_title = main_window.child_window(title=S_CFG['SELECTED_ADDRESS_TITLE'], control_type="Text")
-    if not scroll_until_found(addr_title, main_window): raise Exception(f"ไม่พบที่อยู่ {S_CFG['SELECTED_ADDRESS_TITLE']}")
-    addr_title.click_input()
+    if not scroll_until_found(addr_title, main_window): 
+        raise Exception(f"ไม่พบที่อยู่ {S_CFG['SELECTED_ADDRESS_TITLE']}")
+    
+    addr_title.click_input() # คลิกเลือก
+    print("[*] คลิกที่อยู่แล้ว รอหน้าจอโหลด (3 วินาที)...")
+    time.sleep(3) # [สำคัญ] รอให้หน้าจอเปลี่ยนและโหลดช่องกรอกชื่อเสร็จ
 
     # --- Phase 10: ข้อมูลลูกค้า (ชื่อ/นามสกุล/เบอร์) ---
     print("[*] 12. กรอกข้อมูลลูกค้า")
     
-    name_input = main_window.child_window(auto_id=S_CFG['CUST_NAME_ID'], control_type="Edit")
-    if not scroll_until_found(name_input, main_window): raise Exception("ไม่พบช่องชื่อลูกค้า")
+    # [แก้ไข] เอา control_type="Edit" ออก เพราะบางที UserControl ไม่ใช่ Edit ธรรมดา
+    # และใช้ wait('visible') เพื่อรอให้มั่นใจว่าช่องมาแล้วจริงๆ
+    print(f" [-] รอช่องชื่อลูกค้า (ID: {S_CFG['CUST_NAME_ID']})")
+    name_input = main_window.child_window(auto_id=S_CFG['CUST_NAME_ID']) 
+    
+    # ลองรอสูงสุด 5 วินาที ถ้าไม่มาให้ Scroll หา
+    if not name_input.exists(timeout=5):
+        print("[!] ไม่พบช่องชื่อทันที ลอง Scroll หา...")
+        if not scroll_until_found(name_input, main_window):
+            raise Exception("ไม่พบช่องชื่อลูกค้าหลัง Scroll")
+            
     name_input.click_input()
     main_window.type_keys(S_CFG['CUSTOMER_NAME'])
+    time.sleep(0.5)
 
-    lastname_input = main_window.child_window(auto_id=S_CFG['CUST_LASTNAME_ID'], control_type="Edit")
+    # นามสกุล
+    print(f" [-] กรอกนามสกุล (ID: {S_CFG['CUST_LASTNAME_ID']})")
+    lastname_input = main_window.child_window(auto_id=S_CFG['CUST_LASTNAME_ID']) # เอา control_type="Edit" ออกเช่นกัน
+    if not lastname_input.exists(timeout=2):
+        scroll_until_found(lastname_input, main_window)
+        
     lastname_input.click_input()
     main_window.type_keys(S_CFG['CUSTOMER_LASTNAME'])
 
+    # เบอร์โทร
+    print(f" [-] กรอกเบอร์โทร")
     phone_cust = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
+    if not scroll_until_found(phone_cust, main_window):
+        # เผื่อช่องเบอร์โทรอยู่ล่าง
+        force_scroll_down(main_window)
+        
     phone_cust.click_input()
     main_window.type_keys(PHONE_NUMBER)
 
