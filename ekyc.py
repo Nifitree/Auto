@@ -38,7 +38,7 @@ POSTAL_CODE_EDIT_AUTO_ID = CONFIG['GLOBAL']['POSTAL_CODE_EDIT_AUTO_ID']
 B_CFG = CONFIG['EKYC_MAIN']
 S_CFG = CONFIG['EKYC_SERVICES']
 
-# ==================== 2. HELPERS (Clean Standard) ====================
+# ==================== 2. HELPERS ====================
 
 def connect_main_window():
     """เชื่อมต่อหน้าต่างหลัก"""
@@ -80,7 +80,7 @@ def fill_if_empty(window, control, value):
         control.click_input()
         window.type_keys(value)
 
-# ==================== 3. EKYC LOGIC ====================
+# ==================== 3. EKYC TRANSACTION LOGIC ====================
 
 def execute_ekyc_transaction(main_window, service_title):
     """Logic การทำงาน: เข้าเมนู -> เลือกรายการ -> กรอกฟอร์ม -> จบ"""
@@ -127,7 +127,7 @@ def execute_ekyc_transaction(main_window, service_title):
     main_window.type_keys("{ESC}")
     time.sleep(WAIT_TIME)
 
-# ==================== 4. ENGINE (STOP ON ERROR) ====================
+# ==================== 4. ENGINE (HARD STOP & CAPTURE) ====================
 
 def run_service(step_name, service_title):
     """Wrapper: รันงาน -> ถ้าพัง -> แคปภาพ -> หยุดโปรแกรมทันที"""
@@ -140,16 +140,26 @@ def run_service(step_name, service_title):
         print(f"[V] SUCCESS: {step_name} สำเร็จ")
 
     except Exception as e:
-        # 1. แคปภาพหลักฐาน
-        save_evidence_context(app, {
-            "test_name": "EKYC Automation",
-            "step_name": step_name,
-            "error_message": str(e)
-        })
         print(f"\n[X] FAILED: {step_name} -> {e}")
         
-        # 2. หยุดการทำงานทันที (Stop Execution)
-        sys.exit(1)
+        # --- ส่วนจัดการหลักฐาน (Evidence Handling) ---
+        try:
+            # พยายามแคปภาพ แม้ app อาจจะไม่สมบูรณ์
+            error_context = {
+                "test_name": "EKYC Automation",
+                "step_name": step_name,
+                "error_message": str(e)
+            }
+            if app:
+                save_evidence_context(app, error_context)
+            else:
+                print("[!] ไม่สามารถแคปภาพได้เนื่องจากเชื่อมต่อ App ไม่สำเร็จ")
+        except Exception as evidence_error:
+            print(f"[!] เกิดข้อผิดพลาดขณะบันทึกภาพ: {evidence_error}")
+        
+        # --- ส่วนหยุดการทำงาน (Hard Stop) ---
+        print("!!! ตรวจพบข้อผิดพลาด: หยุดการทำงานทันที !!!")
+        sys.exit(1) # คำสั่งนี้จะหยุดโปรแกรมทันที ไม่มีการรันต่อ
 
 # ==================== 5. ENTRY POINT ====================
 
