@@ -183,15 +183,23 @@ def execute_shipping_flow(main_window):
     # แก้ไข Phase 9 และ Phase 10: เพิ่ม Wait และปรับการค้นหาช่องชื่อลูกค้า
     # =================================================================
     
-    # --- Phase 9: เลือก Title ที่อยู่ ---
-    print(f"[*] 11. เลือกที่อยู่: {S_CFG['SELECTED_ADDRESS_TITLE']}")
-    addr_title = main_window.child_window(title=S_CFG['SELECTED_ADDRESS_TITLE'], control_type="Text")
-    if not scroll_until_found(addr_title, main_window): 
-        raise Exception(f"ไม่พบที่อยู่ {S_CFG['SELECTED_ADDRESS_TITLE']}")
+    # --- Phase 9: เลือกที่อยู่ (แก้ไขใหม่ใช้ AutoID Group) ---
+    print(f"[*] 11. เลือกผลลัพธ์ที่อยู่ (ID: {S_CFG['ADDRESS_RESULT_ID']})")
     
-    addr_title.click_input() # คลิกเลือก
+    # เปลี่ยนจากหาด้วย Title เป็น AutoID และ ControlType="Group"
+    addr_group = main_window.child_window(
+        auto_id=S_CFG['ADDRESS_RESULT_ID'], 
+        control_type="Group"
+    )
+    
+    # เช็คว่าเจอไหม
+    if not scroll_until_found(addr_group, main_window): 
+        raise Exception(f"ไม่พบผลลัพธ์ที่อยู่ (ID: {S_CFG['ADDRESS_RESULT_ID']})")
+    
+    addr_group.click_input() # คลิกเลือก
+    
     print("[*] คลิกที่อยู่แล้ว รอหน้าจอโหลด (3 วินาที)...")
-    time.sleep(3) # [สำคัญ] รอให้หน้าจอเปลี่ยนและโหลดช่องกรอกชื่อเสร็จ
+    time.sleep(3) # รอโหลดหน้าถัดไป
 
     # --- Phase 10: ข้อมูลลูกค้า (ชื่อ/นามสกุล/เบอร์) ---
     print("[*] 12. กรอกข้อมูลลูกค้า")
