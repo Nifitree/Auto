@@ -99,15 +99,15 @@ def click_menu_button(main_window, title):
 
 def execute_shipping_flow(main_window):
     # --- Phase 1: เริ่มต้น (คลิก S -> ข้อมูลผู้ส่ง) ---
-    # [แก้ไข] ใช้การคลิกปุ่ม S แทนการพิมพ์
+    # ใช้ ID ผู้ส่ง (Global ID)
     click_menu_button(main_window, S_CFG['BUTTON_S_TITLE'])
 
     print("[*] 2. อ่านบัตรประชาชน")
     main_window.child_window(title=ID_CARD_BUTTON_TITLE, control_type="Text").click_input()
     
-    print("[*] 3. กรอกรหัสไปรษณีย์และเบอร์โทร")
+    print(f"[*] 3. กรอกรหัสไปรษณีย์ผู้ส่ง (ID: {POSTAL_CODE_EDIT_AUTO_ID})")
     postal = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
-    if not scroll_until_found(postal, main_window): raise Exception("ไม่พบช่องไปรษณีย์")
+    if not scroll_until_found(postal, main_window): raise Exception("ไม่พบช่องไปรษณีย์ผู้ส่ง")
     fill_if_empty(main_window, postal, POSTAL_CODE)
 
     phone = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
@@ -117,12 +117,10 @@ def execute_shipping_flow(main_window):
     press_next(main_window) # ถัดไป (1)
 
     # --- Phase 2: เลือกเมนู (คลิก W -> คลิก A -> คลิก A) ---
-    print("[*] 4. เลือกเมนู W -> A -> A (โดยการคลิก)")
-    
-    # [แก้ไข] ใช้ click_menu_button แทน type_keys
-    click_menu_button(main_window, S_CFG['BUTTON_W_TITLE']) # คลิก W
-    click_menu_button(main_window, S_CFG['BUTTON_A_TITLE']) # คลิก A (ครั้งที่ 1)
-    click_menu_button(main_window, S_CFG['BUTTON_A_TITLE']) # คลิก A (ครั้งที่ 2)
+    print("[*] 4. เลือกเมนู W -> A -> A")
+    click_menu_button(main_window, S_CFG['BUTTON_W_TITLE']) 
+    click_menu_button(main_window, S_CFG['BUTTON_A_TITLE'])
+    click_menu_button(main_window, S_CFG['BUTTON_A_TITLE'])
 
     press_next(main_window) # ถัดไป (2)
 
@@ -131,32 +129,36 @@ def execute_shipping_flow(main_window):
     weight_input = main_window.child_window(auto_id=S_CFG['WEIGHT_EDIT_ID'], control_type="Edit")
     
     if not scroll_until_found(weight_input, main_window): 
-        raise Exception(f"ไม่พบช่องกรอกน้ำหนัก (ID: {S_CFG['WEIGHT_EDIT_ID']})")
+        raise Exception(f"ไม่พบช่องกรอกน้ำหนัก")
         
     weight_input.click_input()
     main_window.type_keys(S_CFG['WEIGHT_VALUE'])
     
     press_next(main_window) # ถัดไป (3)
 
-    # --- Phase 4: รหัสไปรษณีย์ปลายทาง ---
-    print(f"[*] 6. กรอกรหัสไปรษณีย์ปลายทาง: {POSTAL_CODE}")
-    postal_dest = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
-    if not scroll_until_found(postal_dest, main_window): raise Exception("ไม่พบช่องไปรษณีย์ปลายทาง")
+    # --- Phase 4: รหัสไปรษณีย์ปลายทาง (แก้ไขใหม่) ---
+    # ใช้ ID ใหม่จาก Config: POSTAL_DEST_EDIT_ID (PostCodeDestination)
+    dest_id = S_CFG['POSTAL_DEST_EDIT_ID']
+    print(f"[*] 6. กรอกรหัสไปรษณีย์ปลายทาง: {POSTAL_CODE} (ID: {dest_id})")
+    
+    postal_dest = main_window.child_window(auto_id=dest_id, control_type="Edit")
+    if not scroll_until_found(postal_dest, main_window): 
+        raise Exception(f"ไม่พบช่องไปรษณีย์ปลายทาง (ID: {dest_id})")
+        
     fill_if_empty(main_window, postal_dest, POSTAL_CODE)
 
     press_next(main_window) # ถัดไป (4)
 
     # --- Phase 5: ดำเนินการ (ENTER) -> คลิก A ---
     print("[*] 7. กดดำเนินการ (ENTER) และคลิก A")
-    main_window.type_keys("{ENTER}") # ปุ่มดำเนินการมักใช้ Enter หรือหาปุ่มกด
+    main_window.type_keys("{ENTER}") 
     time.sleep(WAIT_TIME)
     
-    # [แก้ไข] คลิก A แทนการพิมพ์
     click_menu_button(main_window, S_CFG['BUTTON_A_TITLE'])
 
     # --- Phase 6: วงเงินประกัน ---
     print(f"[*] 8. กรอกวงเงินประกัน: {S_CFG['INSURANCE_AMOUNT']}")
-    coverage_btn = main_window.child_window(auto_id=S_CFG['COVERAGE_ICON_ID']) # CoverageIcon
+    coverage_btn = main_window.child_window(auto_id=S_CFG['COVERAGE_ICON_ID'])
     if not scroll_until_found(coverage_btn, main_window): raise Exception("ไม่พบปุ่ม CoverageIcon")
     coverage_btn.click_input()
     main_window.type_keys(S_CFG['INSURANCE_AMOUNT'])
@@ -166,7 +168,6 @@ def execute_shipping_flow(main_window):
 
     # --- Phase 7: เมนู A อีกรอบ ---
     print("[*] 9. คลิก A")
-    # [แก้ไข] คลิก A แทนการพิมพ์
     click_menu_button(main_window, S_CFG['BUTTON_A_TITLE'])
 
     press_next(main_window) # ถัดไป (7)
@@ -174,7 +175,7 @@ def execute_shipping_flow(main_window):
 
     # --- Phase 8: ค้นหาที่อยู่ ---
     print(f"[*] 10. ค้นหาที่อยู่: {S_CFG['ADDRESS_SEARCH_TERM']}")
-    search_field = main_window.child_window(auto_id=S_CFG['SEARCH_FIELD_ID'], control_type="Edit") # SearchField1
+    search_field = main_window.child_window(auto_id=S_CFG['SEARCH_FIELD_ID'], control_type="Edit")
     if not scroll_until_found(search_field, main_window): raise Exception("ไม่พบช่องค้นหาที่อยู่")
     search_field.click_input()
     main_window.type_keys(S_CFG['ADDRESS_SEARCH_TERM'])
@@ -183,26 +184,22 @@ def execute_shipping_flow(main_window):
 
     # --- Phase 9: เลือก Title ที่อยู่ ---
     print(f"[*] 11. เลือกที่อยู่: {S_CFG['SELECTED_ADDRESS_TITLE']}")
-    # 1/18ปทุมนาราม
     addr_title = main_window.child_window(title=S_CFG['SELECTED_ADDRESS_TITLE'], control_type="Text")
     if not scroll_until_found(addr_title, main_window): raise Exception(f"ไม่พบที่อยู่ {S_CFG['SELECTED_ADDRESS_TITLE']}")
     addr_title.click_input()
 
     # --- Phase 10: ข้อมูลลูกค้า (ชื่อ/นามสกุล/เบอร์) ---
-    print("[*] 12. กรอกข้อมูลลูกค้า (ชื่อ, นามสกุล, เบอร์)")
+    print("[*] 12. กรอกข้อมูลลูกค้า")
     
-    # ชื่อ
     name_input = main_window.child_window(auto_id=S_CFG['CUST_NAME_ID'], control_type="Edit")
     if not scroll_until_found(name_input, main_window): raise Exception("ไม่พบช่องชื่อลูกค้า")
     name_input.click_input()
     main_window.type_keys(S_CFG['CUSTOMER_NAME'])
 
-    # นามสกุล
     lastname_input = main_window.child_window(auto_id=S_CFG['CUST_LASTNAME_ID'], control_type="Edit")
     lastname_input.click_input()
     main_window.type_keys(S_CFG['CUSTOMER_LASTNAME'])
 
-    # เบอร์โทร
     phone_cust = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
     phone_cust.click_input()
     main_window.type_keys(PHONE_NUMBER)
@@ -213,7 +210,6 @@ def execute_shipping_flow(main_window):
 
     # --- Phase 11: เสร็จสิ้น (Z) ---
     print("[*] 13. กดเสร็จสิ้น (Z)")
-    # [แก้ไข] ลองคลิก Z ก่อน ถ้าไม่ได้ค่อยกดคีย์บอร์ด
     try:
         main_window.child_window(title=S_CFG['BUTTON_Z_TITLE'], control_type="Text").click_input()
     except:
