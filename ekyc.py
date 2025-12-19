@@ -28,7 +28,6 @@ def read_config(filename=CONFIG_FILE):
 CONFIG = read_config()
 if not CONFIG.sections():
     print("ไม่สามารถโหลด config.ini ได้ โปรดตรวจสอบไฟล์")
-    # ใช้ sys.exit(1) เพื่อให้แน่ใจว่าโปรแกรมหยุดทำงาน
     sys.exit(1) 
 
 # ดึงค่า Global ที่ใช้ร่วมกัน
@@ -77,18 +76,8 @@ def force_scroll_down(window, config):
 # ==================== MAIN LOGIC ====================
 
 def run_ekyc_step(service_name, service_title):
-    """
-    Flow การทำงาน:
-    1. กด 'A' (Agency)
-    2. กด 'K' (BaS)
-    3. เลือกรายการย่อย (Service Title)
-    4. ตรวจสอบ/กรอกเลขไปรษณีย์
-    5. ตรวจสอบ/กรอกเบอร์โทรศัพท์
-    6. กด 'ถัดไป'
-    7. กด 'ESC' เพื่อออก
-    """
     print(f"\n{'='*50}\n[*] เริ่มทำรายการ: {service_name} (รหัส: {service_title})")
-    app = None
+    
     # ดึงค่า Config ที่จำเป็น
     HOTKEY_AGENCY_TITLE = B_CFG['HOTKEY_AGENCY_TITLE']
     HOTKEY_BaS_TITLE = B_CFG['HOTKEY_BaS_TITLE']
@@ -96,6 +85,7 @@ def run_ekyc_step(service_name, service_title):
     NEXT_TITLE = B_CFG['NEXT_TITLE']
     ID_AUTO_ID = B_CFG['ID_AUTO_ID']
     
+    app = None
     try:
         # เชื่อมต่อ Application
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
@@ -121,7 +111,7 @@ def run_ekyc_step(service_name, service_title):
         print(f"[*] 4. กำลังตรวจสอบ/กรอกเลขไปรษณีย์ ID='{POSTAL_CODE_EDIT_AUTO_ID}'")
         postal_control = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
         
-        #  [จุดที่ 1] ตรวจสอบว่าช่องปรากฏหรือไม่ ก่อน Scroll
+        # [จุดที่ 1] ตรวจสอบว่าช่องปรากฏหรือไม่ ก่อน Scroll
         if not postal_control.exists(timeout=1):
             print("[!] ช่องไปรษณีย์ไม่ปรากฏทันที, กำลังเลื่อนหน้าจอลง...")
         
@@ -136,12 +126,11 @@ def run_ekyc_step(service_name, service_title):
                 break
         
         if not found:
-            print(f"[X] FAILED: ไม่สามารถหาช่องไปรษณีย์ '{POSTAL_CODE_EDIT_AUTO_ID}' ได้หลัง Scroll {max_scrolls} ครั้ง")
-            return False # ยกเลิกการทำงานหากหาไม่พบ
+            # เปลี่ยนจาก return False เป็น raise Exception เพื่อให้ไปเข้าลูป Error (แคปภาพ+หยุด)
+            raise Exception(f"หาช่องไปรษณีย์ '{POSTAL_CODE_EDIT_AUTO_ID}' ไม่เจอหลัง Scroll {max_scrolls} ครั้ง")
 
         # [จุดที่ 2] ดำเนินการกรอกข้อมูล (เมื่อแน่ใจว่าพบแล้ว)
         if not postal_control.texts()[0].strip():
-            # ถ้าช่องว่าง (Empty) ให้ทำการกรอก
             print(f" [-] -> ช่องว่าง, กรอก: {POSTAL_CODE}")
             postal_control.click_input() 
             main_window.type_keys(POSTAL_CODE)
@@ -167,10 +156,10 @@ def run_ekyc_step(service_name, service_title):
                 break
         
         if not found:
-            print(f"[X] FAILED: ไม่สามารถหาช่องเบอร์โทรศัพท์ '{PHONE_EDIT_AUTO_ID}' ได้หลัง Scroll {max_scrolls} ครั้ง")
-            return False # ยกเลิกการทำงานหากหาไม่พบ
+            # เปลี่ยนจาก return False เป็น raise Exception เพื่อให้ไปเข้าลูป Error (แคปภาพ+หยุด)
+            raise Exception(f"หาช่องเบอร์โทรศัพท์ '{PHONE_EDIT_AUTO_ID}' ไม่เจอหลัง Scroll {max_scrolls} ครั้ง")
     
-        #  [จุดที่ 3] ดำเนินการกรอกข้อมูล (เมื่อแน่ใจว่าพบแล้ว)
+        # [จุดที่ 3] ดำเนินการกรอกข้อมูล (เมื่อแน่ใจว่าพบแล้ว)
         if not phone_control.texts()[0].strip():
             print(f" [-] -> ช่องว่าง, กรอก: {PHONE_NUMBER}")
             phone_control.click_input()
@@ -184,7 +173,17 @@ def run_ekyc_step(service_name, service_title):
         main_window.child_window(title=NEXT_TITLE, auto_id=ID_AUTO_ID, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
 
-        # 7. กด ESC
+        # =================================================================================
+        # [NEW LOGIC] เช็คว่าผ่านหน้าเดิมไปหรือยัง? ก่อนที่จะกด ESC
+        # ถ้าช่องกรอกเบอร์โทรศัพท์ยังคงอยู่ (exists=True) แสดงว่าติด Error ที่หน้าเดิม
+        # =================================================================================
+        print("[*] กำลังตรวจสอบผลลัพธ์หลังกดถัดไป...")
+        if phone_control.exists(timeout=1):
+            # ถ้าช่องเบอร์โทรยังอยู่ แปลว่าไม่ได้ไปหน้าถัดไป (ติด Error กรอกผิด)
+            # เราต้อง Raise Exception ตรงนี้เลย เพื่อให้โปรแกรมหยุดและแคปภาพหน้าจอ Error นั้นไว้
+            raise Exception("กดถัดไปแล้วแต่ยังอยู่ที่หน้าเดิม (คาดว่าข้อมูลผิดพลาด/Validation Failed)")
+
+        # 7. กด ESC (จะทำบรรทัดนี้ก็ต่อเมื่อผ่านการเช็คด้านบนแล้วว่าไปหน้าใหม่จริง)
         print(f"[*] 7. กดปุ่ม ESC เพื่อย้อนกลับ")
         main_window.type_keys("{ESC}")
         time.sleep(WAIT_TIME)
@@ -192,16 +191,21 @@ def run_ekyc_step(service_name, service_title):
         print(f"[V] รายการ {service_name} เสร็จสิ้น")
         
     except Exception as e:
-        # ใส่ตัวนี้เพื่อให้ระบบแคปภาพทำงาน
+        # 1. แคปภาพ (สำคัญมาก: จะได้รูปตอนที่มันแดง/Error ค้างอยู่)
         error_context = {
             "test_name": "EKYC Automation",
             "step_name": service_name,
             "error_message": str(e)
         }
-        save_evidence_context(app, error_context)
-
+        if app:
+            save_evidence_context(app, error_context)
+            print("[/] บันทึกภาพ Error เรียบร้อย")
+        
         print(f"\n[X] FAILED: เกิดข้อผิดพลาดในรายการ {service_name}: {e}")
-        # ไม่ต้องใส่ raise e ถ้าคุณต้องการให้มันไปรัน Service ถัดไปต่อได้เลย
+        
+        # 2. สั่งหยุดการทำงานทันที (ตามที่คุณต้องการ)
+        # sys.exit(1) จะปิดโปรแกรมทันที ไม่ไปรัน Service ตัวต่อไป
+        sys.exit(1)
 
 # ----------------- Main Execution -----------------
 
