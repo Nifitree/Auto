@@ -244,12 +244,7 @@ def execute_shipping_flow(main_window):
 
     # --- Phase 11: เสร็จสิ้น (Z) ---
     print("[*] 13. กดเสร็จสิ้น (Z)")
-    try:
-        main_window.child_window(title=S_CFG['BUTTON_Z_TITLE'], control_type="Text").click_input()
-    except:
-        print("[!] หาปุ่ม Z ไม่เจอ ลองกดคีย์บอร์ดแทน")
-        main_window.type_keys("z")
-    time.sleep(WAIT_TIME)
+    click_menu_button(main_window, S_CFG['BUTTON_Z_TITLE'])
 
 # ==================== 4. ENGINE (STOP ON ERROR) ====================
 
