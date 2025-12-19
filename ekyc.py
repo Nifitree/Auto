@@ -66,13 +66,29 @@ def force_scroll_down(window):
     except Exception:
         window.type_keys("{PGDN}")
 
-def scroll_until_found(control, window, max_scrolls=3):
-    """วนลูป Scroll จนกว่าจะเจอ Object"""
-    for _ in range(max_scrolls):
-        if control.exists(timeout=1):
-            return True
-        force_scroll_down(window)
-    return False
+def check_and_scroll_find(main_window, control, error_msg):
+    """
+    Logic เดิมของคุณ: ตรวจสอบก่อน 1 รอบ ถ้าไม่เจอค่อยวนลูป Scroll
+    """
+    # 1. เช็คก่อน Scroll
+    if not control.exists(timeout=1):
+        print("[!] ไม่พบ Element ทันที... เริ่มการ Scroll")
+        
+        # 2. วนลูป Scroll (3 รอบ)
+        max_scrolls = 3
+        found = False
+        for i in range(max_scrolls):
+            force_scroll_down(main_window)
+            if control.exists(timeout=1):
+                print(f"[/] พบแล้วหลัง Scroll ครั้งที่ {i+1}")
+                found = True
+                break
+        
+        # 3. ถ้ายังไม่เจออีก -> RAISE ERROR (เพื่อให้ไปเข้า except แคปรูปและหยุด)
+        if not found:
+            raise Exception(f"{error_msg} (หาไม่เจอหลัง Scroll {max_scrolls} ครั้ง)")
+
+    return True
 
 def fill_if_empty(window, control, value):
     """กรอกข้อมูลถ้าช่องว่าง"""
@@ -80,12 +96,10 @@ def fill_if_empty(window, control, value):
         control.click_input()
         window.type_keys(value)
 
-# ==================== 3. EKYC TRANSACTION LOGIC ====================
+# ==================== 3. EKYC LOGIC ====================
 
 def execute_ekyc_transaction(main_window, service_title):
-    """Logic การทำงาน: เข้าเมนู -> เลือกรายการ -> กรอกฟอร์ม -> จบ"""
-    
-    # 1. นำทางเข้าเมนู (Agency -> BaS)
+    # 1. เข้าเมนู
     print(f"[*] เข้าเมนู Agency -> BaS")
     main_window.child_window(title=B_CFG['HOTKEY_AGENCY_TITLE'], control_type="Text").click_input()
     time.sleep(WAIT_TIME)
@@ -96,24 +110,25 @@ def execute_ekyc_transaction(main_window, service_title):
     print(f"[*] เลือกรายการ: {service_title}")
     service_btn = main_window.child_window(title=service_title, auto_id=S_CFG['TRANSACTION_CONTROL_TYPE'], control_type="Text")
     
-    if not scroll_until_found(service_btn, main_window):
-        raise Exception(f"ไม่พบปุ่มรายการ {service_title}")
+    # ใช้ Logic เดิม: เช็ค -> ถ้าไม่มีค่อย Scroll -> ถ้าไม่มีอีก Raise Error
+    check_and_scroll_find(main_window, service_btn, f"ไม่พบปุ่มรายการ {service_title}")
+    
     service_btn.click_input()
     time.sleep(WAIT_TIME)
 
     # 3. กรอกรหัสไปรษณีย์
     print(f"[*] กรอกรหัสไปรษณีย์")
     postal = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
-    if not scroll_until_found(postal, main_window):
-        raise Exception("ไม่พบช่องรหัสไปรษณีย์")
+    
+    check_and_scroll_find(main_window, postal, "ไม่พบช่องรหัสไปรษณีย์")
     fill_if_empty(main_window, postal, POSTAL_CODE)
     time.sleep(0.5)
 
     # 4. กรอกเบอร์โทร
     print(f"[*] กรอกเบอร์โทรศัพท์")
     phone = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
-    if not scroll_until_found(phone, main_window):
-        raise Exception("ไม่พบช่องเบอร์โทรศัพท์")
+    
+    check_and_scroll_find(main_window, phone, "ไม่พบช่องเบอร์โทรศัพท์")
     fill_if_empty(main_window, phone, PHONE_NUMBER)
     time.sleep(0.5)
 
@@ -127,10 +142,10 @@ def execute_ekyc_transaction(main_window, service_title):
     main_window.type_keys("{ESC}")
     time.sleep(WAIT_TIME)
 
-# ==================== 4. ENGINE (HARD STOP & CAPTURE) ====================
+# ==================== 4. RUNNER (STOP ON ERROR) ====================
 
 def run_service(step_name, service_title):
-    """Wrapper: รันงาน -> ถ้าพัง -> แคปภาพ -> หยุดโปรแกรมทันที"""
+    """Wrapper: รัน -> ถ้าพัง -> แคป -> หยุดทันที (raise)"""
     app = None
     print(f"\n{'='*50}\n[*] เริ่มทำรายการ: {step_name} (รหัส: {service_title})")
     
@@ -142,28 +157,29 @@ def run_service(step_name, service_title):
     except Exception as e:
         print(f"\n[X] FAILED: {step_name} -> {e}")
         
-        # --- ส่วนจัดการหลักฐาน (Evidence Handling) ---
-        try:
-            # พยายามแคปภาพ แม้ app อาจจะไม่สมบูรณ์
-            error_context = {
-                "test_name": "EKYC Automation",
-                "step_name": step_name,
-                "error_message": str(e)
-            }
-            if app:
-                save_evidence_context(app, error_context)
-            else:
-                print("[!] ไม่สามารถแคปภาพได้เนื่องจากเชื่อมต่อ App ไม่สำเร็จ")
-        except Exception as evidence_error:
-            print(f"[!] เกิดข้อผิดพลาดขณะบันทึกภาพ: {evidence_error}")
-        
-        # --- ส่วนหยุดการทำงาน (Hard Stop) ---
-        print("!!! ตรวจพบข้อผิดพลาด: หยุดการทำงานทันที !!!")
-        sys.exit(1) # คำสั่งนี้จะหยุดโปรแกรมทันที ไม่มีการรันต่อ
+        # --- แคปภาพ (ทำงานแน่นอนถ้า connect ผ่านแล้ว) ---
+        if app:
+            try:
+                save_evidence_context(app, {
+                    "test_name": "EKYC Automation",
+                    "step_name": step_name,
+                    "error_message": str(e)
+                })
+                print("[/] บันทึกภาพ Error เรียบร้อย")
+            except Exception as img_err:
+                print(f"[!] บันทึกภาพไม่สำเร็จ: {img_err}")
+        else:
+            print("[!] ไม่สามารถบันทึกภาพได้ (Application ยังไม่ถูกเชื่อมต่อ)")
+
+        # --- หยุดการทำงานทันที (CRITICAL) ---
+        print("!!! หยุดการทำงานตามคำสั่ง (Stop Execution) !!!")
+        raise e  # การใช้ raise จะทำให้โปรแกรม Crash และหยุดทันที ไม่ไปต่อ
 
 # ==================== 5. ENTRY POINT ====================
 
 if __name__ == "__main__":
+    # การใช้ raise ด้านบนจะทำให้ script หยุดทำงานทันทีที่รายการใดรายการหนึ่งพัง
+    
     if 'EKYC_1_TITLE' in S_CFG:
         run_service("EKYC_Service_1", S_CFG['EKYC_1_TITLE'])
         
