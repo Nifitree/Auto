@@ -99,13 +99,12 @@ def click_menu_button(main_window, title):
 
 def execute_shipping_flow(main_window):
     # --- Phase 1: เริ่มต้น (คลิก S -> ข้อมูลผู้ส่ง) ---
-    # ใช้ ID ผู้ส่ง (Global ID)
     click_menu_button(main_window, S_CFG['BUTTON_S_TITLE'])
 
     print("[*] 2. อ่านบัตรประชาชน")
     main_window.child_window(title=ID_CARD_BUTTON_TITLE, control_type="Text").click_input()
     
-    print(f"[*] 3. กรอกรหัสไปรษณีย์ผู้ส่ง (ID: {POSTAL_CODE_EDIT_AUTO_ID})")
+    print(f"[*] 3. กรอกรหัสไปรษณีย์ผู้ส่ง")
     postal = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
     if not scroll_until_found(postal, main_window): raise Exception("ไม่พบช่องไปรษณีย์ผู้ส่ง")
     fill_if_empty(main_window, postal, POSTAL_CODE)
@@ -116,7 +115,7 @@ def execute_shipping_flow(main_window):
 
     press_next(main_window) # ถัดไป (1)
 
-    # --- Phase 2: เลือกเมนู (คลิก W -> คลิก A -> คลิก A) ---
+    # --- Phase 2: เลือกเมนู (W -> A -> A) ---
     print("[*] 4. เลือกเมนู W -> A -> A")
     click_menu_button(main_window, S_CFG['BUTTON_W_TITLE']) 
     click_menu_button(main_window, S_CFG['BUTTON_A_TITLE'])
@@ -127,34 +126,35 @@ def execute_shipping_flow(main_window):
     # --- Phase 3: กรอกน้ำหนัก ---
     print(f"[*] 5. กรอกน้ำหนัก: {S_CFG['WEIGHT_VALUE']} (ID: {S_CFG['WEIGHT_EDIT_ID']})")
     weight_input = main_window.child_window(auto_id=S_CFG['WEIGHT_EDIT_ID'], control_type="Edit")
-    
-    if not scroll_until_found(weight_input, main_window): 
-        raise Exception(f"ไม่พบช่องกรอกน้ำหนัก")
-        
+    if not scroll_until_found(weight_input, main_window): raise Exception(f"ไม่พบช่องกรอกน้ำหนัก")
     weight_input.click_input()
     main_window.type_keys(S_CFG['WEIGHT_VALUE'])
     
     press_next(main_window) # ถัดไป (3)
 
-    # --- Phase 4: รหัสไปรษณีย์ปลายทาง (แก้ไขใหม่) ---
-    # ใช้ ID ใหม่จาก Config: POSTAL_DEST_EDIT_ID (PostCodeDestination)
+    # --- Phase 4: รหัสไปรษณีย์ปลายทาง ---
     dest_id = S_CFG['POSTAL_DEST_EDIT_ID']
     print(f"[*] 6. กรอกรหัสไปรษณีย์ปลายทาง: {POSTAL_CODE} (ID: {dest_id})")
-    
     postal_dest = main_window.child_window(auto_id=dest_id, control_type="Edit")
-    if not scroll_until_found(postal_dest, main_window): 
-        raise Exception(f"ไม่พบช่องไปรษณีย์ปลายทาง (ID: {dest_id})")
-        
+    if not scroll_until_found(postal_dest, main_window): raise Exception(f"ไม่พบช่องไปรษณีย์ปลายทาง")
     fill_if_empty(main_window, postal_dest, POSTAL_CODE)
 
     press_next(main_window) # ถัดไป (4)
 
-    # --- Phase 5: ดำเนินการ (ENTER) -> คลิก A ---
-    print("[*] 7. กดดำเนินการ (ENTER) และคลิก A")
+    # --- Phase 5: ดำเนินการ (ENTER) -> คลิก A (แก้ไข AutoID) ---
+    print("[*] 7. กดดำเนินการ (ENTER)")
     main_window.type_keys("{ENTER}") 
     time.sleep(WAIT_TIME)
     
-    click_menu_button(main_window, S_CFG['BUTTON_A_TITLE'])
+    # [แก้ไขจุดนี้] ใช้ Auto ID แทนการหาจากชื่อ A
+    service_a_id = S_CFG['SERVICE_A_BUTTON_ID'] # ShippingService_363235
+    print(f"[*] 7.1 คลิกปุ่ม A (ID: {service_a_id})")
+    
+    btn_a = main_window.child_window(auto_id=service_a_id)
+    if not scroll_until_found(btn_a, main_window):
+        raise Exception(f"ไม่พบปุ่ม A (ID: {service_a_id})")
+    btn_a.click_input()
+    time.sleep(WAIT_TIME)
 
     # --- Phase 6: วงเงินประกัน ---
     print(f"[*] 8. กรอกวงเงินประกัน: {S_CFG['INSURANCE_AMOUNT']}")
