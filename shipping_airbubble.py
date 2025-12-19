@@ -153,11 +153,26 @@ def execute_shipping_flow(main_window):
     btn_a.click_input()
     time.sleep(WAIT_TIME)
 
-    # --- Phase 6: วงเงินประกัน ---
+    # --- Phase 6: วงเงินประกัน (แก้ไขเพิ่มการหาช่องกรอก) ---
     print(f"[*] 8. กรอกวงเงินประกัน: {S_CFG['INSURANCE_AMOUNT']}")
+    
+    # 1. คลิกไอคอน
     coverage_btn = main_window.child_window(auto_id=S_CFG['COVERAGE_ICON_ID'])
     if not scroll_until_found(coverage_btn, main_window): raise Exception("ไม่พบปุ่ม CoverageIcon")
     coverage_btn.click_input()
+    time.sleep(0.5) # รอช่องกรอกโผล่มา
+    
+    # 2. หาช่องกรอก (CoverageAmount) และพิมพ์
+    amount_id = S_CFG['COVERAGE_AMOUNT_EDIT_ID']
+    print(f" [-] กำลังหาช่องกรอก (ID: {amount_id})")
+    
+    amount_input = main_window.child_window(auto_id=amount_id)
+    if not amount_input.exists(timeout=2):
+        print("[!] ไม่พบช่องกรอกทันที ลอง Scroll...")
+        if not scroll_until_found(amount_input, main_window):
+             raise Exception(f"ไม่พบช่องกรอกวงเงินประกัน (ID: {amount_id})")
+
+    amount_input.click_input()
     main_window.type_keys(S_CFG['INSURANCE_AMOUNT'])
 
     press_next(main_window) # ถัดไป (5)
