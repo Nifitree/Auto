@@ -11,51 +11,48 @@ from app_context import AppContext
 from ui_helper import select_combobox_item
 from evidence import save_evidence_context
 
-# ==================== CONFIGURATION ====================
+# ==================== 1. CONFIGURATION SETUP ====================
 
 CONFIG_FILE = "config.ini"
 
 def read_config(filename=CONFIG_FILE):
-    """อ่านและโหลดค่าจากไฟล์ config.ini"""
     config = configparser.ConfigParser()
     try:
         if not os.path.exists(filename):
-            print(f"[X] ไม่พบไฟล์ config ที่: {os.path.abspath(filename)}")
+            print(f"[X] Config file not found: {os.path.abspath(filename)}")
             return configparser.ConfigParser()
-            
         config.read(filename, encoding='utf-8')
         return config
     except Exception as e:
-        print(f"[X] FAILED: ไม่สามารถอ่านไฟล์ {filename} ได้: {e}")
+        print(f"[X] FAILED reading config: {e}")
         return configparser.ConfigParser()
 
-# โหลด Config
+# Load Config
 CONFIG = read_config()
 if not CONFIG.sections():
-    print("ไม่สามารถโหลด config.ini ได้ โปรดตรวจสอบไฟล์")
+    print("Cannot load config.ini")
     sys.exit()
 
-# --- Global Config ---
+# --- Global Constants ---
 WINDOW_TITLE = CONFIG['GLOBAL']['WINDOW_TITLE']
 WAIT_TIME = CONFIG.getint('GLOBAL', 'WAIT_TIME_SEC')
 PHONE_NUMBER = CONFIG['GLOBAL']['PHONE_NUMBER']
 ID_CARD_BUTTON_TITLE = CONFIG['GLOBAL']['ID_CARD_BUTTON_TITLE']
 PHONE_EDIT_AUTO_ID = CONFIG['GLOBAL']['PHONE_EDIT_AUTO_ID']
-POSTAL_CODE = CONFIG['GLOBAL']['POSTAL_CODE'] 
+POSTAL_CODE = CONFIG['GLOBAL']['POSTAL_CODE']
 POSTAL_CODE_EDIT_AUTO_ID = CONFIG['GLOBAL']['POSTAL_CODE_EDIT_AUTO_ID']
 
-# --- Section Configs ---
+# --- Section Constants ---
 B_CFG = CONFIG['MUTUAL_MAIN']
 S_CFG = CONFIG['MUTUAL_SERVICES']
-T_CFG = CONFIG['PAYMENT']
 I_CFG = CONFIG['INFORMATION']
 
 # --- Information Values ---
 RECEIVE_PAYMENT_TITLE = I_CFG['RECEIVE_PAYMENT_TITLE']
 MEMBER_ID_VALUE = I_CFG['MEMBER_ID_VALUE']
-MEMBER_ID_AUTO_ID = I_CFG['MEMBER_ID_AUTO_ID'] 
+MEMBER_ID_AUTO_ID = I_CFG['MEMBER_ID_AUTO_ID']
 ACCOUNT_NUM_VALUE = I_CFG['ACCOUNT_NUM_VALUE']
-ACCOUNT_NUM_AUTO_ID = I_CFG['ACCOUNT_NUM_AUTO_ID'] 
+ACCOUNT_NUM_AUTO_ID = I_CFG['ACCOUNT_NUM_AUTO_ID']
 ACCOUNT_NAME_VALUE = I_CFG['ACCOUNT_NAME_VALUE']
 ACCOUNT_NAME_AUTO_ID = I_CFG['ACCOUNT_NAME_AUTO_ID']
 AMOUNT_TO_PAY_VALUE = I_CFG['AMOUNT_TO_PAY_VALUE']
@@ -63,396 +60,310 @@ AMOUNT_TO_PAY_AUTO_ID = I_CFG['AMOUNT_TO_PAY_AUTO_ID']
 LOAN_TYPE_COMBO_ID = I_CFG['LOAN_TYPE_COMBO_ID']
 LOAN_TYPE_SELECT = I_CFG['LOAN_A_SELECT']
 
-# ==================== HELPERS & CONTEXT ====================
-
+# Initialize Helpers
 ctx = AppContext(window_title_regex=WINDOW_TITLE)
 payment = PaymentFlow(CONFIG, ctx)
+
+# ==================== 2. HELPER FUNCTIONS ====================
 
 def force_scroll_down(window, config):
     """เลื่อนหน้าจอลงโดยใช้ Mouse wheel"""
     try:
-        center_x_offset = config.getint('MOUSE_SCROLL', 'CENTER_X_OFFSET')
-        center_y_offset = config.getint('MOUSE_SCROLL', 'CENTER_Y_OFFSET')
-        wheel_dist = config.getint('MOUSE_SCROLL', 'WHEEL_DIST')
-        focus_delay = config.getfloat('MOUSE_SCROLL', 'FOCUS_DELAY')
-        scroll_delay = config.getfloat('MOUSE_SCROLL', 'SCROLL_DELAY')
-    except ValueError:
-        print("[!] Scroll config invalid. Using defaults.")
-        center_x_offset, center_y_offset, wheel_dist, focus_delay, scroll_delay = 300, 300, -20, 0.5, 1.0
+        scroll_cfg = config['MOUSE_SCROLL']
+        center_x = scroll_cfg.getint('CENTER_X_OFFSET', fallback=300)
+        center_y = scroll_cfg.getint('CENTER_Y_OFFSET', fallback=300)
+        wheel_dist = scroll_cfg.getint('WHEEL_DIST', fallback=-20)
+        focus_delay = scroll_cfg.getfloat('FOCUS_DELAY', fallback=0.5)
+        scroll_delay = scroll_cfg.getfloat('SCROLL_DELAY', fallback=1.0)
+    except:
+        center_x, center_y, wheel_dist = 300, 300, -20
+        focus_delay, scroll_delay = 0.5, 1.0
 
-    print(f"...กำลังเลื่อนหน้าจอลง (Mouse Wheel {wheel_dist})...")
-
+    print(f"...Scrolling down (Wheel {wheel_dist})...")
     try:
         rect = window.rectangle()
-        center_x = rect.left + center_x_offset
-        center_y = rect.top + center_y_offset
-        
-        mouse.click(coords=(center_x, center_y))
+        cx, cy = rect.left + center_x, rect.top + center_y
+        mouse.click(coords=(cx, cy))
         time.sleep(focus_delay)
-        
-        mouse.scroll(coords=(center_x, center_y), wheel_dist=wheel_dist)
+        mouse.scroll(coords=(cx, cy), wheel_dist=wheel_dist)
         time.sleep(scroll_delay)
-        print("[/] Scroll สำเร็จ")
-    except Exception as e:
-        print(f"[!] Scroll failed: {e}, ใช้ PageDown แทน")
+        print("[/] Scroll Success")
+    except Exception:
+        print("[!] Scroll failed, using PageDown")
         window.type_keys("{PGDN}")
 
-# ==================== MAIN NAVIGATION ====================
-
 def mutual_main():
-    BUTTON_A_TITLE = B_CFG['BUTTON_A_TITLE']
-    BUTTON_M_TITLE = B_CFG['BUTTON_M_TITLE']
-    NEXT_TITLE = B_CFG['NEXT_TITLE']
-    NEXT_AUTO_ID = B_CFG['NEXT_AUTO_ID']
+    """Main Navigation: Home -> Mutual Fund -> ID Card -> Postal/Phone -> Next"""
+    BUTTON_A = B_CFG['BUTTON_A_TITLE']
+    BUTTON_M = B_CFG['BUTTON_M_TITLE']
+    NEXT_BTN = B_CFG['NEXT_TITLE']
+    NEXT_ID = B_CFG['NEXT_AUTO_ID']
 
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' โดยการกดปุ่ม '{BUTTON_A_TITLE}'...")
+    print(f"\n{'='*50}\n[*] 1. Navigating to Mutual Fund Service...")
     try:
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
-        print("[/] เชื่อมต่อหน้าจอสำเร็จ ")
+        print("[/] Connected to Window")
 
-        # 1. กด A
-        main_window.child_window(title=BUTTON_A_TITLE, control_type="Text").click_input()
+        # Navigation A -> M
+        main_window.child_window(title=BUTTON_A, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
-        print("[/] เข้าสู่หน้า 'บริการกองทุนรวม'...")
-
-        # 2. กด M
-        main_window.child_window(title=BUTTON_M_TITLE, control_type="Text").click_input()
+        main_window.child_window(title=BUTTON_M, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
-        print("[/] กำลังดำเนินการในหน้า 'บริการกองทุนรวม'...")
 
-        # 3. กด 'อ่านบัตรประชาชน'
-        print(f"[*] 2.1. ค้นหาและคลิกปุ่ม '{ID_CARD_BUTTON_TITLE}'...")
+        # ID Card
+        print(f"[*] 2.1. Clicking '{ID_CARD_BUTTON_TITLE}'...")
         main_window.child_window(title=ID_CARD_BUTTON_TITLE, control_type="Text").click_input()
 
-        # 4. กรอกเลขไปรษณีย์
-        print(f"[*] 2.2.5. กำลังตรวจสอบ/กรอกเลขไปรษณีย์ ID='{POSTAL_CODE_EDIT_AUTO_ID}'")
-        postal_control = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
-    
-        if not postal_control.exists(timeout=1):
-            print("[!] ช่องไปรษณีย์ไม่ปรากฏทันที, กำลังเลื่อนหน้าจอลง...")
+        # Postal Code
+        print(f"[*] 2.2. Checking Postal Code (ID: {POSTAL_CODE_EDIT_AUTO_ID})")
+        postal_ctrl = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
         
-        # Scroll หาช่องไปรษณีย์
-        max_scrolls = 3
-        found = False
-        for i in range(max_scrolls):
-            force_scroll_down(main_window, CONFIG)
-            if postal_control.exists(timeout=1):
-                print("[/] ช่องไปรษณีย์พบแล้วหลังการ Scroll")
-                found = True
-                break
+        # Scroll logic
+        if not postal_ctrl.exists(timeout=1):
+            print("[!] Element not found, scrolling...")
+            for _ in range(3):
+                force_scroll_down(main_window, CONFIG)
+                if postal_ctrl.exists(timeout=1):
+                    break
         
-        if not found:
-            print(f"[X] FAILED: ไม่สามารถหาช่องไปรษณีย์ '{POSTAL_CODE_EDIT_AUTO_ID}' ได้หลัง Scroll")
+        if not postal_ctrl.exists(timeout=1):
+            print("[X] FAILED: Postal Code field not found.")
             return False
 
-        if not postal_control.texts()[0].strip():
-            print(f" [-] -> ช่องว่าง, กรอก: {POSTAL_CODE}")
-            postal_control.click_input() 
+        if not postal_ctrl.texts()[0].strip():
+            print(f" [-] Typing Postal: {POSTAL_CODE}")
+            postal_ctrl.click_input()
             main_window.type_keys(POSTAL_CODE)
-        else:
-            print(f" [-] -> ช่องมีค่าอยู่แล้ว: {postal_control.texts()[0].strip()}, ข้ามการกรอก")
-        time.sleep(0.5)
-    
-        # 5. กรอกเบอร์โทรศัพท์
-        print(f"[*] 2.2. กำลังตรวจสอบ/กรอกเบอร์โทรศัพท์ ID='{PHONE_EDIT_AUTO_ID}'")
-        phone_control = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
-    
-        if not phone_control.exists(timeout=1):
-            print("[!] ช่องเบอร์โทรศัพท์ไม่ปรากฏทันที, กำลังตรวจสอบ/เลื่อนหน้าจอซ้ำ...")
-        
-        # Scroll หาช่องเบอร์โทร
-        max_scrolls = 3
-        found = False
-        for i in range(max_scrolls):
-            force_scroll_down(main_window, CONFIG)
-            if phone_control.exists(timeout=1):
-                print("[/] ช่องเบอร์โทรศัพท์พบแล้วหลังการ Scroll")
-                found = True
-                break
-        
-        if not found:
-            print(f"[X] FAILED: ไม่สามารถหาช่องเบอร์โทรศัพท์ '{PHONE_EDIT_AUTO_ID}' ได้หลัง Scroll")
-            return False
-    
-        if not phone_control.texts()[0].strip():
-            print(f" [-] -> ช่องว่าง, กรอก: {PHONE_NUMBER}")
-            phone_control.click_input()
-            main_window.type_keys(PHONE_NUMBER)
-        else:
-            print(f" [-] -> ช่องมีค่าอยู่แล้ว: {phone_control.texts()[0].strip()}, ข้ามการกรอก")
         time.sleep(0.5)
 
-        # 6. กด 'ถัดไป'
-        print(f"[*] 2.3. กดปุ่ม '{NEXT_TITLE}' เพื่อไปหน้าถัดไป...")
-        main_window.child_window(title=NEXT_TITLE, auto_id=NEXT_AUTO_ID, control_type="Text").click_input()
+        # Phone Number
+        print(f"[*] 2.3. Checking Phone Number (ID: {PHONE_EDIT_AUTO_ID})")
+        phone_ctrl = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
+        
+        if not phone_ctrl.exists(timeout=1):
+            for _ in range(3):
+                force_scroll_down(main_window, CONFIG)
+                if phone_ctrl.exists(timeout=1):
+                    break
+
+        if not phone_ctrl.exists(timeout=1):
+            print("[X] FAILED: Phone field not found.")
+            return False
+
+        if not phone_ctrl.texts()[0].strip():
+            print(f" [-] Typing Phone: {PHONE_NUMBER}")
+            phone_ctrl.click_input()
+            main_window.type_keys(PHONE_NUMBER)
+        time.sleep(0.5)
+
+        # Next
+        print(f"[*] 2.4. Clicking '{NEXT_BTN}'...")
+        main_window.child_window(title=NEXT_BTN, auto_id=NEXT_ID, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
-    
-        print("\n[V] SUCCESS: ดำเนินการขั้นตอน สำเร็จ!")
+        
+        print("[V] Navigation Success!")
         return True
 
     except Exception as e:
-        print(f"\n[X] FAILED: เกิดข้อผิดพลาดใน : {e}")
+        print(f"[X] Navigation Error: {e}")
         return False
-    
-# ==================== SHARED TRANSACTION FUNCTION ====================
 
-def mutual_transaction(main_window, transaction_title, BARCODE_EDIT_AUTO_ID):
-    """ฟังก์ชันที่ใช้ร่วมกันสำหรับรายการย่อย (Barcode)"""
+def mutual_transaction(main_window, transaction_title, barcode_id_arg):
+    """Shared function for Barcode transactions"""
+    CTRL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
+    NEXT_BTN = B_CFG['NEXT_TITLE']
+    NEXT_ID = B_CFG['NEXT_AUTO_ID']
+    FINISH_BTN = B_CFG['FINISH_BUTTON_TITLE']
+    OK_BTN = S_CFG['OK_BUTTON_TITLE']
+    BARCODE_VAL = S_CFG['BARCODE_VALUE']
     
-    TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-    NEXT_TITLE = B_CFG['NEXT_TITLE']
-    NEXT_AUTO_ID = B_CFG['NEXT_AUTO_ID']
-    FINISH_BUTTON_TITLE = B_CFG['FINISH_BUTTON_TITLE']
-    OK_BUTTON_TITLE = S_CFG['OK_BUTTON_TITLE']
-    
-    MUTUAL_1_ID = S_CFG['MUTUAL_1_TITLE']
-    MUTUAL_4_ID = S_CFG['MUTUAL_4_TITLE']
-    BARCODE_FLOW_TITLES = [MUTUAL_1_ID, MUTUAL_4_ID]
-    BARCODE_VALUE = S_CFG['BARCODE_VALUE']
-    
+    BARCODE_TITLES = [S_CFG['MUTUAL_1_TITLE'], S_CFG['MUTUAL_4_TITLE']]
+
     try:
-        # 1. คลิกรายการย่อย
-        print(f"[*] 2. ค้นหาและคลิกรายการ: {transaction_title}")
-        main_window.child_window(title=transaction_title, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text").click_input()
+        # Click Item
+        print(f"[*] 2. Selecting Item: {transaction_title}")
+        main_window.child_window(title=transaction_title, auto_id=CTRL_TYPE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
 
-        if transaction_title in BARCODE_FLOW_TITLES:
-            print("--- [Special Step] รายการนี้ต้องการการกรอกบาร์โค้ด ---")
-
-            # 2. กรอกบาร์โค้ด
-            print(f"[*] 2.5.1. กำลังกรอกเลขบาร์โค้ด: {BARCODE_VALUE} (ID: {BARCODE_EDIT_AUTO_ID})")
-            barcode_control = main_window.child_window(auto_id=BARCODE_EDIT_AUTO_ID, control_type="Edit")
-            barcode_control.wait('visible', timeout=WAIT_TIME).click_input()
-            main_window.type_keys(BARCODE_VALUE)
+        if transaction_title in BARCODE_TITLES:
+            print("--- [Special Step] Barcode Required ---")
+            print(f"[*] 2.5. Typing Barcode: {BARCODE_VAL} (ID: {barcode_id_arg})")
+            
+            barcode_ctrl = main_window.child_window(auto_id=barcode_id_arg, control_type="Edit")
+            barcode_ctrl.wait('visible', timeout=WAIT_TIME).click_input()
+            main_window.type_keys(BARCODE_VAL)
             time.sleep(0.5)
 
-            # 3. กดปุ่ม 'ถัดไป'
-            print(f"[*] 3. ถัดไป '{NEXT_TITLE}'")
-            main_window.child_window(title=NEXT_TITLE, auto_id=NEXT_AUTO_ID, control_type="Text").click_input()
+            print(f"[*] 3. Clicking '{NEXT_BTN}'")
+            main_window.child_window(title=NEXT_BTN, auto_id=NEXT_ID, control_type="Text").click_input()
             time.sleep(WAIT_TIME)
             
-        # 4. คลิก 'ตกลง'
-        print(f"[*] 2.5.2. กดปุ่ม '{OK_BUTTON_TITLE}'")
-        main_window.child_window(title=OK_BUTTON_TITLE, control_type="Text").click_input()
+        print(f"[*] Clicking '{OK_BTN}'")
+        main_window.child_window(title=OK_BTN, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
         
-        # 5. คลิก 'เสร็จสิ้น'
-        print(f"[*] 4. กดปุ่ม '{FINISH_BUTTON_TITLE}'")
-        main_window.child_window(title=FINISH_BUTTON_TITLE, control_type="Text").click_input()
+        print(f"[*] Clicking '{FINISH_BTN}'")
+        main_window.child_window(title=FINISH_BTN, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
-        
+
     except Exception as e:
-        print(f"\n[X] FAILED: เกิดข้อผิดพลาดในการทำรายการย่อย {transaction_title}: {e}")
+        print(f"[X] Transaction Failed: {e}")
         raise e
 
-# ==================== SERVICE FUNCTIONS ====================
+# ==================== 3. SERVICE LOGIC FUNCTIONS ====================
 
 def mutual_services1():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' (รายการ 1)...")
+    print(f"\n{'='*50}\n[*] Running Service 1...")
     app = None
-    BARCODE_EDIT_AUTO_ID = S_CFG['BARCODE_EDIT_AUTO_ID']
     try:
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
-        
-        mutual_transaction(main_window, S_CFG['MUTUAL_1_TITLE'], BARCODE_EDIT_AUTO_ID)
-        
+        mutual_transaction(main_window, S_CFG['MUTUAL_1_TITLE'], S_CFG['BARCODE_EDIT_AUTO_ID'])
     except Exception as e:
-        error_context = {
-            "test_name": "Mutual Services Automation",
-            "step_name": "mutual_services1",
-            "error_message": str(e)
-        }
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
+        save_evidence_context(app, {"test_name": "Mutual", "step": "S1", "error": str(e)})
+        print(f"[X] FAILED: {e}")
 
 def mutual_services2():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' (รายการ 2 - กรอก 4 ฟิลด์)...")
-    app = None
-    try:
-        if not mutual_main(): 
-            return
-            
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        SERVICE_TITLE = S_CFG['MUTUAL_2_TITLE']
-        TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-        NEXT_TITLE = B_CFG['NEXT_TITLE']
-        NEXT_AUTO_ID = B_CFG['NEXT_AUTO_ID']
-        FINISH_BUTTON_TITLE = B_CFG['FINISH_BUTTON_TITLE']
-        
-        # 2. คลิกรายการย่อย
-        print(f"[*] 2. ค้นหาและคลิกรายการ: {SERVICE_TITLE}")
-        main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-        
-        # 3. กรอกข้อมูล 4 ฟิลด์
-        print("[*] 3. กำลังกรอกข้อมูลสมาชิกและบัญชี...")
-        main_window.child_window(auto_id=MEMBER_ID_AUTO_ID, control_type="Edit").type_keys(MEMBER_ID_VALUE)
-        main_window.child_window(auto_id=ACCOUNT_NUM_AUTO_ID, control_type="Edit").type_keys(ACCOUNT_NUM_VALUE)
-        main_window.child_window(auto_id=ACCOUNT_NAME_AUTO_ID, control_type="Edit").type_keys(ACCOUNT_NAME_VALUE)
-        main_window.child_window(auto_id=AMOUNT_TO_PAY_AUTO_ID, control_type="Edit").type_keys(AMOUNT_TO_PAY_VALUE)
-        time.sleep(WAIT_TIME)
-
-        # 4. คลิก 'ถัดไป' (1)
-        print(f"[*] 4. กดปุ่ม '{NEXT_TITLE}' (1)")
-        main_window.child_window(title=NEXT_TITLE, auto_id=NEXT_AUTO_ID, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-        
-        # 5. คลิก 'ถัดไป' (2)
-        print(f"[*] 5. กดปุ่ม '{NEXT_TITLE}' (2)")
-        main_window.child_window(title=NEXT_TITLE, auto_id=NEXT_AUTO_ID, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-        
-        # 6. คลิก 'รับเงิน'
-        print(f"[*] 6. กดปุ่ม '{RECEIVE_PAYMENT_TITLE}'")
-        main_window.child_window(title=RECEIVE_PAYMENT_TITLE, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-
-        # 7. จ่ายเงิน
-        print("[*] 7. เข้าสู่หน้าจอการชำระเงินและดำเนินการ...")
-        payment.pay_cash() 
-        
-        # 8. คลิก 'เสร็จสิ้น'
-        print(f"[*] 8. กดปุ่ม '{FINISH_BUTTON_TITLE}'")
-        main_window.child_window(title=FINISH_BUTTON_TITLE, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-        
-        print(f"\n[V] SUCCESS: ดำเนินการรายการย่อย {SERVICE_TITLE} สำเร็จ!")
-        
-    except Exception as e:
-        error_context = {
-            "test_name": "Mutual Services Automation",
-            "step_name": "mutual_services2",
-            "error_message": str(e)
-        }
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถทำรายการย่อย {SERVICE_TITLE}: {e}")
-
-def mutual_services3():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' (รายการ 3 - Loan Type)...")
-    app = None
-    try:
-        if not mutual_main(): 
-            return
-            
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
-        
-        SERVICE_TITLE = S_CFG['MUTUAL_3_TITLE']
-        TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
-        NEXT_TITLE = B_CFG['NEXT_TITLE']
-        NEXT_AUTO_ID = B_CFG['NEXT_AUTO_ID']
-        FINISH_BUTTON_TITLE = B_CFG['FINISH_BUTTON_TITLE']
-        
-        # 2. คลิกรายการย่อย
-        print(f"[*] 2. ค้นหาและคลิกรายการ: {SERVICE_TITLE}")
-        main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-        
-        # 3. กรอกข้อมูลและเลือก Dropdown
-        print("[*] 3. กำลังกรอกข้อมูลสมาชิก, เลือกประเภทเงินกู้ และกรอกจำนวนเงิน...")
-        main_window.child_window(auto_id=MEMBER_ID_AUTO_ID, control_type="Edit").type_keys(MEMBER_ID_VALUE)
-        time.sleep(0.5)
-
-        select_combobox_item(
-            main_window, 
-            combo_auto_id=LOAN_TYPE_COMBO_ID, 
-            item_title=LOAN_TYPE_SELECT, 
-            sleep=WAIT_TIME,
-        )
-        time.sleep(WAIT_TIME)
-
-        main_window.child_window(auto_id=ACCOUNT_NUM_AUTO_ID, control_type="Edit").type_keys(ACCOUNT_NAME_VALUE)
-        main_window.child_window(auto_id=AMOUNT_TO_PAY_AUTO_ID, control_type="Edit").type_keys(AMOUNT_TO_PAY_VALUE)
-        time.sleep(WAIT_TIME)
-
-        # 4. คลิก 'ถัดไป' (1)
-        print(f"[*] 4. กดปุ่ม '{NEXT_TITLE}' (1)")
-        main_window.child_window(title=NEXT_TITLE, auto_id=NEXT_AUTO_ID, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-        
-        # 5. คลิก 'ถัดไป' (2)
-        print(f"[*] 5. กดปุ่ม '{NEXT_TITLE}' (2)")
-        main_window.child_window(title=NEXT_TITLE, auto_id=NEXT_AUTO_ID, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-        
-        # 6. คลิก 'รับเงิน'
-        print(f"[*] 6. กดปุ่ม '{RECEIVE_PAYMENT_TITLE}'")
-        main_window.child_window(title=RECEIVE_PAYMENT_TITLE, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-
-        # 7. จ่ายเงิน
-        print("[*] 7. เข้าสู่หน้าจอการชำระเงินและดำเนินการ...")
-        payment.pay_cash() 
-
-        # 8. คลิก 'เสร็จสิ้น'
-        print(f"[*] 8. กดปุ่ม '{FINISH_BUTTON_TITLE}'")
-        main_window.child_window(title=FINISH_BUTTON_TITLE, control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
-        
-        print(f"\n[V] SUCCESS: ดำเนินการรายการย่อย {SERVICE_TITLE} สำเร็จ!")
-        
-    except Exception as e:
-        error_context = {
-            "test_name": "Mutual Services Automation",
-            "step_name": "mutual_services3",
-            "error_message": str(e)
-        }
-        save_evidence_context(app, error_context)
-        print(f"\n[X] FAILED: ไม่สามารถทำรายการย่อย {SERVICE_TITLE}: {e}")
-
-def mutual_services4():
-    print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' (รายการ 4)...") 
-    BARCODE2_EDIT_AUTO_ID = S_CFG['BARCODE2_EDIT_AUTO_ID']
+    print(f"\n{'='*50}\n[*] Running Service 2 (4 Fields)...")
     try:
         if not mutual_main(): return
         
         app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
         main_window = app.top_window()
+        
+        TITLE = S_CFG['MUTUAL_2_TITLE']
+        NEXT_BTN = B_CFG['NEXT_TITLE']
+        NEXT_ID = B_CFG['NEXT_AUTO_ID']
+        
+        # Select Item
+        print(f"[*] Selecting: {TITLE}")
+        main_window.child_window(title=TITLE, auto_id=S_CFG['TRANSACTION_CONTROL_TYPE'], control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+        
+        # Fill 4 Fields
+        print("[*] Filling 4 fields...")
+        main_window.child_window(auto_id=MEMBER_ID_AUTO_ID).type_keys(MEMBER_ID_VALUE)
+        main_window.child_window(auto_id=ACCOUNT_NUM_AUTO_ID).type_keys(ACCOUNT_NUM_VALUE)
+        main_window.child_window(auto_id=ACCOUNT_NAME_AUTO_ID).type_keys(ACCOUNT_NAME_VALUE)
+        main_window.child_window(auto_id=AMOUNT_TO_PAY_AUTO_ID).type_keys(AMOUNT_TO_PAY_VALUE)
+        time.sleep(WAIT_TIME)
 
-        SERVICE_TITLE = S_CFG['MUTUAL_4_TITLE']
-        TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
+        # Flow: Next -> Next -> Receive -> Pay -> Next -> Next
+        print(f"[*] Next (1)")
+        main_window.child_window(title=NEXT_BTN, auto_id=NEXT_ID, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+
+        print(f"[*] Next (2)")
+        main_window.child_window(title=NEXT_BTN, auto_id=NEXT_ID, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
         
-        target_control = main_window.child_window(title=SERVICE_TITLE, auto_id=TRANSACTION_CONTROL_TYPE, control_type="Text")
+        print(f"[*] Receive Payment")
+        main_window.child_window(title=RECEIVE_PAYMENT_TITLE, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+
+        print("[*] Payment Processing...")
+        payment.pay_cash()
         
-        max_scrolls = 3
-        found = False
+        print(f"[*] Next (3)")
+        main_window.child_window(title=NEXT_BTN, auto_id=NEXT_ID, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+
+        print(f"[*] Next (4 - Finish)")
+        main_window.child_window(title=NEXT_BTN, auto_id=NEXT_ID, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
         
-        print(f"[*] 1.5. กำลังตรวจสอบรายการ '{SERVICE_TITLE}' ก่อน Scroll...")
+        print("[V] Service 2 Success!")
+
+    except Exception as e:
+        save_evidence_context(app, {"test_name": "Mutual", "step": "S2", "error": str(e)})
+        print(f"[X] FAILED: {e}")
+
+def mutual_services3():
+    print(f"\n{'='*50}\n[*] Running Service 3 (Combobox)...")
+    try:
+        if not mutual_main(): return
         
-        # 1. ตรวจสอบรายการ
-        if target_control.exists(timeout=1):
-            print("[/] รายการย่อยพบแล้ว, ไม่จำเป็นต้อง Scroll.")
-            found = True
+        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
+        main_window = app.top_window()
         
-        # 2. Scroll หากไม่พบ
-        if not found:
-            print(f"[*] 1.5.1. รายการย่อยไม่ปรากฏทันที, เริ่มการ Scroll ({max_scrolls} ครั้ง)...")
-            for i in range(max_scrolls):
-                force_scroll_down(main_window, CONFIG) 
-                if target_control.exists(timeout=1):
-                    print(f"[/] รายการย่อยพบแล้วในการ Scroll ครั้งที่ {i+1}.")
-                    found = True
+        TITLE = S_CFG['MUTUAL_3_TITLE']
+        NEXT_BTN = B_CFG['NEXT_TITLE']
+        NEXT_ID = B_CFG['NEXT_AUTO_ID']
+        
+        print(f"[*] Selecting: {TITLE}")
+        main_window.child_window(title=TITLE, auto_id=S_CFG['TRANSACTION_CONTROL_TYPE'], control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+        
+        print("[*] Filling Data & Combobox...")
+        main_window.child_window(auto_id=MEMBER_ID_AUTO_ID).type_keys(MEMBER_ID_VALUE)
+        time.sleep(0.5)
+        
+        select_combobox_item(main_window, LOAN_TYPE_COMBO_ID, LOAN_TYPE_SELECT, WAIT_TIME)
+        time.sleep(WAIT_TIME)
+
+        main_window.child_window(auto_id=ACCOUNT_NAME_AUTO_ID).type_keys(ACCOUNT_NAME_VALUE)
+        main_window.child_window(auto_id=AMOUNT_TO_PAY_AUTO_ID).type_keys(AMOUNT_TO_PAY_VALUE)
+        time.sleep(WAIT_TIME)
+
+        # Flow: Next -> Next -> Receive -> Pay -> Next -> Next
+        print(f"[*] Next (1)")
+        main_window.child_window(title=NEXT_BTN, auto_id=NEXT_ID, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+
+        print(f"[*] Next (2)")
+        main_window.child_window(title=NEXT_BTN, auto_id=NEXT_ID, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+        
+        print(f"[*] Receive Payment")
+        main_window.child_window(title=RECEIVE_PAYMENT_TITLE, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+
+        print("[*] Payment Processing...")
+        payment.pay_cash()
+        
+        print(f"[*] Next (3)")
+        main_window.child_window(title=NEXT_BTN, auto_id=NEXT_ID, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+
+        print(f"[*] Next (4 - Finish)")
+        main_window.child_window(title=NEXT_BTN, auto_id=NEXT_ID, control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+        
+        print("[V] Service 3 Success!")
+
+    except Exception as e:
+        save_evidence_context(app, {"test_name": "Mutual", "step": "S3", "error": str(e)})
+        print(f"[X] FAILED: {e}")
+
+def mutual_services4():
+    print(f"\n{'='*50}\n[*] Running Service 4...")
+    try:
+        if not mutual_main(): return
+        
+        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
+        main_window = app.top_window()
+        
+        TITLE = S_CFG['MUTUAL_4_TITLE']
+        target = main_window.child_window(title=TITLE, auto_id=S_CFG['TRANSACTION_CONTROL_TYPE'], control_type="Text")
+        
+        # Check & Scroll
+        print(f"[*] Searching for item '{TITLE}'...")
+        if not target.exists(timeout=1):
+            for _ in range(3):
+                force_scroll_down(main_window, CONFIG)
+                if target.exists(timeout=1):
                     break
         
-        # 3. หากยังไม่พบ
-        if not found:
-            print(f"[X] FAILED: ไม่สามารถค้นหารายการย่อย '{SERVICE_TITLE}' ได้หลัง Scroll")
+        if not target.exists(timeout=1):
+            print("[X] Item not found.")
             return
-        
-        # 4. เรียก Transaction
-        mutual_transaction(main_window, SERVICE_TITLE, BARCODE2_EDIT_AUTO_ID)
-        
+
+        mutual_transaction(main_window, TITLE, S_CFG['BARCODE2_EDIT_AUTO_ID'])
+        print("[V] Service 4 Success!")
+
     except Exception as e:
-        error_context = {
-            "test_name": "Mutual Services Automation",
-            "step_name": "mutual_services4",
-            "error_message": str(e)
-        }
-        print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
+        print(f"[X] FAILED: {e}")
 
 # ==================== MAIN EXECUTION ====================
 
