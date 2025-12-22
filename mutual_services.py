@@ -50,15 +50,13 @@ I_CFG = CONFIG["INFORMATION"]
 ctx = AppContext(window_title_regex=WINDOW_TITLE)
 payment = PaymentFlow(CONFIG, ctx)
 
-# ==================== 2. HELPERS (STANDARD) ====================
+# ==================== 2. HELPERS ====================
 
 def connect_main_window():
-    """เชื่อมต่อหน้าต่างหลัก"""
     app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
     return app, app.top_window()
 
 def force_scroll_down(window):
-    """เลื่อนหน้าจอลง"""
     try:
         cfg = CONFIG["MOUSE_SCROLL"]
         center_x = cfg.getint("CENTER_X_OFFSET", fallback=300)
@@ -79,7 +77,6 @@ def force_scroll_down(window):
         window.type_keys("{PGDN}")
 
 def scroll_until_found(control, window, max_scrolls=3):
-    """วนลูป Scroll จนกว่าจะเจอ Object"""
     for _ in range(max_scrolls):
         if control.exists(timeout=1):
             return True
@@ -87,7 +84,6 @@ def scroll_until_found(control, window, max_scrolls=3):
     return False
 
 def fill_if_empty(window, control, value):
-    """กรอกข้อมูลถ้าช่องว่าง"""
     if not control.texts()[0].strip():
         control.click_input()
         window.type_keys(value)
@@ -95,10 +91,6 @@ def fill_if_empty(window, control, value):
 # ==================== 3. DYNAMIC PAYMENT LOGIC ====================
 
 def perform_dynamic_payment(payment_obj):
-    """
-    อ่านค่า METHOD จาก [PAYMENT_CONFIG] ใน config.ini
-    และเลือกฟังก์ชันการจ่ายเงินที่ถูกต้อง
-    """
     try:
         method = CONFIG.get('PAYMENT_CONFIG', 'METHOD', fallback='CASH').upper().strip()
     except:
@@ -133,34 +125,25 @@ def perform_dynamic_payment(payment_obj):
 # ==================== 4. NAVIGATION ====================
 
 def mutual_main():
-    """นำทาง: A -> M -> อ่านบัตร -> กรอกไปรษณีย์/เบอร์"""
     try:
         app, main_window = connect_main_window()
 
-        # กด A
         main_window.child_window(title=B_CFG['BUTTON_A_TITLE'], control_type="Text").click_input()
         time.sleep(WAIT_TIME)
 
-        # กด M
         main_window.child_window(title=B_CFG['BUTTON_M_TITLE'], control_type="Text").click_input()
         time.sleep(WAIT_TIME)
 
-        # อ่านบัตร
         main_window.child_window(title=ID_CARD_BUTTON_TITLE, control_type="Text").click_input()
 
-        # กรอกไปรษณีย์
         postal = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
-        if not scroll_until_found(postal, main_window):
-            return False
+        if not scroll_until_found(postal, main_window): return False
         fill_if_empty(main_window, postal, POSTAL_CODE)
 
-        # กรอกเบอร์โทร
         phone = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
-        if not scroll_until_found(phone, main_window):
-            return False
+        if not scroll_until_found(phone, main_window): return False
         fill_if_empty(main_window, phone, PHONE_NUMBER)
 
-        # กดถัดไป
         main_window.child_window(title=B_CFG['NEXT_TITLE'], auto_id=B_CFG['NEXT_AUTO_ID'], control_type="Text").click_input()
         time.sleep(WAIT_TIME)
         
@@ -174,43 +157,39 @@ def mutual_main():
 # ==================== 5. SPECIFIC LOGIC FUNCTIONS ====================
 
 def execute_barcode_transaction(main_window, title, barcode_id):
-    """Logic สำหรับ Service 1 และ 4 (มี Barcode)"""
-    # 1. คลิกรายการ
+    """Service 1 & 4 (Barcode)"""
     print(f"[*] เลือกรายการ: {title}")
     btn = main_window.child_window(title=title, auto_id=S_CFG['TRANSACTION_CONTROL_TYPE'], control_type="Text")
-    if not scroll_until_found(btn, main_window):
-        raise Exception(f"ไม่พบรายการ {title}")
+    if not scroll_until_found(btn, main_window): raise Exception(f"ไม่พบรายการ {title}")
     btn.click_input()
     time.sleep(WAIT_TIME)
 
-    # 2. กรอก Barcode
     print(f"[*] กรอก Barcode: {S_CFG['BARCODE_VALUE']}")
     barcode_input = main_window.child_window(auto_id=barcode_id, control_type="Edit")
     barcode_input.wait('visible', timeout=WAIT_TIME).click_input()
     main_window.type_keys(S_CFG['BARCODE_VALUE'])
     time.sleep(0.5)
 
-    # 3. ถัดไป -> ตกลง -> เสร็จสิ้น
     main_window.child_window(title=B_CFG['NEXT_TITLE'], auto_id=B_CFG['NEXT_AUTO_ID'], control_type="Text").click_input()
     time.sleep(WAIT_TIME)
-    
     main_window.child_window(title=S_CFG['OK_BUTTON_TITLE'], control_type="Text").click_input()
     time.sleep(WAIT_TIME)
-    
     main_window.child_window(title=B_CFG['FINISH_BUTTON_TITLE'], control_type="Text").click_input()
     time.sleep(WAIT_TIME)
 
 def execute_service_2(main_window, title):
-    """Logic สำหรับ Service 2 (กรอก 4 ช่อง + Payment)"""
-    # 1. คลิกรายการ
+    """
+    Service 2: 
+    Flow: กรอกข้อมูล -> ถัดไป(1) -> ถัดไป(2) -> รับเงิน -> จ่ายเงิน -> ถัดไป(3) -> ถัดไป(4)
+    """
+    # 1. เลือกรายการ
     print(f"[*] เลือกรายการ: {title}")
     btn = main_window.child_window(title=title, auto_id=S_CFG['TRANSACTION_CONTROL_TYPE'], control_type="Text")
-    if not scroll_until_found(btn, main_window):
-        raise Exception(f"ไม่พบรายการ {title}")
+    if not scroll_until_found(btn, main_window): raise Exception(f"ไม่พบรายการ {title}")
     btn.click_input()
     time.sleep(WAIT_TIME)
 
-    # 2. กรอกข้อมูล 4 ช่อง
+    # 2. กรอกข้อมูล
     print("[*] กรอกข้อมูลสมาชิกและบัญชี...")
     main_window.child_window(auto_id=I_CFG['MEMBER_ID_AUTO_ID']).type_keys(I_CFG['MEMBER_ID_VALUE'])
     main_window.child_window(auto_id=I_CFG['ACCOUNT_NUM_AUTO_ID']).type_keys(I_CFG['ACCOUNT_NUM_VALUE'])
@@ -218,50 +197,66 @@ def execute_service_2(main_window, title):
     main_window.child_window(auto_id=I_CFG['AMOUNT_TO_PAY_AUTO_ID']).type_keys(I_CFG['AMOUNT_TO_PAY_VALUE'])
     time.sleep(WAIT_TIME)
 
-    # 3. ถัดไป (เหลือแค่ 1 ครั้ง)
-    print(f"[*] กดปุ่ม '{B_CFG['NEXT_TITLE']}'")
+    # 3. ถัดไป (1)
+    print(f"[*] กดปุ่ม '{B_CFG['NEXT_TITLE']}' (1)")
     next_btn = main_window.child_window(title=B_CFG['NEXT_TITLE'], auto_id=B_CFG['NEXT_AUTO_ID'], control_type="Text")
     next_btn.click_input()
     time.sleep(WAIT_TIME)
 
-    # 4. รับเงิน -> จ่ายเงิน (Dynamic)
-    print(f"[*] รอและกดปุ่ม '{I_CFG['RECEIVE_PAYMENT_TITLE']}'")
+    # 4. ถัดไป (2)
+    print(f"[*] กดปุ่ม '{B_CFG['NEXT_TITLE']}' (2)")
+    # หาปุ่มใหม่ (เผื่อหน้าเปลี่ยน)
+    next_btn = main_window.child_window(title=B_CFG['NEXT_TITLE'], auto_id=B_CFG['NEXT_AUTO_ID'], control_type="Text")
+    next_btn.click_input()
+    time.sleep(WAIT_TIME)
+
+    # 5. รับเงิน -> จ่ายเงิน
+    print(f"[*] กดปุ่ม '{I_CFG['RECEIVE_PAYMENT_TITLE']}'")
     receive_btn = main_window.child_window(title=I_CFG['RECEIVE_PAYMENT_TITLE'], control_type="Text")
-    
-    if not scroll_until_found(receive_btn, main_window):
-        raise Exception(f"ไม่พบปุ่ม '{I_CFG['RECEIVE_PAYMENT_TITLE']}'")
-        
+    if not scroll_until_found(receive_btn, main_window): raise Exception(f"ไม่พบปุ่ม '{I_CFG['RECEIVE_PAYMENT_TITLE']}'")
     receive_btn.click_input()
     time.sleep(WAIT_TIME)
     
-    # จ่ายเงิน
-    perform_dynamic_payment(payment)
+    perform_dynamic_payment(payment) # จ่ายเงิน
     
-    # 5. เสร็จสิ้น
-    print(f"[*] รอและกดปุ่ม '{B_CFG['FINISH_BUTTON_TITLE']}'")
-    finish_btn = main_window.child_window(title=B_CFG['FINISH_BUTTON_TITLE'], control_type="Text")
-    
-    if not scroll_until_found(finish_btn, main_window):
-        raise Exception(f"จ่ายเงินเสร็จแล้ว แต่หาปุ่ม '{B_CFG['FINISH_BUTTON_TITLE']}' ไม่เจอ")
-        
-    finish_btn.click_input()
+    # 6. ถัดไป (3)
+    print(f"[*] กดปุ่ม '{B_CFG['NEXT_TITLE']}' (3) (หลังจ่ายเงิน)")
+    next_btn_3 = main_window.child_window(title=B_CFG['NEXT_TITLE'], auto_id=B_CFG['NEXT_AUTO_ID'], control_type="Text")
+    if not scroll_until_found(next_btn_3, main_window): raise Exception(f"ไม่พบปุ่ม '{B_CFG['NEXT_TITLE']}' (3)")
+    next_btn_3.click_input()
+    time.sleep(WAIT_TIME)
+
+    # 7. ถัดไป (4)
+    print(f"[*] กดปุ่ม '{B_CFG['NEXT_TITLE']}' (4) (จบการทำงาน)")
+    next_btn_4 = main_window.child_window(title=B_CFG['NEXT_TITLE'], auto_id=B_CFG['NEXT_AUTO_ID'], control_type="Text")
+    if not scroll_until_found(next_btn_4, main_window): 
+        # กรณีปุ่มสุดท้ายเปลี่ยนเป็น "เสร็จสิ้น" ให้ลองหา "เสร็จสิ้น" ดูด้วย
+        print(f"[!] ไม่พบปุ่ม '{B_CFG['NEXT_TITLE']}' ลองหาปุ่ม '{B_CFG['FINISH_BUTTON_TITLE']}'")
+        finish_btn = main_window.child_window(title=B_CFG['FINISH_BUTTON_TITLE'], control_type="Text")
+        if scroll_until_found(finish_btn, main_window):
+            finish_btn.click_input()
+        else:
+             raise Exception(f"ไม่พบปุ่มจบการทำงาน (ทั้ง ถัดไป และ เสร็จสิ้น)")
+    else:
+        next_btn_4.click_input()
     time.sleep(WAIT_TIME)
 
 def execute_service_3(main_window, title):
-    """Logic สำหรับ Service 3 (Combobox + Payment)"""
-    # 1. คลิกรายการ
+    """
+    Service 3:
+    Flow: กรอกข้อมูล -> ถัดไป(1) -> ถัดไป(2) -> รับเงิน -> จ่ายเงิน -> ถัดไป(3) -> ถัดไป(4)
+    """
+    # 1. เลือกรายการ
     print(f"[*] เลือกรายการ: {title}")
     btn = main_window.child_window(title=title, auto_id=S_CFG['TRANSACTION_CONTROL_TYPE'], control_type="Text")
-    if not scroll_until_found(btn, main_window):
-        raise Exception(f"ไม่พบรายการ {title}")
+    if not scroll_until_found(btn, main_window): raise Exception(f"ไม่พบรายการ {title}")
     btn.click_input()
     time.sleep(WAIT_TIME)
 
-    # 2. กรอกข้อมูล + เลือก Dropdown
+    # 2. กรอกข้อมูล
     print("[*] กรอกข้อมูลและเลือกประเภทเงินกู้...")
     main_window.child_window(auto_id=I_CFG['MEMBER_ID_AUTO_ID']).type_keys(I_CFG['MEMBER_ID_VALUE'])
     
-    # เลือก Combobox
     select_combobox_item(
         main_window, 
         combo_auto_id=I_CFG['LOAN_TYPE_COMBO_ID'], 
@@ -273,57 +268,65 @@ def execute_service_3(main_window, title):
     main_window.child_window(auto_id=I_CFG['AMOUNT_TO_PAY_AUTO_ID']).type_keys(I_CFG['AMOUNT_TO_PAY_VALUE'])
     time.sleep(WAIT_TIME)
 
-    # 3. ถัดไป (เหลือแค่ 1 ครั้ง)
-    print(f"[*] กดปุ่ม '{B_CFG['NEXT_TITLE']}'")
+    # 3. ถัดไป (1)
+    print(f"[*] กดปุ่ม '{B_CFG['NEXT_TITLE']}' (1)")
     next_btn = main_window.child_window(title=B_CFG['NEXT_TITLE'], auto_id=B_CFG['NEXT_AUTO_ID'], control_type="Text")
     next_btn.click_input()
     time.sleep(WAIT_TIME)
 
-    # 4. รับเงิน -> จ่ายเงิน (Dynamic)
-    print(f"[*] รอและกดปุ่ม '{I_CFG['RECEIVE_PAYMENT_TITLE']}'")
+    # 4. ถัดไป (2)
+    print(f"[*] กดปุ่ม '{B_CFG['NEXT_TITLE']}' (2)")
+    next_btn = main_window.child_window(title=B_CFG['NEXT_TITLE'], auto_id=B_CFG['NEXT_AUTO_ID'], control_type="Text")
+    next_btn.click_input()
+    time.sleep(WAIT_TIME)
+
+    # 5. รับเงิน -> จ่ายเงิน
+    print(f"[*] กดปุ่ม '{I_CFG['RECEIVE_PAYMENT_TITLE']}'")
     receive_btn = main_window.child_window(title=I_CFG['RECEIVE_PAYMENT_TITLE'], control_type="Text")
-    
-    if not scroll_until_found(receive_btn, main_window):
-        raise Exception(f"ไม่พบปุ่ม '{I_CFG['RECEIVE_PAYMENT_TITLE']}'")
-        
+    if not scroll_until_found(receive_btn, main_window): raise Exception(f"ไม่พบปุ่ม '{I_CFG['RECEIVE_PAYMENT_TITLE']}'")
     receive_btn.click_input()
     time.sleep(WAIT_TIME)
     
-    # จ่ายเงิน
-    perform_dynamic_payment(payment)
+    perform_dynamic_payment(payment) # จ่ายเงิน
     
-    # 5. เสร็จสิ้น
-    print(f"[*] รอและกดปุ่ม '{B_CFG['FINISH_BUTTON_TITLE']}'")
-    finish_btn = main_window.child_window(title=B_CFG['FINISH_BUTTON_TITLE'], control_type="Text")
-    
-    if not scroll_until_found(finish_btn, main_window):
-        raise Exception(f"จ่ายเงินเสร็จแล้ว แต่หาปุ่ม '{B_CFG['FINISH_BUTTON_TITLE']}' ไม่เจอ")
-        
-    finish_btn.click_input()
+    # 6. ถัดไป (3)
+    print(f"[*] กดปุ่ม '{B_CFG['NEXT_TITLE']}' (3) (หลังจ่ายเงิน)")
+    next_btn_3 = main_window.child_window(title=B_CFG['NEXT_TITLE'], auto_id=B_CFG['NEXT_AUTO_ID'], control_type="Text")
+    if not scroll_until_found(next_btn_3, main_window): raise Exception(f"ไม่พบปุ่ม '{B_CFG['NEXT_TITLE']}' (3)")
+    next_btn_3.click_input()
+    time.sleep(WAIT_TIME)
+
+    # 7. ถัดไป (4)
+    print(f"[*] กดปุ่ม '{B_CFG['NEXT_TITLE']}' (4) (จบการทำงาน)")
+    next_btn_4 = main_window.child_window(title=B_CFG['NEXT_TITLE'], auto_id=B_CFG['NEXT_AUTO_ID'], control_type="Text")
+    if not scroll_until_found(next_btn_4, main_window):
+        # เผื่อปุ่มสุดท้ายคือ "เสร็จสิ้น"
+        print(f"[!] ไม่พบปุ่ม '{B_CFG['NEXT_TITLE']}' ลองหาปุ่ม '{B_CFG['FINISH_BUTTON_TITLE']}'")
+        finish_btn = main_window.child_window(title=B_CFG['FINISH_BUTTON_TITLE'], control_type="Text")
+        if scroll_until_found(finish_btn, main_window):
+            finish_btn.click_input()
+        else:
+             raise Exception(f"ไม่พบปุ่มจบการทำงาน (ทั้ง ถัดไป และ เสร็จสิ้น)")
+    else:
+        next_btn_4.click_input()
     time.sleep(WAIT_TIME)
 
 # ==================== 6. ENGINE (STOP ON ERROR) ====================
 
 def run_service(step_name, logic_function, *args):
-    """Engine กลาง: รัน Logic -> แคปภาพ Error -> หยุดทันที"""
     app = None
     print(f"\n{'='*50}\n[*] เริ่มทำรายการ: {step_name}")
     
     try:
-        # 1. นำทางเข้าหน้าหลัก
         if not mutual_main():
             raise Exception("Navigation Failed: ไม่สามารถเข้าหน้า Mutual Fund ได้")
 
         app, main_window = connect_main_window()
-        
-        # 2. รัน Logic
         logic_function(main_window, *args)
-        
         print(f"[V] SUCCESS: {step_name} สำเร็จ")
 
     except Exception as e:
         print(f"\n[X] FAILED: {step_name} -> {e}")
-        
         if app:
             try:
                 save_evidence_context(app, {
@@ -333,23 +336,21 @@ def run_service(step_name, logic_function, *args):
                 })
                 print("[/] บันทึกภาพ Error เรียบร้อย")
             except: pass
-            
+        
         print("!!! หยุดการทำงาน (Stop Execution) !!!")
         sys.exit(1)
 
 # ==================== 7. ENTRY POINT ====================
 
 if __name__ == "__main__":
-    # Service 1: Barcode
     run_service("Service 1", execute_barcode_transaction, S_CFG['MUTUAL_1_TITLE'], S_CFG['BARCODE_EDIT_AUTO_ID'])
     
-    # Service 2: 4 Fields + Dynamic Payment
+    # Service 2 (Flow: Next->Next->Receive->Pay->Next->Next)
     run_service("Service 2", execute_service_2, S_CFG['MUTUAL_2_TITLE'])
     
-    # Service 3: Combobox + Dynamic Payment
+    # Service 3 (Flow: Next->Next->Receive->Pay->Next->Next)
     run_service("Service 3", execute_service_3, S_CFG['MUTUAL_3_TITLE'])
     
-    # Service 4: Barcode (Logic เดียวกับ 1)
     run_service("Service 4", execute_barcode_transaction, S_CFG['MUTUAL_4_TITLE'], S_CFG['BARCODE2_EDIT_AUTO_ID'])
 
     print(f"\n{'='*50}\n[V] จบการทำงานทั้งหมด")
