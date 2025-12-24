@@ -7,7 +7,7 @@ from pywinauto import mouse
 
 # Custom Modules
 from payment_flow import PaymentFlow
-from app_context import AppContext
+from app_context import AppContext  # <--- [เพิ่ม]
 from ui_helper import select_combobox_item
 from evidence import save_evidence_context
 
@@ -65,8 +65,14 @@ LOAN_TYPE_SELECT = I_CFG['LOAN_A_SELECT']
 
 # ==================== HELPERS & CONTEXT ====================
 
+# <--- [แก้ไข] สร้าง ctx และส่งให้ PaymentFlow
 ctx = AppContext(window_title_regex=WINDOW_TITLE)
 payment = PaymentFlow(CONFIG, ctx)
+
+def connect_main_window():
+    """เชื่อมต่อหน้าต่างหลัก (ใช้ ctx)"""
+    # <--- [แก้ไข] เรียกใช้จาก AppContext
+    return ctx.connect()
 
 def force_scroll_down(window, config):
     """เลื่อนหน้าจอลงโดยใช้ Mouse wheel"""
@@ -107,8 +113,8 @@ def mutual_main():
 
     print(f"\n{'='*50}\n[*] 1. กำลังเข้าสู่หน้า 'บริการกองทุนรวม' โดยการกดปุ่ม '{BUTTON_A_TITLE}'...")
     try:
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
+        # <--- [อัปเดต] ใช้ connect_main_window ที่ผ่าน ctx แล้ว
+        app, main_window = connect_main_window()
         print("[/] เชื่อมต่อหน้าจอสำเร็จ ")
 
         # 1. กด A
@@ -253,8 +259,8 @@ def mutual_services1():
     app = None
     BARCODE_EDIT_AUTO_ID = S_CFG['BARCODE_EDIT_AUTO_ID']
     try:
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
+        # <--- [อัปเดต] เรียก connect_main_window() ซึ่งจะใช้ ctx.connect()
+        app, main_window = connect_main_window()
         
         mutual_transaction(main_window, S_CFG['MUTUAL_1_TITLE'], BARCODE_EDIT_AUTO_ID)
         
@@ -264,7 +270,8 @@ def mutual_services1():
             "step_name": "mutual_services1",
             "error_message": str(e)
         }
-        save_evidence_context(app, error_context)
+        # ตรวจสอบ app ก่อน save (เผื่อ connect ไม่ติด)
+        if app: save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถเชื่อมต่อโปรแกรม POS ได้: {e}")
 
 def mutual_services2():
@@ -274,8 +281,7 @@ def mutual_services2():
         if not mutual_main(): 
             return
             
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
+        app, main_window = connect_main_window()
         
         SERVICE_TITLE = S_CFG['MUTUAL_2_TITLE']
         TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
@@ -311,8 +317,10 @@ def mutual_services2():
         main_window.child_window(title=RECEIVE_PAYMENT_TITLE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
 
-        # 7. จ่ายเงิน
+        # 7. จ่ายเงิน (เลือก 1 วิธี โดยการลบเครื่องหมาย # ออก)
         print("[*] 7. เข้าสู่หน้าจอการชำระเงินและดำเนินการ...")
+        
+        # --- [PAYMENT SELECTION] ---
         # payment.pay_cash()                      # 1. เงินสด (ระบุจำนวน)
         main_window.type_keys(T_CFG['PAYMENT_FAST']) # 2. เงินสด (ด่วน/เต็มจำนวน - Hotkey F)
         # payment.pay_qr()                      # 3. QR PromptPay
@@ -324,6 +332,9 @@ def mutual_services2():
         # payment.pay_thp()                     # 9. Wallet@Post
         # payment.pay_truemoney()               # 10. TrueMoney Wallet
         # payment.pay_qr_credit()               # 11. QR Credit
+        # ---------------------------
+        
+        time.sleep(WAIT_TIME)
         
         # 8. คลิก 'เสร็จสิ้น'
         print(f"[*] 8. กดปุ่ม '{FINISH_BUTTON_TITLE}'")
@@ -338,7 +349,7 @@ def mutual_services2():
             "step_name": "mutual_services2",
             "error_message": str(e)
         }
-        save_evidence_context(app, error_context)
+        if app: save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถทำรายการย่อย {SERVICE_TITLE}: {e}")
 
 def mutual_services3():
@@ -348,8 +359,7 @@ def mutual_services3():
         if not mutual_main(): 
             return
             
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
+        app, main_window = connect_main_window()
         
         SERVICE_TITLE = S_CFG['MUTUAL_3_TITLE']
         TRANSACTION_CONTROL_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
@@ -394,8 +404,10 @@ def mutual_services3():
         main_window.child_window(title=RECEIVE_PAYMENT_TITLE, control_type="Text").click_input()
         time.sleep(WAIT_TIME)
 
-        # 7. จ่ายเงิน
+        # 7. จ่ายเงิน (เลือก 1 วิธี)
         print("[*] 7. เข้าสู่หน้าจอการชำระเงินและดำเนินการ...")
+        
+        # --- [PAYMENT SELECTION] ---
         # payment.pay_cash()                      # 1. เงินสด (ระบุจำนวน)
         main_window.type_keys(T_CFG['PAYMENT_FAST']) # 2. เงินสด (ด่วน/เต็มจำนวน - Hotkey F)
         # payment.pay_qr()                      # 3. QR PromptPay
@@ -407,7 +419,7 @@ def mutual_services3():
         # payment.pay_thp()                     # 9. Wallet@Post
         # payment.pay_truemoney()               # 10. TrueMoney Wallet
         # payment.pay_qr_credit()               # 11. QR Credit
-
+        
         # 8. คลิก 'เสร็จสิ้น'
         print(f"[*] 8. กดปุ่ม '{FINISH_BUTTON_TITLE}'")
         main_window.child_window(title=FINISH_BUTTON_TITLE, control_type="Text").click_input()
@@ -421,7 +433,7 @@ def mutual_services3():
             "step_name": "mutual_services3",
             "error_message": str(e)
         }
-        save_evidence_context(app, error_context)
+        if app: save_evidence_context(app, error_context)
         print(f"\n[X] FAILED: ไม่สามารถทำรายการย่อย {SERVICE_TITLE}: {e}")
 
 def mutual_services4():

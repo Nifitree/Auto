@@ -5,6 +5,7 @@ import time
 import os
 import sys
 from evidence import save_evidence_context
+from app_context import AppContext
 
 CONFIG_FILE = "config.ini"
 
@@ -38,13 +39,13 @@ POSTAL_CODE_EDIT_AUTO_ID = CONFIG["GLOBAL"]["POSTAL_CODE_EDIT_AUTO_ID"]
 
 B_CFG = CONFIG["UTILITY_MAIN"]
 S_CFG = CONFIG["UTILITY_SERVICES"]
+ctx = AppContext(window_title_regex=WINDOW_TITLE)
 
 # ==================== 2. HELPERS ====================
 
 def connect_main_window():
     """เชื่อมต่อหน้าต่างหลักของ POS"""
-    app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-    return app, app.top_window()
+    return ctx.connect()
 
 def force_scroll_down(window):
     """เลื่อนหน้าจอลงเมื่อหา Object ไม่เจอ"""

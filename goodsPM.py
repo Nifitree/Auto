@@ -5,8 +5,10 @@ import time
 import os
 import sys
 from evidence import save_evidence_context
+from app_context import AppContext
 
 CONFIG_FILE = "config.ini"
+ctx = AppContext(window_title_regex=WINDOW_TITLE)
 
 # ==================== 1. CONFIGURATION ====================
 
@@ -43,8 +45,7 @@ S_CFG = CONFIG["GOODSPM_SERVICES"]
 
 def connect_main_window():
     """เชื่อมต่อหน้าต่างหลักของ POS"""
-    app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-    return app, app.top_window()
+    return ctx.connect()
 
 def force_scroll_down(window):
     """เลื่อนหน้าจอลงเมื่อหา Object ไม่เจอ"""

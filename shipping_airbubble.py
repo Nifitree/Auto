@@ -5,6 +5,7 @@ import time
 import os
 import sys
 from evidence import save_evidence_context
+from app_context import AppContext
 
 CONFIG_FILE = "config.ini"
 
@@ -39,12 +40,12 @@ NEXT_TITLE = "ถัดไป"
 
 # Shipping Config
 S_CFG = CONFIG["SHIPPING_AIRBUBBLE"]
+ctx = AppContext(window_title_regex=WINDOW_TITLE)
 
 # ==================== 2. HELPERS ====================
 
 def connect_main_window():
-    app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-    return app, app.top_window()
+    return ctx.connect()
 
 def force_scroll_down(window):
     try:
