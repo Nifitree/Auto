@@ -313,7 +313,17 @@ def mutual_services2():
 
         # 7. จ่ายเงิน
         print("[*] 7. เข้าสู่หน้าจอการชำระเงินและดำเนินการ...")
-        payment.pay_cash() 
+        # payment.pay_cash()                      # 1. เงินสด (ระบุจำนวน)
+        main_window.type_keys(T_CFG['PAYMENT_FAST']) # 2. เงินสด (ด่วน/เต็มจำนวน - Hotkey F)
+        # payment.pay_qr()                      # 3. QR PromptPay
+        # payment.pay_credit()                  # 4. บัตรเครดิต
+        # payment.pay_debit()                   # 5. บัตรเดบิต
+        # payment.pay_check()                   # 6. เช็คธนาคาร
+        # payment.pay_alipay()                  # 7. Alipay
+        # payment.pay_wechat()                  # 8. WeChat Pay
+        # payment.pay_thp()                     # 9. Wallet@Post
+        # payment.pay_truemoney()               # 10. TrueMoney Wallet
+        # payment.pay_qr_credit()               # 11. QR Credit
         
         # 8. คลิก 'เสร็จสิ้น'
         print(f"[*] 8. กดปุ่ม '{FINISH_BUTTON_TITLE}'")
@@ -386,7 +396,17 @@ def mutual_services3():
 
         # 7. จ่ายเงิน
         print("[*] 7. เข้าสู่หน้าจอการชำระเงินและดำเนินการ...")
-        payment.pay_cash() 
+        # payment.pay_cash()                      # 1. เงินสด (ระบุจำนวน)
+        main_window.type_keys(T_CFG['PAYMENT_FAST']) # 2. เงินสด (ด่วน/เต็มจำนวน - Hotkey F)
+        # payment.pay_qr()                      # 3. QR PromptPay
+        # payment.pay_credit()                  # 4. บัตรเครดิต
+        # payment.pay_debit()                   # 5. บัตรเดบิต
+        # payment.pay_check()                   # 6. เช็คธนาคาร
+        # payment.pay_alipay()                  # 7. Alipay
+        # payment.pay_wechat()                  # 8. WeChat Pay
+        # payment.pay_thp()                     # 9. Wallet@Post
+        # payment.pay_truemoney()               # 10. TrueMoney Wallet
+        # payment.pay_qr_credit()               # 11. QR Credit
 
         # 8. คลิก 'เสร็จสิ้น'
         print(f"[*] 8. กดปุ่ม '{FINISH_BUTTON_TITLE}'")
