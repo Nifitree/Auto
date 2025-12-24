@@ -6,6 +6,7 @@ import time
 import os
 import sys
 from evidence import save_evidence_context
+from app_context import AppContext
 
 CONFIG_FILE = "config.ini"
 
@@ -38,11 +39,11 @@ POSTAL_CODE_EDIT_AUTO_ID = CONFIG["GLOBAL"]["POSTAL_CODE_EDIT_AUTO_ID"]
 # Insurance Configs
 B_CFG = CONFIG["INSURANCE_MAIN"]
 S_CFG = CONFIG["INSURANCE_SERVICES"]
+ctx = AppContext(window_title_regex=WINDOW_TITLE)
 
 # Helpers
 def connect_main_window():
-    app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-    return app, app.top_window()
+    return ctx.connect()
 
 def force_scroll_down(window):
     try:
