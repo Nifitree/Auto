@@ -5,10 +5,8 @@ if __name__ == "__main__":
     app = None
     try:
         # เชื่อมต่อหน้าจอ (ใช้ ctx จาก core)
+        if not mutual_main(): exit()
         app, main_window = connect_main_window()
-        
-        # ถ้าต้องการให้เริ่มเดินจากหน้าเมนูหลัก (A -> M) ให้เอา comment ออก
-        # if not mutual_main(): exit()
         
         # 1. เลือกรายการ (50412)
         run_mutual_transaction(main_window, S_CFG['MUTUAL_2_TITLE'])

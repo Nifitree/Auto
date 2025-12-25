@@ -4,9 +4,8 @@ if __name__ == "__main__":
     print(f"\n{'='*50}\n[*] Running Mutual Service 3 (Combobox)...")
     app = None
     try:
+        if not mutual_main(): exit()
         app, main_window = connect_main_window()
-        
-        # if not mutual_main(): exit()
         
         # 1. เลือกรายการ (50413)
         run_mutual_transaction(main_window, S_CFG['MUTUAL_3_TITLE'])
