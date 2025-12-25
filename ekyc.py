@@ -5,9 +5,10 @@ import time
 import os
 import sys
 from evidence import save_evidence_context
+from app_context import AppContext
 
 CONFIG_FILE = "config.ini"
-
+ctx = AppContext(window_title_regex=WINDOW_TITLE)
 # ==================== CONFIG & HELPER FUNCTIONS ====================
 
 def read_config(filename=CONFIG_FILE):
@@ -88,8 +89,7 @@ def run_ekyc_step(service_name, service_title):
     app = None
     try:
         # เชื่อมต่อ Application
-        app = Application(backend="uia").connect(title_re=WINDOW_TITLE, timeout=10)
-        main_window = app.top_window()
+        app, main_window = ctx.connect()
         print("[/] เชื่อมต่อหน้าจอสำเร็จ")
 
         # 1. กด A (Agency)
