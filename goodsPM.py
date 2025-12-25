@@ -8,7 +8,6 @@ from evidence import save_evidence_context
 from app_context import AppContext
 
 CONFIG_FILE = "config.ini"
-ctx = AppContext(window_title_regex=WINDOW_TITLE)
 
 # ==================== 1. CONFIGURATION ====================
 
@@ -40,6 +39,7 @@ POSTAL_CODE_EDIT_AUTO_ID = CONFIG["GLOBAL"]["POSTAL_CODE_EDIT_AUTO_ID"]
 
 B_CFG = CONFIG["GOODSPM_MAIN"]
 S_CFG = CONFIG["GOODSPM_SERVICES"]
+ctx = AppContext(window_title_regex=WINDOW_TITLE)
 
 # ==================== 2. HELPERS ====================
 

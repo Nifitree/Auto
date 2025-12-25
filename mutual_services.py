@@ -7,7 +7,7 @@ from pywinauto import mouse
 
 # Custom Modules
 from payment_flow import PaymentFlow
-from app_context import AppContext  # <--- [เพิ่ม]
+from app_context import AppContext
 from ui_helper import select_combobox_item
 from evidence import save_evidence_context
 

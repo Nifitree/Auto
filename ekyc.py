@@ -8,7 +8,7 @@ from evidence import save_evidence_context
 from app_context import AppContext
 
 CONFIG_FILE = "config.ini"
-ctx = AppContext(window_title_regex=WINDOW_TITLE)
+
 # ==================== CONFIG & HELPER FUNCTIONS ====================
 
 def read_config(filename=CONFIG_FILE):
@@ -42,6 +42,9 @@ POSTAL_CODE_EDIT_AUTO_ID = CONFIG['GLOBAL']['POSTAL_CODE_EDIT_AUTO_ID']
 # ดึง Section หลัก
 B_CFG = CONFIG['EKYC_MAIN']
 S_CFG = CONFIG['EKYC_SERVICES']
+
+# [แก้ไข 2] สร้างตัวแปร ctx เพื่อใช้งานร่วมกันทั้งไฟล์
+ctx = AppContext(window_title_regex=WINDOW_TITLE)
 
 # ==================== SCROLL HELPERS mouse ====================
 
@@ -88,7 +91,9 @@ def run_ekyc_step(service_name, service_title):
     
     app = None
     try:
-        # เชื่อมต่อ Application
+        # [แก้ไข 3] เรียกใช้ ctx.connect() แทนการเชื่อมต่อแบบเดิม
+        # เดิม: app = Application(...).connect(...)
+        # ใหม่: app, main_window = ctx.connect()
         app, main_window = ctx.connect()
         print("[/] เชื่อมต่อหน้าจอสำเร็จ")
 
