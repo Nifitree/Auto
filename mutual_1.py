@@ -4,7 +4,7 @@ if __name__ == "__main__":
     print(f"\n{'='*50}\n[*] Running Mutual Service 1...")
     app = None
     try:
-        # if not mutual_main(): exit() 
+        if not mutual_main(): exit() 
         app, main_window = connect_main_window()
         
         run_mutual_transaction(main_window, S_CFG['MUTUAL_1_TITLE'], barcode_id=S_CFG['BARCODE_EDIT_AUTO_ID'])
