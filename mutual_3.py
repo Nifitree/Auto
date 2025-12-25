@@ -41,7 +41,6 @@ if __name__ == "__main__":
         main_window.child_window(title=RECEIVE_PAYMENT_TITLE).click_input()
         
         # [STEP 7] PAYMENT SECTION
-        # =========================================================
         print("[*] Waiting for Payment Screen (3s)...")
         time.sleep(3)
         main_window.set_focus()
