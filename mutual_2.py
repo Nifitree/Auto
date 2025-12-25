@@ -3,9 +3,7 @@ from mutual_core import *
 if __name__ == "__main__":
     print(f"\n{'='*50}\n[*] Running Mutual Service 2...")
     try:
-        # ถ้าต้องการให้เริ่มจากหน้าเมนูหลัก ให้เอา comment ออก
         if not mutual_main(): exit()
-        
         app, main_window = connect_main_window()
         
         # 1. Select Item
@@ -19,7 +17,7 @@ if __name__ == "__main__":
         main_window.child_window(auto_id=AMOUNT_TO_PAY_AUTO_ID).type_keys(AMOUNT_TO_PAY_VALUE)
         time.sleep(WAIT_TIME)
 
-        # 3. Flow: Next -> Next -> Receive -> Pay -> Next -> Finish
+        # 3. Flow
         print("[*] Next (1)")
         main_window.child_window(title=B_CFG["NEXT_TITLE"], auto_id=B_CFG["NEXT_AUTO_ID"]).click_input()
         time.sleep(WAIT_TIME)
@@ -30,27 +28,20 @@ if __name__ == "__main__":
         
         print("[*] Receive Payment")
         main_window.child_window(title=RECEIVE_PAYMENT_TITLE).click_input()
-        time.sleep(WAIT_TIME)
-
-        # ---------------------------------------------------------
-        # [STEP 7] PAYMENT SELECTION (เลือก 1 วิธี)
-        # ---------------------------------------------------------
-        print("[*] 7. เข้าสู่หน้าจอการชำระเงินและดำเนินการ...")
         
-        # payment.pay_cash()                      # 1. เงินสด (ระบุจำนวนเอง)
-        main_window.type_keys(T_CFG['PAYMENT_FAST']) # 2. เงินสด (ด่วน/เต็มจำนวน - Hotkey F)
-        # payment.pay_qr()                        # 3. QR PromptPay
-        # payment.pay_credit()                    # 4. บัตรเครดิต
-        # payment.pay_debit()                     # 5. บัตรเดบิต
-        # payment.pay_check()                     # 6. เช็คธนาคาร
-        # payment.pay_alipay()                    # 7. Alipay
-        # payment.pay_wechat()                    # 8. WeChat Pay
-        # payment.pay_thp()                       # 9. Wallet@Post
-        # payment.pay_truemoney()                 # 10. TrueMoney Wallet
-        # payment.pay_qr_credit()                 # 11. QR Credit
+        # --- [จุดแก้ไข: เพิ่มความชัวร์ในการจ่ายเงิน] ---
+        print("[*] Waiting for Payment Screen...")
+        time.sleep(3)  # รอให้หน้าจอ Payment โหลดเสร็จ 100%
+        
+        print("[*] Focusing Window...")
+        main_window.set_focus() # บังคับให้ Active ที่หน้าจอนี้
+        
+        print(f"[*] Payment Action: Pressing {T_CFG['PAYMENT_FAST']}")
+        # ใช้วิธีจ่ายเงินด่วน (กด F)
+        main_window.type_keys(T_CFG['PAYMENT_FAST']) 
         
         time.sleep(WAIT_TIME)
-        # ---------------------------------------------------------
+        # -------------------------------------------
 
         print("[*] Next (3)")
         main_window.child_window(title=B_CFG["NEXT_TITLE"], auto_id=B_CFG["NEXT_AUTO_ID"]).click_input()
