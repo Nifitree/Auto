@@ -20,7 +20,7 @@ if __name__ == "__main__":
         # 2.2 เลือกประเภทเงินกู้ (Dropdown)
         select_combobox_item(main_window, LOAN_TYPE_COMBO_ID, LOAN_TYPE_SELECT, WAIT_TIME)
         time.sleep(WAIT_TIME)
-        
+
         # 2.4 กรอกชื่อเจ้าของบัญชี
         main_window.child_window(auto_id=ACCOUNT_NUM_AUTO_ID).type_keys(ACCOUNT_NAME_VALUE)
         
@@ -40,32 +40,38 @@ if __name__ == "__main__":
         print("[*] Receive Payment")
         main_window.child_window(title=RECEIVE_PAYMENT_TITLE).click_input()
         
-        # =========================================================
         # [STEP 7] PAYMENT SECTION
         # =========================================================
         print("[*] Waiting for Payment Screen (3s)...")
-        time.sleep(3)           # รอหน้าจอโหลด
-        main_window.set_focus() # ดึง Focus กลับมาที่หน้าจอ
+        time.sleep(3)
+        main_window.set_focus()
         
-        print(f"[*] Payment Action: Executing {T_CFG['PAYMENT_FAST']}...")
+        print(f"[*] Payment Action: Clicking Fast Cash (ID: EnableFastCash)...")
         
-        # --- เลือกวิธีจ่ายเงิน (ลบ # หน้าวิธีที่จะใช้) ---
-        # payment.pay_cash()                      # 1. เงินสด (ระบุจำนวน)
-        main_window.type_keys(T_CFG['PAYMENT_FAST']) # 2. เงินสด (ด่วน F)
-        # payment.pay_qr()                        # 3. QR PromptPay
-        # payment.pay_credit()                    # 4. บัตรเครดิต
-        # payment.pay_debit()                     # 5. บัตรเดบิต
-        # payment.pay_check()                     # 6. เช็คธนาคาร
-        # payment.pay_alipay()                    # 7. Alipay
-        # payment.pay_wechat()                    # 8. WeChat Pay
-        # payment.pay_thp()                       # 9. Wallet@Post
-        # payment.pay_truemoney()                 # 10. TrueMoney Wallet
-        # payment.pay_qr_credit()                 # 11. QR Credit
+        # --- 1. Fast Cash (Default) ---
+        fast_cash_btn = main_window.child_window(auto_id="EnableFastCash")
+        if fast_cash_btn.exists(timeout=2):
+            fast_cash_btn.click_input()
+        else:
+            print("[!] EnableFastCash not found, using Hotkey F")
+            main_window.type_keys(T_CFG['PAYMENT_FAST'])
+            
+        # --- 2. Other Methods (Commented Out) ---
+        # payment.pay_cash()                      # เงินสด (ระบุจำนวน)
+        # payment.pay_qr()                        # QR PromptPay
+        # payment.pay_credit()                    # บัตรเครดิต
+        # payment.pay_debit()                     # บัตรเดบิต
+        # payment.pay_check()                     # เช็คธนาคาร
+        # payment.pay_alipay()                    # Alipay
+        # payment.pay_wechat()                    # WeChat Pay
+        # payment.pay_thp()                       # Wallet@Post
+        # payment.pay_truemoney()                 # TrueMoney
+        # payment.pay_qr_credit()                 # QR Credit
         
         time.sleep(WAIT_TIME)
         # =========================================================
         
-        # 4. จบงาน: ถัดไป -> เสร็จสิ้น
+        # 4. จบงาน
         print("[*] Next (3)")
         main_window.child_window(title=B_CFG["NEXT_TITLE"], auto_id=B_CFG["NEXT_AUTO_ID"]).click_input()
         time.sleep(WAIT_TIME)
@@ -74,9 +80,7 @@ if __name__ == "__main__":
         print("[V] Service 3 Success!")
 
     except Exception as e:
-        # ระบบกู้ชีพ: พยายามหา App มาแคปภาพให้ได้
         target_app = app if (app is not None) else ctx.app
-        
         if target_app:
             save_evidence_context(target_app, {
                 "test_name": "Mutual Service 3",
