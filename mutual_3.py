@@ -12,14 +12,24 @@ if __name__ == "__main__":
         
         # 2. กรอกข้อมูล & เลือก Dropdown
         print("[*] Filling Data & Combobox...")
+        
+        # 2.1 กรอกเลขสมาชิก
         main_window.child_window(auto_id=MEMBER_ID_AUTO_ID).type_keys(MEMBER_ID_VALUE)
         time.sleep(0.5)
         
-        # เลือกประเภทเงินกู้
+        # 2.2 เลือกประเภทเงินกู้ (Dropdown)
         select_combobox_item(main_window, LOAN_TYPE_COMBO_ID, LOAN_TYPE_SELECT, WAIT_TIME)
         time.sleep(WAIT_TIME)
 
+        # 2.3 [เพิ่ม] กรอกเลขที่บัญชี (REFNO4) <--- เพิ่มบรรทัดนี้ครับ
+        print(f"[*] Typing Account Num (REFNO4): {ACCOUNT_NUM_VALUE}")
+        main_window.child_window(auto_id=ACCOUNT_NUM_AUTO_ID).type_keys(ACCOUNT_NUM_VALUE)
+        time.sleep(0.5)
+
+        # 2.4 กรอกชื่อเจ้าของบัญชี
         main_window.child_window(auto_id=ACCOUNT_NAME_AUTO_ID).type_keys(ACCOUNT_NAME_VALUE)
+        
+        # 2.5 กรอกจำนวนเงิน
         main_window.child_window(auto_id=AMOUNT_TO_PAY_AUTO_ID).type_keys(AMOUNT_TO_PAY_VALUE)
         time.sleep(WAIT_TIME)
 
