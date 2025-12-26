@@ -7,6 +7,8 @@ from pywinauto.application import Application
 from pywinauto import mouse
 from evidence import save_evidence_context
 from app_context import AppContext
+# [จุดแก้ไข 1] Import Helper เพื่อให้ไฟล์ลูก (pos_1.py) เรียกใช้ได้
+from ui_helper import select_combobox_item 
 
 CONFIG_FILE = "config.ini"
 
@@ -41,6 +43,11 @@ POSTAL_CODE_EDIT_AUTO_ID = CONFIG["GLOBAL"]["POSTAL_CODE_EDIT_AUTO_ID"]
 # POS Configs
 B_CFG = CONFIG["PRAISANI_POS_MAIN"]
 S_CFG = CONFIG["PRAISANI_POS_SERVICES"]
+
+# [จุดแก้ไข 2] โหลด Config ส่วน Payment และ Information (จำเป็นสำหรับ pos_1.py)
+T_CFG = CONFIG["PAYMENT"]
+I_CFG = CONFIG["INFORMATION"]
+RECEIVE_PAYMENT_TITLE = I_CFG['RECEIVE_PAYMENT_TITLE']
 
 # Initialize AppContext
 ctx = AppContext(window_title_regex=WINDOW_TITLE)
