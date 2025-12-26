@@ -21,7 +21,15 @@ if __name__ == "__main__":
         time.sleep(0.5)
 
         # ประเภทเงิน
-        select_combobox_item(main_window, "ComboBox", S_CFG['P1_MONEY_TYPE'], WAIT_TIME) 
+        print(f" [-] Selecting Money Type: {S_CFG['P1_MONEY_TYPE']} (ID: {S_CFG['P1_AUTOID_MONEY_TYPE']})")
+        
+        # ใช้ Helper Function เลือกรายการจาก Dropdown ได้เลย
+        select_combobox_item(
+            main_window, 
+            combo_auto_id=S_CFG['P1_AUTOID_MONEY_TYPE'],  # D_INT_01_Lookup
+            item_title=S_CFG['P1_MONEY_TYPE'],            # เติมเงิน
+            sleep=WAIT_TIME
+        )
         time.sleep(0.5)
 
         # ชื่อ-สกุล
