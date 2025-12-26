@@ -1,37 +1,44 @@
-import configparser
-from pywinauto.application import Application
-# ... imports อื่นๆ ...
+from pos_core import *
 
-# 1. อ่านไฟล์ Config
-config = configparser.ConfigParser()
-config.read('config.ini', encoding='utf-8') # ตรวจสอบชื่อไฟล์ .ini ของคุณให้ตรง
+if __name__ == "__main__":
+    print(f"\n{'='*50}\n[*] Running POS Service 4 (51119)...")
+    app = None
+    try:
+        # 1. เชื่อมต่อระบบ (ตาม Pattern เดิมของคุณ)
+        if not pos_services_main(): exit()
+        app, main_window = connect_main_window()
 
-# ดึงค่าตัวแปรจาก Config
-# ส่วน Barcode (Service)
-barcode_input_id = config['PRAISANI_POS_SERVICES']['BARCODE_INPUT_ID']
-test_barcode_value = config['PRAISANI_POS_SERVICES']['TEST_BARCODE_VALUE']
+        # 2. ดึงค่าจาก Config
+        # ชื่อเมนู 51119
+        menu_title = config['PRAISANI_POS_SERVICES']['PRAISANI_4_TITLE']
+        # ID ช่องบาร์โค้ด และ ค่าที่จะพิมพ์ (9999999999)
+        barcode_id = config['PRAISANI_POS_SERVICES']['BARCODE_INPUT_ID']
+        barcode_val = config['PRAISANI_POS_SERVICES']['TEST_BARCODE_VALUE']
+        # ชื่อปุ่ม
+        next_btn = config['PRAISANI_POS_MAIN']['NEXT_TITLE']
+        finish_btn = config['PRAISANI_POS_MAIN']['FINISH_BUTTON_TITLE']
 
-# ส่วนปุ่มกด (Main)
-next_btn_title = config['PRAISANI_POS_MAIN']['NEXT_TITLE']
-finish_btn_title = config['PRAISANI_POS_MAIN']['FINISH_BUTTON_TITLE']
+        # 3. เริ่มทำงาน (Flow)
+        
+        # STEP 1: กดเข้าเมนู 51119
+        main_window.child_window(title=menu_title).click()
+        print(f"[*] เข้าเมนู {menu_title} เรียบร้อย")
 
-try:
-    # 1. พิมพ์บาร์โค้ด (ดึง ID และ Value จาก Config)
-    window.child_window(auto_id=barcode_input_id).type_keys(test_barcode_value)
-    print(f"พิมพ์บาร์โค้ด {test_barcode_value} เรียบร้อย")
+        # STEP 2: พิมพ์บาร์โค้ดลงไป
+        main_window.child_window(auto_id=barcode_id).type_keys(barcode_val)
+        print(f"[*] พิมพ์บาร์โค้ด {barcode_val} เรียบร้อย")
 
-    # 2. กดปุ่ม "ถัดไป" (ดึงชื่อปุ่มจาก Config)
-    window.child_window(title=next_btn_title).click()
-    print(f"กดปุ่ม {next_btn_title} เรียบร้อย")
+        # STEP 3: กดถัดไป
+        main_window.child_window(title=next_btn).click()
+        print(f"[*] กดปุ่ม {next_btn} เรียบร้อย")
 
-    # 3. กดปุ่ม "ตกลง" 
-    # (ใน Config ที่ให้มายังไม่มีตัวแปรปุ่ม 'ตกลง' ผมเลยใส่เป็น text ตรงๆ ไว้นะครับ)
-    window.child_window(title="ตกลง").click()
-    print("กดปุ่ม ตกลง เรียบร้อย")
+        # STEP 4: กดตกลง
+        main_window.child_window(title="ตกลง").click()
+        print("[*] กดปุ่ม ตกลง เรียบร้อย")
 
-    # 4. กดปุ่ม "เสร็จสิ้น" (ดึงชื่อปุ่มจาก Config)
-    window.child_window(title=finish_btn_title).click()
-    print(f"กดปุ่ม {finish_btn_title} เรียบร้อย")
+        # STEP 5: กดเสร็จสิ้น
+        main_window.child_window(title=finish_btn).click()
+        print(f"[*] กดปุ่ม {finish_btn} เรียบร้อย")
 
-except Exception as e:
-    print(f"เกิดข้อผิดพลาดใน pos_4: {e}")
+    except Exception as e:
+        print(f"\n[!] เกิดข้อผิดพลาด: {e}")
