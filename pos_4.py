@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
         # 5. กดเสร็จสิ้น
         main_window.child_window(title=B_CFG["FINISH_BUTTON_TITLE"],).click_input()
-        print(f"[*] Clicked {FINISH_BTN}")
+        print(f"[*] Clicked {B_CFG['FINISH_BUTTON_TITLE']}")
 
     except Exception as e:
         target_app = app if (app is not None) else ctx.app
