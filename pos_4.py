@@ -44,11 +44,15 @@ if __name__ == "__main__":
         print(f"[*] กดปุ่ม {finish_btn} เรียบร้อย")
 
     except Exception as e:
-        print(f"\n[!] เกิดข้อผิดพลาด: {e}")
-        # ส่วนแคปหน้าจอ (ใส่คืนมาให้แล้วครับ)
-        if app and main_window:
-            try:
-                main_window.capture_as_image().save('error_pos_4.png')
-                print("[!] บันทึกภาพหน้าจอ error_pos_4.png แล้ว")
-            except:
-                print("[!] ไม่สามารถบันทึกภาพหน้าจอได้")
+        target_app = app if (app is not None) else ctx.app
+        if target_app:
+            save_evidence_context(target_app, {
+                "test_name": "Mutual Service 3",
+                "step_name": "Execution Failed",
+                "error_message": str(e)
+            })
+            print("[/] บันทึกภาพ Error เรียบร้อย")
+        else:
+            print("[!] ไม่สามารถบันทึกภาพได้ (App Disconnected)")
+
+        print(f"[X] FAILED: {e}")
