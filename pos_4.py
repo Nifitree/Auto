@@ -1,15 +1,8 @@
 from pos_core import *
-import configparser
 import time
 
 if __name__ == "__main__":
     print(f"\n{'='*50}\n[*] Running POS Service 4 (51119)...")
-    
-    # อ่าน Config
-    config = configparser.ConfigParser()
-    config.read('config.ini', encoding='utf-8')
-    S_CFG = config['PRAISANI_POS_SERVICES']
-    M_CFG = config['PRAISANI_POS_MAIN']
 
     app = None
     try:
