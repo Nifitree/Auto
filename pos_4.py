@@ -1,48 +1,54 @@
 from pos_core import *
 import configparser
+import time
 
 if __name__ == "__main__":
     print(f"\n{'='*50}\n[*] Running POS Service 4 (51119)...")
     
-    # 1. โหลด Config
+    # อ่าน Config
     config = configparser.ConfigParser()
     config.read('config.ini', encoding='utf-8')
+    S_CFG = config['PRAISANI_POS_SERVICES']
+    M_CFG = config['PRAISANI_POS_MAIN']
 
     app = None
     try:
-        # เชื่อมต่อ
         if not pos_services_main(): exit()
         app, main_window = connect_main_window()
 
-        # --- ดึงค่าตัวแปร ---
-        menu_title = config['PRAISANI_POS_SERVICES']['PRAISANI_4_TITLE'] # เมนู 51119
-        barcode_id = config['PRAISANI_POS_SERVICES']['BARCODE_INPUT_ID']
-        barcode_val = config['PRAISANI_POS_SERVICES']['TEST_BARCODE_VALUE']
-        next_btn = config['PRAISANI_POS_MAIN']['NEXT_TITLE']
-        finish_btn = config['PRAISANI_POS_MAIN']['FINISH_BUTTON_TITLE']
+        # --- ส่วน Logic ที่แก้ไขใหม่ (เลียนแบบ pos_2) ---
 
-        # --- เริ่มทำงาน ---
-
-        # 1. กดเข้าเมนู 51119 (ใส่คืนมาให้แล้วครับ)
-        main_window.child_window(title=menu_title).click()
-        print(f"[*] เข้าเมนู {menu_title} เรียบร้อย")
+        # 1. เลือกรายการ 51119 (ใช้รูปแบบเดียวกับ pos_2 เป๊ะๆ)
+        SERVICE_TITLE = S_CFG['PRAISANI_4_TITLE']
+        TRANS_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE'] # ค่าคือ SubTextTextBlock
+        
+        print(f"[*] Selecting Service: {SERVICE_TITLE}")
+        main_window.child_window(title=SERVICE_TITLE, auto_id=TRANS_TYPE, control_type="Text").click_input()
+        time.sleep(2) # รอโหลดหน้า
 
         # 2. พิมพ์บาร์โค้ด
-        main_window.child_window(auto_id=barcode_id).type_keys(barcode_val)
-        print(f"[*] พิมพ์บาร์โค้ด {barcode_val} เรียบร้อย")
+        BARCODE_ID = S_CFG['BARCODE_INPUT_ID']
+        BARCODE_VAL = S_CFG['TEST_BARCODE_VALUE']
+        
+        main_window.child_window(auto_id=BARCODE_ID).type_keys(BARCODE_VAL)
+        print(f"[*] Typed Barcode: {BARCODE_VAL}")
+        time.sleep(1)
 
         # 3. กดถัดไป
-        main_window.child_window(title=next_btn).click()
-        print(f"[*] กดปุ่ม {next_btn} เรียบร้อย")
+        NEXT_BTN = M_CFG['NEXT_TITLE']
+        main_window.child_window(title=NEXT_BTN).click()
+        print(f"[*] Clicked {NEXT_BTN}")
+        time.sleep(1)
 
         # 4. กดตกลง
         main_window.child_window(title="ตกลง").click()
-        print("[*] กดปุ่ม ตกลง เรียบร้อย")
+        print("[*] Clicked OK")
+        time.sleep(1)
 
         # 5. กดเสร็จสิ้น
-        main_window.child_window(title=finish_btn).click()
-        print(f"[*] กดปุ่ม {finish_btn} เรียบร้อย")
-
+        FINISH_BTN = M_CFG['FINISH_BUTTON_TITLE']
+        main_window.child_window(title=FINISH_BTN).click()
+        print(f"[*] Clicked {FINISH_BTN}")
     except Exception as e:
         target_app = app if (app is not None) else ctx.app
         if target_app:
