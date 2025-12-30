@@ -35,10 +35,9 @@ if __name__ == "__main__":
         time.sleep(1)
 
         # 3. กดถัดไป
-        NEXT_BTN = M_CFG['NEXT_TITLE']
-        main_window.child_window(title=NEXT_BTN).click()
-        print(f"[*] Clicked {NEXT_BTN}")
-        time.sleep(1)
+        print("[*] Next ")
+        main_window.child_window(title=B_CFG["NEXT_TITLE"], auto_id=B_CFG["ID_AUTO_ID"]).click_input()
+        time.sleep(WAIT_TIME)
 
         # 4. กดตกลง
         main_window.child_window(title="ตกลง").click()
