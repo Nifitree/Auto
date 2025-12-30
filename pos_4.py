@@ -40,7 +40,7 @@ if __name__ == "__main__":
         time.sleep(WAIT_TIME)
 
         # 4. กดตกลง
-        main_window.child_window(title="ตกลง").click()
+        main_window.child_window(title="ตกลง").click_input()
         print("[*] Clicked OK")
         time.sleep(1)
 
