@@ -20,7 +20,7 @@ if __name__ == "__main__":
         time.sleep(2) # รอโหลดหน้า
 
         # 2. พิมพ์บาร์โค้ด
-        BARCODE_ID = S_CFG['BARCODE_INPUT_ID']
+        BARCODE_ID = S_CFG['BARCODE_INPUT_ID4']
         BARCODE_VAL = S_CFG['TEST_BARCODE_VALUE']
         
         main_window.child_window(auto_id=BARCODE_ID).type_keys(BARCODE_VAL)
