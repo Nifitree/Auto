@@ -18,13 +18,11 @@ if __name__ == "__main__":
         TRANS_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']
 
         # ดึง AutoID
-        ID_CUST = S_CFG['U8_ID_CUSTOMER']        # CustomerNumber
-        ID_CONFIRM = S_CFG['U8_ID_CONFIRM']      # ConfirmCustomerNumber
-        ID_MOBILE = S_CFG['U8_ID_MOBILE']        # MobileNumber
-
-        # ดึงค่าที่จะกรอก (Test Data)
-        VAL_CUST = S_CFG['U8_TEST_CUSTOMER_ID']  # 123456789
-        VAL_MOBILE = S_CFG['U8_TEST_MOBILE']     # 0899999999
+        ID_CUST = S_CFG['U8_ID_CUSTOMER']        
+        ID_CONFIRM = S_CFG['U8_ID_CONFIRM']      
+        ID_MOBILE = S_CFG['U8_ID_MOBILE']        
+        VAL_CUST = S_CFG['U8_TEST_CUSTOMER_ID']  
+        VAL_MOBILE = S_CFG['U8_TEST_MOBILE']     
 
         # --- เริ่มขั้นตอน Logic ---
 
