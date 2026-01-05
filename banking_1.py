@@ -1,11 +1,16 @@
+# Save as: banking_1.py
 import time
 from banking_core import *
+from evidence import save_evidence_context
+
 # ค่าคงที่สำหรับ Flow นี้
 BARCODE_VALUE = "|0107535000176014033752004685193000"
-PAYMENT_AMOUNT = "100.00"   # หมายเหตุ: ผมใส่ค่าสมมติไว้ คุณสามารถแก้เป็นยอดจริงที่ต้องการเทสได้ครับ
+PAYMENT_AMOUNT = "100.00"
 
 def run_banking_1_custom():
     step_name = "banking_services1 (Custom Flow)"
+    app = None  # ประกาศตัวแปร app ไว้ก่อนเพื่อกัน error ใน except block
+    
     try:
         print(f"\n{'='*50}\n[*] Starting: {step_name}")
 
@@ -68,24 +73,26 @@ def run_banking_1_custom():
         time.sleep(WAIT_TIME)
 
         # 8. กดรับเงิน (Receive Money)
-        # หมายเหตุ: ใช้ title="รับเงิน" ตามที่คุณระบุ
         print("[*] Clicking 'Receive Money'...")
         window.child_window(title="รับเงิน", control_type="Text").click_input()
         time.sleep(WAIT_TIME)
 
-        # 9. กดจ่ายเงิน Payment (Fast Cash)
-        # หมายเหตุ: ใช้ title="Payment (Fast Cash)" หรือถ้ามี AutoID เฉพาะสามารถแก้ตรงนี้ได้
-        print("[*] Clicking 'Payment (Fast Cash)'...")
-        # ลองหาปุ่มที่มีคำว่า Payment (Fast Cash) หรือ Fast Cash
-        # หากปุ่มชื่อ "Payment (Fast Cash)" เป๊ะๆ ให้ใช้บรรทัดล่างนี้:
-        window.child_window(title="Payment (Fast Cash)", control_type="Text").click_input()
-        
-        # กรณีถ้าปุ่มเป็นชื่ออื่น เช่น "Fast Cash" เฉยๆ ให้แก้ title ครับ
+        # 9. กดปุ่ม Fast Cash (ID: EnableFastCash)
+        print("[*] Clicking Fast Cash (ID: EnableFastCash)...")
+        # ไม่ระบุ control_type เพื่อความชัวร์ หรือถ้าเป็นปุ่ม image ก็จะกดได้
+        window.child_window(auto_id="EnableFastCash").click_input()
         time.sleep(WAIT_TIME)
 
         print(f"[V] SUCCESS: {step_name} Completed")
 
     except Exception as e:
+        # บันทึกหลักฐานเมื่อเกิด Error
+        if app:
+            save_evidence_context(app, {
+                "test_name": "Banking Service 1 (Barcode Flow)",
+                "step_name": step_name,
+                "error_message": str(e)
+            })
         print(f"[X] FAILED: {step_name} error: {e}")
 
 if __name__ == "__main__":
