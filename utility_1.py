@@ -8,11 +8,8 @@ if __name__ == "__main__":
     WAIT_TIME = 2
 
     try:
-        # 1. รัน Main Flow (Agency -> BaS -> กรอกข้อมูลผู้ส่ง)
         if not utility_services_main(): exit()
         app, main_window = connect_main_window()
-
-        # --- ส่วน Logic (แบบปกติ: เลือก -> บาร์โค้ด) ---
 
         SERVICE_TITLE = S_CFG['UTILITY_1_TITLE']         # 50002
         TRANS_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']   # SubTextTextBlock
