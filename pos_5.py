@@ -11,12 +11,10 @@ if __name__ == "__main__":
         if not pos_services_main(): exit()
         app, main_window = connect_main_window()
 
-        # --- ส่วน Logic (เลียนแบบ pos_4 แต่เพิ่มค้นหา) ---
-
         # ดึงตัวแปรที่ต้องใช้
-        SERVICE_TITLE = S_CFG['PRAISANI_5_TITLE']       # 51120
-        TRANS_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']  # SubTextTextBlock
-        SEARCH_ID = S_CFG['SEARCH_EDIT_ID']             # ช่องค้นหา
+        SERVICE_TITLE = S_CFG['PRAISANI_5_TITLE']       
+        TRANS_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']  
+        SEARCH_ID = S_CFG['SEARCH_EDIT_ID']             
 
         # 1. ค้นหาและเลือกรายการ
         print(f"[*] Searching for Service: {SERVICE_TITLE}")
@@ -25,7 +23,7 @@ if __name__ == "__main__":
         main_window.child_window(auto_id=SEARCH_ID).type_keys(SERVICE_TITLE)
         time.sleep(2) # รอให้รายการกรองขึ้นมา
 
-        # 1.2 คลิกเลือกรายการ (ใช้รูปแบบเดียวกับ pos_4)
+        # 1.2 คลิกเลือกรายการ
         print(f"[*] Selecting Service: {SERVICE_TITLE}")
         main_window.child_window(title=SERVICE_TITLE, auto_id=TRANS_TYPE, control_type="Text").click_input()
         time.sleep(2) # รอโหลดหน้า
