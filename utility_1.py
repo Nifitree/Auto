@@ -17,9 +17,8 @@ if __name__ == "__main__":
         # --- เริ่มขั้นตอน Logic (เลียนแบบ pos_5) ---
 
         # ดึงตัวแปรจาก Config [UTILITY_SERVICES]
-        SERVICE_TITLE = S_CFG['UTILITY_1_TITLE']         # 50002
-        SEARCH_ID = S_CFG['SEARCH_EDIT_ID']              # ช่องค้นหา
-        TRANS_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']   # SubTextTextBlock
+        SERVICE_TITLE = S_CFG['UTILITY_1_TITLE']             
+        TRANS_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']   
 
         # STEP 1: ค้นหาและเลือกรายการ
         print(f"[*] Searching: {SERVICE_TITLE}")
