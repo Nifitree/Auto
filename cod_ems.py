@@ -121,12 +121,13 @@ def execute_cod_ems_flow(main_window):
     if scroll_until_found(phone, main_window):
         fill_if_empty(main_window, phone, PHONE_NUMBER)
 
+    press_next(main_window)
+    
     # --- 2. เข้าเมนู 4 -> A ---
     print("[*] เข้าเมนู 4 -> A")
     click_menu_button(main_window, S_CFG['BUTTON_4_TITLE'])
     click_menu_button(main_window, S_CFG['BUTTON_A_TITLE'])
 
-    press_next(main_window) # ถัดไป (1)
 
     # --- 3. ยืนยันและกรอกน้ำหนัก ---
     print(f"[*] กดยืนยัน ID: {S_CFG['CONFIRM_BTN_ID']}")
