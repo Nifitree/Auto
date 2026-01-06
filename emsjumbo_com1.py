@@ -38,11 +38,11 @@ POSTAL_CODE = CONFIG["GLOBAL"]["POSTAL_CODE"]
 POSTAL_CODE_EDIT_AUTO_ID = CONFIG["GLOBAL"]["POSTAL_CODE_EDIT_AUTO_ID"]
 NEXT_TITLE = "ถัดไป"
 
-# Specific Config for EMS Jumbo Com1
+# Specific Config
 try:
     CFG = CONFIG["EMS_JUMBO_COM1"]
 except KeyError:
-    print("[X] ไม่พบ Section [EMS_JUMBO_COM1] ใน config.ini กรุณาเพิ่มก่อนรัน")
+    print("[X] ไม่พบ Section [EMS_JUMBO_COM1] ใน config.ini")
     sys.exit(1)
 
 ctx = AppContext(window_title_regex=WINDOW_TITLE)
@@ -139,51 +139,79 @@ def execute_ems_jumbo_flow(main_window):
 
     press_next(main_window) # ถัดไป (1)
 
-    # --- 2. เข้าเมนู Y -> A -> A ---
+    # --- 2. เมนู Y -> A -> A ---
     click_menu_button(main_window, CFG['BTN_Y_TITLE'])
     click_menu_button(main_window, CFG['BTN_A_TITLE'])
     click_menu_button(main_window, CFG['BTN_A_TITLE'])
     
     press_next(main_window) # ถัดไป (2)
 
-
-    # --- 3. รหัสไปรษณีย์ปลายทาง ---
+    # --- 3. รหัสไปรษณีย์ปลายทาง (ข้ามน้ำหนัก/ขนาด ตามคำสั่งใหม่) ---
     fill_field(main_window, CFG['DEST_POSTAL_ID'], CFG['DEST_POSTAL_VALUE'], "รหัสไปรษณีย์ปลายทาง")
     press_next(main_window) # ถัดไป (3)
 
-    # --- 6. เลือกบริการและวงเงิน ---
-    click_element_by_id(main_window, CFG['SERVICE_JUMBO_ID'], "EMS Jumbo อัตรสำเร็จรูป")
+    # --- 4. เลือกบริการ EMS Jumbo และวงเงิน ---
+    click_element_by_id(main_window, CFG['SERVICE_JUMBO_ID'], "EMS Jumbo อัตราสำเร็จรูป")
     click_element_by_id(main_window, CFG['COVERAGE_ICON_ID'], "ไอคอนบวก (Coverage)")
     fill_field(main_window, CFG['COVERAGE_AMOUNT_ID'], CFG['COVERAGE_AMOUNT_VALUE'], "จำนวนเงินคุ้มครอง")
     
-    press_next(main_window) # ถัดไป (6)
-    press_next(main_window) # ถัดไป (7)
+    press_next(main_window) # ถัดไป (4)
+    press_next(main_window) # ถัดไป (5) - เข้าหน้าเลือกบริการพิเศษ
 
-    # --- 7. เมนู A และค้นหาที่อยู่ ---
-    click_menu_button(main_window, CFG['BTN_A_TITLE'])
-    press_next(main_window) # ถัดไป (8)
-    press_next(main_window) # ถัดไป (9)
+    # --- 5. Logic เลือกบริการพิเศษ (1-4) ---
+    selected_option = int(CFG['SELECTED_ADDON_OPTION'])
+    print(f"\n[*] กำลังเลือกบริการพิเศษ Option ที่: {selected_option}")
 
+    if selected_option == 1:
+        # 1. EMS Jumbo รับฝาก ณ ที่อยู่ -> กรอกเงิน -> ถัดไป -> ถัดไป
+        click_element_by_id(main_window, CFG['ADDON_1_ID'], "EMS Jumbo รับฝาก ณ ที่อยู่")
+        time.sleep(0.5)
+        # ต้องกดเข้าไปกรอกยอดเงิน (สมมติว่าคลิกแล้วช่องขึ้นเลย หรือต้องคลิกช่องก่อน)
+        fill_field(main_window, CFG['ADDON_1_AMOUNT_ID'], CFG['ADDON_1_AMOUNT_VALUE'], "ยอดเงินเก็บปลายทาง")
+        press_next(main_window) # ถัดไป (ในขั้นตอน Add-on)
+        press_next(main_window) # ถัดไปอีกครั้ง (ตามคำสั่ง)
+
+    elif selected_option == 2:
+        # 2. ตอบรับ -> ถัดไป
+        click_element_by_id(main_window, CFG['ADDON_2_ID'], "ตอบรับ")
+        press_next(main_window) # ถัดไป (ในขั้นตอน Add-on)
+
+    elif selected_option == 3:
+        # 3. ตอบรับ - Track -> ถัดไป
+        click_element_by_id(main_window, CFG['ADDON_3_ID'], "ตอบรับ - Track")
+        press_next(main_window) # ถัดไป (ในขั้นตอน Add-on)
+
+    elif selected_option == 4:
+        # 4. ส่งไปยังที่อยู่ของผู้รับ -> ถัดไป
+        click_element_by_id(main_window, CFG['ADDON_4_ID'], "ส่งไปยังที่อยู่ของผู้รับ")
+        press_next(main_window) # ถัดไป (ในขั้นตอน Add-on)
+    
+    else:
+        print(f"[!] Warning: SELECTED_ADDON_OPTION = {selected_option} ไม่ถูกต้อง (ข้าม)")
+
+    # กดถัดไปเพื่อออกจากหน้าบริการพิเศษ ไปหน้าค้นหาที่อยู่
+    press_next(main_window) 
+
+    # --- 6. ค้นหาและเลือกที่อยู่ ---
     fill_field(main_window, CFG['SEARCH_ADDR_ID'], CFG['SEARCH_ADDR_VALUE'], "ค้นหาที่อยู่")
-    press_next(main_window) # ถัดไป (10)
+    press_next(main_window)
+    
+    # เลือกที่อยู่ AutoID Group
+    click_element_by_id(main_window, CFG['ADDRESS_SELECT_GROUP_ID'], "เลือกกลุ่มที่อยู่ (Address Group)")
+    time.sleep(1.0) # รอโหลดข้อมูลลงช่อง
 
-    # --- 8. กรอกข้อมูลผู้รับ ---
+    # --- 7. กรอกข้อมูลผู้รับ ---
     fill_field(main_window, CFG['RCV_FNAME_ID'], CFG['RCV_FNAME_VALUE'], "ชื่อผู้รับ")
     fill_field(main_window, CFG['RCV_LNAME_ID'], CFG['RCV_LNAME_VALUE'], "นามสกุลผู้รับ")
-    fill_field(main_window, CFG['PROVINCE_ID'], CFG['PROVINCE_VALUE'], "จังหวัด")
-    fill_field(main_window, CFG['DISTRICT_ID'], CFG['DISTRICT_VALUE'], "เขต/อำเภอ")
-    fill_field(main_window, CFG['SUB_DISTRICT_ID'], CFG['SUB_DISTRICT_VALUE'], "แขวง/ตำบล")
-    fill_field(main_window, CFG['ADDRESS_ID'], CFG['ADDRESS_VALUE'], "ที่อยู่")
     fill_field(main_window, CFG['RCV_PHONE_ID'], CFG['RCV_PHONE_VALUE'], "เบอร์โทรศัพท์")
 
-    press_next(main_window) # ถัดไป (11)
-    press_next(main_window) # ถัดไป (12)
-    press_next(main_window) # ถัดไป (13)
+    press_next(main_window)
+    press_next(main_window)
+    press_next(main_window)
 
-    # --- 9. จัดการ Popup ---
+    # --- 8. จัดการ Popup ---
     print("[*] ตรวจสอบ Popup...")
     time.sleep(1.0)
-    # หาปุ่ม ID "No"
     popup_no = main_window.child_window(auto_id=CFG['POPUP_NO_ID'])
     if popup_no.exists(timeout=3):
         print("[!] พบ Popup -> กด 'ไม่' (No)")
@@ -191,7 +219,7 @@ def execute_ems_jumbo_flow(main_window):
     else:
         print("[-] ไม่พบ Popup (ข้าม)")
 
-    # --- 10. ชำระเงิน ---
+    # --- 9. ชำระเงิน ---
     click_menu_button(main_window, CFG['BTN_RECEIVE_MONEY'])
     
     try:
@@ -203,7 +231,7 @@ def execute_ems_jumbo_flow(main_window):
 # ==================== 4. MAIN RUNNER ====================
 
 def run_service():
-    step_name = "EMS Jumbo Com1 Flow"
+    step_name = "EMS Jumbo Com1 Flow (New Logic)"
     app = None
     print(f"\n{'='*50}\n[*] เริ่มทำรายการ: {step_name}")
 
