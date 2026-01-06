@@ -155,8 +155,8 @@ def execute_cod_ems_flow(main_window):
     press_next(main_window) # ถัดไป (4)
 
     # --- 6. เลือกบริการ COD EMS และกรอกรายละเอียด ---
-    print(f"[*] เลือกบริการ (ID: {S_CFG['SERVICE_SELECTION_ID']})")
-    service_btn = main_window.child_window(auto_id=S_CFG['SERVICE_SELECTION_ID'])
+    print(f"[*] เลือกบริการ (ID: {S_CFG['SERVICE_SELECTION_ID1']})")
+    service_btn = main_window.child_window(auto_id=S_CFG['SERVICE_SELECTION_ID1'])
     if not scroll_until_found(service_btn, main_window):
         raise Exception("ไม่พบตัวเลือกบริการ COD EMS")
     service_btn.click_input()
