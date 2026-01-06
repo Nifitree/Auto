@@ -227,13 +227,13 @@ def execute_ems_jumbo_flow(main_window):
         print("[-] ไม่พบ Popup (ข้าม)")
 
     # --- 9. ชำระเงิน ---
-    click_menu_button(main_window, CFG['BTN_RECEIVE_MONEY'])
-    
-    try:
-        click_menu_button(main_window, CFG['BTN_FAST_CASH'])
-    except:
-        print("[!] หาปุ่ม Fast Cash ไม่เจอ ลองกด Enter")
-        main_window.type_keys("{ENTER}")
+    fast_cash_btn = main_window.child_window(auto_id="EnableFastCash")
+    if fast_cash_btn.exists(timeout=2):
+        fast_cash_btn.click_input()
+    else:
+        print("[!] EnableFastCash not found, using Hotkey F")
+        main_window.type_keys(T_CFG['PAYMENT_FAST'])
+        
 
 # ==================== 4. MAIN RUNNER ====================
 
