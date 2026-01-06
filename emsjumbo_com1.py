@@ -37,7 +37,6 @@ PHONE_EDIT_AUTO_ID = CONFIG["GLOBAL"]["PHONE_EDIT_AUTO_ID"]
 POSTAL_CODE = CONFIG["GLOBAL"]["POSTAL_CODE"]
 POSTAL_CODE_EDIT_AUTO_ID = CONFIG["GLOBAL"]["POSTAL_CODE_EDIT_AUTO_ID"]
 NEXT_TITLE = "ถัดไป"
-T_CFG = CONFIG["PAYMENT"]
 
 # Specific Config
 try:
@@ -227,14 +226,22 @@ def execute_ems_jumbo_flow(main_window):
     else:
         print("[-] ไม่พบ Popup (ข้าม)")
 
-    # --- 9. ชำระเงิน ---
-    fast_cash_btn = main_window.child_window(auto_id="EnableFastCash")
+    # --- 9. รับเงิน (ใช้ Logic Fast Cash แบบใหม่) ---
+    print("[*] เข้าสู่ขั้นตอนรับเงิน")
+    click_menu_button(main_window, CFG['BTN_RECEIVE_MONEY'])
+    
+    print("[*] ตรวจสอบปุ่ม Fast Cash (EnableFastCash)")
+    # ใช้ Logic ตามที่คุณต้องการ: หาปุ่ม EnableFastCash -> ถ้าไม่มี กด Hotkey
+    fast_cash_btn = main_window.child_window(auto_id=CFG['FAST_CASH_AUTO_ID'])
+    
     if fast_cash_btn.exists(timeout=2):
+        print("[V] พบปุ่ม Fast Cash -> คลิก")
         fast_cash_btn.click_input()
     else:
-        print("[!] EnableFastCash not found, using Hotkey F")
-        main_window.type_keys(T_CFG['PAYMENT_FAST'])
-        
+        # ใช้ Hotkey ที่ตั้งไว้ใน Config (เช่น F)
+        hotkey = CFG.get('PAYMENT_FAST_KEY', 'F')
+        print(f"[!] ไม่พบปุ่ม Fast Cash -> ใช้ Hotkey: {hotkey}")
+        main_window.type_keys(hotkey)
 
 # ==================== 4. MAIN RUNNER ====================
 
