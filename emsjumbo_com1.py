@@ -146,19 +146,21 @@ def execute_ems_jumbo_flow(main_window):
     
     press_next(main_window) # ถัดไป (2)
 
-    # --- 3. กรอกน้ำหนัก ---
-    fill_field(main_window, CFG['WEIGHT_ID'], CFG['WEIGHT_VALUE'], "น้ำหนัก")
+
+    # --- 3. รหัสไปรษณีย์ปลายทาง ---
+    fill_field(main_window, CFG['DEST_POSTAL_ID'], CFG['DEST_POSTAL_VALUE'], "รหัสไปรษณีย์ปลายทาง")
     press_next(main_window) # ถัดไป (3)
 
-    # --- 4. กรอกขนาด (L/W/H) ---
+    # --- 4. กรอกน้ำหนัก ---
+    fill_field(main_window, CFG['WEIGHT_ID'], CFG['WEIGHT_VALUE'], "น้ำหนัก")
+    press_next(main_window) # ถัดไป (4)
+
+    # --- 5. กรอกขนาด (L/W/H) ---
     fill_field(main_window, CFG['DIM_L_ID'], CFG['DIM_L_VAL'], "ยาว (L)")
     fill_field(main_window, CFG['DIM_W_ID'], CFG['DIM_W_VAL'], "กว้าง (W)")
     fill_field(main_window, CFG['DIM_H_ID'], CFG['DIM_H_VAL'], "สูง (H)")
-    press_next(main_window) # ถัดไป (4)
-
-    # --- 5. รหัสไปรษณีย์ปลายทาง ---
-    fill_field(main_window, CFG['DEST_POSTAL_ID'], CFG['DEST_POSTAL_VALUE'], "รหัสไปรษณีย์ปลายทาง")
     press_next(main_window) # ถัดไป (5)
+
 
     # --- 6. เลือกบริการและวงเงิน ---
     click_element_by_id(main_window, CFG['SERVICE_JUMBO_ID'], "EMS Jumbo อัตรสำเร็จรูป")
