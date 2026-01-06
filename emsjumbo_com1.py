@@ -9,7 +9,7 @@ from app_context import AppContext
 
 CONFIG_FILE = "config.ini"
 
-# ==================== 1. CONFIGURATION ====================
+# ==================== 1. CONFIGURATION (เหมือนเดิม) ====================
 
 def read_config(filename=CONFIG_FILE):
     config = configparser.ConfigParser()
@@ -47,7 +47,7 @@ except KeyError:
 
 ctx = AppContext(window_title_regex=WINDOW_TITLE)
 
-# ==================== 2. HELPERS ====================
+# ==================== 2. HELPERS (เพิ่ม try_click) ====================
 
 def connect_main_window():
     return ctx.connect()
@@ -118,7 +118,7 @@ def click_menu_button(main_window, title):
     btn.click_input()
     time.sleep(WAIT_TIME)
 
-# ==================== 3. LOGIC ====================
+# ==================== 3. LOGIC (แก้ไขตรงนี้) ====================
 
 def execute_ems_jumbo_flow(main_window):
     # --- 1. เมนู S และข้อมูลผู้ส่ง ---
@@ -146,7 +146,7 @@ def execute_ems_jumbo_flow(main_window):
     
     press_next(main_window) # ถัดไป (2)
 
-    # --- 3. รหัสไปรษณีย์ปลายทาง (ข้ามน้ำหนัก/ขนาด ตามคำสั่งใหม่) ---
+    # --- 3. รหัสไปรษณีย์ปลายทาง ---
     fill_field(main_window, CFG['DEST_POSTAL_ID'], CFG['DEST_POSTAL_VALUE'], "รหัสไปรษณีย์ปลายทาง")
     press_next(main_window) # ถัดไป (3)
 
@@ -156,49 +156,56 @@ def execute_ems_jumbo_flow(main_window):
     fill_field(main_window, CFG['COVERAGE_AMOUNT_ID'], CFG['COVERAGE_AMOUNT_VALUE'], "จำนวนเงินคุ้มครอง")
     
     press_next(main_window) # ถัดไป (4)
-    press_next(main_window) # ถัดไป (5) - เข้าหน้าเลือกบริการพิเศษ
+    press_next(main_window) # ถัดไป (5)
 
     # --- 5. Logic เลือกบริการพิเศษ (1-4) ---
     selected_option = int(CFG['SELECTED_ADDON_OPTION'])
     print(f"\n[*] กำลังเลือกบริการพิเศษ Option ที่: {selected_option}")
 
     if selected_option == 1:
-        # 1. EMS Jumbo รับฝาก ณ ที่อยู่ -> กรอกเงิน -> ถัดไป -> ถัดไป
         click_element_by_id(main_window, CFG['ADDON_1_ID'], "EMS Jumbo รับฝาก ณ ที่อยู่")
         time.sleep(0.5)
-        # ต้องกดเข้าไปกรอกยอดเงิน (สมมติว่าคลิกแล้วช่องขึ้นเลย หรือต้องคลิกช่องก่อน)
         fill_field(main_window, CFG['ADDON_1_AMOUNT_ID'], CFG['ADDON_1_AMOUNT_VALUE'], "ยอดเงินเก็บปลายทาง")
-        press_next(main_window) # ถัดไป (ในขั้นตอน Add-on)
-        press_next(main_window) # ถัดไปอีกครั้ง (ตามคำสั่ง)
+        press_next(main_window) 
+        press_next(main_window) 
 
     elif selected_option == 2:
-        # 2. ตอบรับ -> ถัดไป
         click_element_by_id(main_window, CFG['ADDON_2_ID'], "ตอบรับ")
-        press_next(main_window) # ถัดไป (ในขั้นตอน Add-on)
+        press_next(main_window) 
 
     elif selected_option == 3:
-        # 3. ตอบรับ - Track -> ถัดไป
         click_element_by_id(main_window, CFG['ADDON_3_ID'], "ตอบรับ - Track")
-        press_next(main_window) # ถัดไป (ในขั้นตอน Add-on)
+        press_next(main_window) 
 
     elif selected_option == 4:
-        # 4. ส่งไปยังที่อยู่ของผู้รับ -> ถัดไป
         click_element_by_id(main_window, CFG['ADDON_4_ID'], "ส่งไปยังที่อยู่ของผู้รับ")
-        press_next(main_window) # ถัดไป (ในขั้นตอน Add-on)
+        press_next(main_window) 
     
-    else:
-        print(f"[!] Warning: SELECTED_ADDON_OPTION = {selected_option} ไม่ถูกต้อง (ข้าม)")
-
-    # กดถัดไปเพื่อออกจากหน้าบริการพิเศษ ไปหน้าค้นหาที่อยู่
     press_next(main_window) 
 
-    # --- 6. ค้นหาและเลือกที่อยู่ ---
+    # --- 6. ค้นหาและเลือกที่อยู่ (จุดที่แก้ Error) ---
     fill_field(main_window, CFG['SEARCH_ADDR_ID'], CFG['SEARCH_ADDR_VALUE'], "ค้นหาที่อยู่")
-    press_next(main_window)
     
-    # เลือกที่อยู่ AutoID Group
-    click_element_by_id(main_window, CFG['ADDRESS_SELECT_GROUP_ID'], "เลือกกลุ่มที่อยู่ (Address Group)")
-    time.sleep(1.0) # รอโหลดข้อมูลลงช่อง
+    # กดถัดไป 1 ครั้งเพื่อเริ่มค้นหา
+    press_next(main_window)
+    time.sleep(1.5) # รอผลการค้นหา หรือการเปลี่ยนหน้า
+
+    # !!! แก้ไขตรงนี้: เช็คก่อนว่ามันข้ามไปหน้าชื่อผู้รับหรือยัง !!!
+    # ถ้าเจอปุ่มเลือกกลุ่ม (Address Group) -> กด
+    # ถ้าไม่เจอ -> เช็คว่าเจอช่องกรอกชื่อ (CustomerFirstName) ไหม -> ถ้าเจอแสดงว่าผ่านแล้ว
+    
+    group_btn = main_window.child_window(auto_id=CFG['ADDRESS_SELECT_GROUP_ID'])
+    next_step_field = main_window.child_window(auto_id=CFG['RCV_FNAME_ID'])
+
+    if group_btn.exists(timeout=2):
+        print("[*] พบปุ่มเลือกกลุ่มที่อยู่ -> กำลังกดเลือก")
+        group_btn.click_input()
+        time.sleep(1.0)
+    elif next_step_field.exists(timeout=2):
+        print("[/] ระบบเลือกที่อยู่อัตโนมัติแล้ว (ข้ามขั้นตอนกดเลือกกลุ่ม)")
+    else:
+        # ถ้าหาไม่เจอทั้งคู่ ค่อย Error
+        print("[!] Warning: ไม่พบปุ่มเลือกกลุ่ม และยังไม่ถึงหน้ากรอกชื่อ (พยายามไปต่อ)")
 
     # --- 7. กรอกข้อมูลผู้รับ ---
     fill_field(main_window, CFG['RCV_FNAME_ID'], CFG['RCV_FNAME_VALUE'], "ชื่อผู้รับ")
@@ -231,7 +238,7 @@ def execute_ems_jumbo_flow(main_window):
 # ==================== 4. MAIN RUNNER ====================
 
 def run_service():
-    step_name = "EMS Jumbo Com1 Flow (New Logic)"
+    step_name = "EMS Jumbo Com1 Flow (Fixed)"
     app = None
     print(f"\n{'='*50}\n[*] เริ่มทำรายการ: {step_name}")
 
