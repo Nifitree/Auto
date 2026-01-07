@@ -118,6 +118,33 @@ def click_menu_button(main_window, title):
     btn.click_input()
     time.sleep(WAIT_TIME)
 
+# ==================== Manual Address Flow ====================
+def manual_address_laksi_flow(main_window):
+    print("[*] เข้า Manual Address Flow (กรณีค้นหาที่อยู่ไม่เจอ)")
+
+    popup_ok = main_window.child_window(auto_id=CFG['POPUP_OK_ID'])
+    if popup_ok.exists(timeout=3):
+        print("[*] พบ Popup -> กดตกลง")
+        popup_ok.click_input()
+        time.sleep(1)
+
+    fill_field(main_window, CFG['RCV_FNAME_ID'], CFG['RCV_FNAME_VALUE'], "ชื่อผู้รับ")
+    fill_field(main_window, CFG['RCV_LNAME_ID'], CFG['RCV_LNAME_VALUE'], "นามสกุลผู้รับ")
+    fill_field(main_window, CFG['ADMIN_AREA_ID'], CFG['ADMIN_AREA_VALUE'], "จังหวัด")
+    fill_field(main_window, CFG['LOCALITY_ID'], CFG['LOCALITY_VALUE'], "เขต/อำเภอ")
+    fill_field(main_window, CFG['DEPENDENT_LOCALITY_ID'], CFG['DEPENDENT_LOCALITY_VALUE'], "แขวง/ตำบล")
+    fill_field(main_window, CFG['STREET_ADDR_ID'], CFG['STREET_ADDR_VALUE'], "ที่อยู่")
+    fill_field(main_window, CFG['RCV_PHONE_ID'], CFG['RCV_PHONE_VALUE'], "เบอร์โทร")
+
+    press_next(main_window)
+    press_next(main_window)
+    press_next(main_window)
+
+    popup_no = main_window.child_window(auto_id=CFG['POPUP_NO_ID'])
+    if popup_no.exists(timeout=3):
+        print("[*] พบ Popup -> กดไม่")
+        popup_no.click_input()
+
 # ==================== 3. LOGIC (แก้ไขตรงนี้) ====================
 
 def execute_ems_jumbo_flow(main_window):
@@ -183,29 +210,46 @@ def execute_ems_jumbo_flow(main_window):
     
     press_next(main_window) 
 
-    # --- 6. ค้นหาและเลือกที่อยู่ (จุดที่แก้ Error) ---
-    fill_field(main_window, CFG['SEARCH_ADDR_ID'], CFG['SEARCH_ADDR_VALUE'], "ค้นหาที่อยู่")
-    
-    # กดถัดไป 1 ครั้งเพื่อเริ่มค้นหา
-    press_next(main_window)
-    time.sleep(1.5) # รอผลการค้นหา หรือการเปลี่ยนหน้า
+# --- 6. ค้นหาและเลือกที่อยู่ (จุดที่แก้ Error) ---
+fill_field(main_window, CFG['SEARCH_ADDR_ID'], CFG['SEARCH_ADDR_VALUE'], "ค้นหาที่อยู่")
 
-    # !!! แก้ไขตรงนี้: เช็คก่อนว่ามันข้ามไปหน้าชื่อผู้รับหรือยัง !!!
-    # ถ้าเจอปุ่มเลือกกลุ่ม (Address Group) -> กด
-    # ถ้าไม่เจอ -> เช็คว่าเจอช่องกรอกชื่อ (CustomerFirstName) ไหม -> ถ้าเจอแสดงว่าผ่านแล้ว
-    
-    group_btn = main_window.child_window(auto_id=CFG['ADDRESS_SELECT_GROUP_ID'])
-    next_step_field = main_window.child_window(auto_id=CFG['RCV_FNAME_ID'])
+# กดถัดไป 1 ครั้งเพื่อเริ่มค้นหา
+press_next(main_window)
+time.sleep(1.5)
 
-    if group_btn.exists(timeout=2):
-        print("[*] พบปุ่มเลือกกลุ่มที่อยู่ -> กำลังกดเลือก")
-        group_btn.click_input()
-        time.sleep(1.0)
-    elif next_step_field.exists(timeout=2):
-        print("[/] ระบบเลือกที่อยู่อัตโนมัติแล้ว (ข้ามขั้นตอนกดเลือกกลุ่ม)")
-    else:
-        # ถ้าหาไม่เจอทั้งคู่ ค่อย Error
-        print("[!] Warning: ไม่พบปุ่มเลือกกลุ่ม และยังไม่ถึงหน้ากรอกชื่อ (พยายามไปต่อ)")
+# -------------------------------
+# ลำดับการเช็คที่ถูกต้อง:
+# 1) Popup OK (ที่อยู่ไม่ถูก)
+# 2) ปุ่มเลือกกลุ่มที่อยู่
+# 3) ข้ามไปหน้ากรอกชื่อผู้รับแล้ว
+# -------------------------------
+
+popup_ok = main_window.child_window(auto_id=CFG['POPUP_OK_ID'])
+group_btn = main_window.child_window(auto_id=CFG['ADDRESS_SELECT_GROUP_ID'])
+next_step_field = main_window.child_window(auto_id=CFG['RCV_FNAME_ID'])
+
+    # 1️⃣ กรณีที่อยู่ไม่ถูก → Popup OK
+if popup_ok.exists(timeout=2):
+    print("[!] ที่อยู่ไม่ถูก ระบบแสดง Popup OK -> เข้า Manual Address Flow")
+    popup_ok.click_input()
+    time.sleep(0.5)
+
+    manual_address_flow(main_window)
+    return   # ❗ สำคัญมาก: ห้ามให้ flow เดิมทำงานต่อ
+
+# 2️⃣ กรณีพบปุ่มเลือกกลุ่ม
+elif group_btn.exists(timeout=2):
+    print("[*] พบปุ่มเลือกกลุ่มที่อยู่ -> กำลังกดเลือก")
+    group_btn.click_input()
+    time.sleep(1.0)
+
+# 3️⃣ ระบบเลือกที่อยู่อัตโนมัติแล้ว
+elif next_step_field.exists(timeout=2):
+    print("[/] ระบบเลือกที่อยู่อัตโนมัติแล้ว (ข้ามขั้นตอนเลือกกลุ่ม)")
+
+# 4️⃣ ไม่เข้าเงื่อนไขใดเลย (กันพัง)
+else:
+    print("[!] Warning: ไม่พบ Popup, ปุ่มเลือกกลุ่ม หรือหน้ากรอกชื่อ (พยายามไปต่อ)")
 
     # --- 7. กรอกข้อมูลผู้รับ ---
     fill_field(main_window, CFG['RCV_FNAME_ID'], CFG['RCV_FNAME_VALUE'], "ชื่อผู้รับ")
