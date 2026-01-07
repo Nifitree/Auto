@@ -211,37 +211,23 @@ def execute_ems_jumbo_flow(main_window):
     press_next(main_window)
     time.sleep(1.5) # รอผลการค้นหา หรือการเปลี่ยนหน้า
 
-    # -------------------------------
-    # ลำดับการเช็คที่ถูกต้อง:
-    # 1) Popup OK (ที่อยู่ไม่ถูก)
-    # 2) ปุ่มเลือกกลุ่มที่อยู่
-    # 3) ข้ามไปหน้ากรอกชื่อผู้รับแล้ว
-    # -------------------------------
-
     popup_ok = main_window.child_window(auto_id=CFG['POPUP_OK_ID'])
     group_btn = main_window.child_window(auto_id=CFG['ADDRESS_SELECT_GROUP_ID'])
     next_step_field = main_window.child_window(auto_id=CFG['RCV_FNAME_ID'])
 
     # 1️⃣ กรณีที่อยู่ไม่ถูก → Popup OK
     if popup_ok.exists(timeout=2):
-        print("[!] ที่อยู่ไม่ถูก ระบบแสดง Popup OK -> เข้า Manual Address Flow")
+        print("[!] ที่อยู่ไม่ถูก → เข้า Manual Address Flow")
         popup_ok.click_input()
         time.sleep(0.5)
-
         manual_address_flow(main_window)
-        return   # ❗ สำคัญมาก: ห้ามให้ flow เดิมทำงานต่อ
 
-    # 2️⃣ กรณีพบปุ่มเลือกกลุ่ม
     if group_btn.exists(timeout=2):
         print("[*] พบ Address Group → กดเลือก")
         group_btn.click_input()
         time.sleep(1.0)
-
-    # 3️⃣ ระบบเลือกที่อยู่อัตโนมัติแล้ว
     elif next_step_field.exists(timeout=2):
         print("[/] ระบบเลือกที่อยู่อัตโนมัติแล้ว (ข้ามขั้นตอนเลือกกลุ่ม)")
-
-    # 4️⃣ ไม่เข้าเงื่อนไขใดเลย (กันพัง)
     else:
         print("[!] Warning: ไม่พบ Popup, ปุ่มเลือกกลุ่ม หรือหน้ากรอกชื่อ (พยายามไปต่อ)")
 
