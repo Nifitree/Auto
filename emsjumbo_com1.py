@@ -82,6 +82,36 @@ def fill_if_empty(window, control, value):
         control.click_input()
         window.type_keys(value)
 
+def click_first_address_item(main_window):
+    items = main_window.children(control_type="ListItem")
+
+    if not items:
+        raise Exception("ไม่พบ Address Item เลย")
+
+    valid_items = []
+    for it in items:
+        try:
+            if it.is_visible() and it.is_enabled():
+                rect = it.rectangle()
+                valid_items.append((rect.top, it))
+        except:
+            continue
+
+    if not valid_items:
+        raise Exception("ไม่พบ Address Item ที่พร้อมคลิก")
+
+    valid_items.sort(key=lambda x: x[0])
+
+    top_item = valid_items[0][1]
+    rect = top_item.rectangle()
+
+    x = rect.left + rect.width() // 2
+    y = rect.top + rect.height() // 2
+
+    mouse.click(coords=(x, y))
+    time.sleep(1)
+
+
 def fill_field(window, auto_id, value, description=""):
     print(f"[*] {description}: {value}")
     control = window.child_window(auto_id=auto_id)
@@ -229,7 +259,7 @@ def execute_ems_jumbo_flow(main_window):
     else:
         print("[/] ไม่พบ Address Group (ข้ามได้)")
 
-    # --- 6.3 เลือก Address Item (คลิกด้วยพิกัดฝั่งซ้ายเท่านั้น) ---
+    # --- 6.3 เลือก Address Item (เลือกบรรทัดบนสุดที่เป็น Address จริง) ---
     print("[*] กำลังเลือก Address Item")
 
     address_items = main_window.descendants(control_type="ListItem")
@@ -237,23 +267,40 @@ def execute_ems_jumbo_flow(main_window):
     if not address_items:
         raise Exception("ไม่พบ Address Item")
 
-    clicked = False
+    valid_items = []
+
     for item in address_items:
         try:
             texts = " ".join(item.texts())
-            if "พญาไท" in texts or "10400" in texts:
-                rect = item.rectangle()
-                mouse.click(coords=(rect.left + 15, rect.top + 15))  # 👈 คลิกซ้ายบน
-                time.sleep(1.0)
-                print("[V] เลือก Address Item สำเร็จ")
-                clicked = True
-                break
+            rect = item.rectangle()
+
+            # เงื่อนไขกรอง: ต้องเป็น address จริง
+            if (
+                ("กรุงเทพ" in texts or "10400" in texts)
+                and rect.width() > 300
+                and rect.height() > 40
+            ):
+                valid_items.append((rect.top, item))
         except:
             continue
 
-    if not clicked:
-        raise Exception("ไม่สามารถคลิก Address Item ได้")
+    if not valid_items:
+        raise Exception("ไม่พบ Address Item ที่เข้าเงื่อนไข")
 
+    # เลือก item ที่อยู่บนสุด (address บรรทัดแรกเสมอ)
+    valid_items.sort(key=lambda x: x[0])
+    target_item = valid_items[0][1]
+    rect = target_item.rectangle()
+
+    # คลิกกึ่งกลางซ้าย (โดน text แน่นอน)
+    x = rect.left + int(rect.width() * 0.3)
+    y = rect.top + rect.height() // 2
+
+    mouse.click(coords=(x, y))
+    time.sleep(1.0)
+
+    print("[V] เลือก Address Item สำเร็จ")
+    
     # --- 7. กรอกข้อมูลผู้รับ ---
     print("[*] กรอกข้อมูลผู้รับ")
 
