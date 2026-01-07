@@ -214,30 +214,44 @@ def execute_ems_jumbo_flow(main_window):
     popup_ok = main_window.child_window(auto_id=CFG['POPUP_OK_ID'])
     group_btn = main_window.child_window(auto_id=CFG['ADDRESS_SELECT_GROUP_ID'])
 
+    # 1️⃣ ที่อยู่ไม่ถูก → Popup
     if popup_ok.exists(timeout=2):
+        print("[!] ที่อยู่ไม่ถูก → เข้า Manual Address Flow")
         popup_ok.click_input()
+        time.sleep(0.5)
         manual_address_flow(main_window)
-        return
+        return   # ❗ ห้ามให้ flow เดิมทำต่อ
 
-    # กรณีมี Group
+    # 2️⃣ ถ้ามี Address Group → กด
     if group_btn.exists(timeout=2):
+        print("[*] พบ Address Group → กดเลือก")
         group_btn.click_input()
         time.sleep(1.0)
+    else:
+        print("[/] ไม่พบ Address Group (ข้ามได้)")
 
-    # เลือก Address Item (ทั้งมี / ไม่มี Group)
+    # 3️⃣ เลือก Address Item (สำคัญที่สุด)
+    print("[*] กำลังเลือก Address Item")
     address_items = main_window.descendants(control_type="ListItem")
 
     if not address_items:
         raise Exception("ไม่พบ Address Item")
 
+    clicked = False
     for item in address_items:
         try:
             if item.is_visible():
                 item.click_input()
                 time.sleep(1.0)
+                clicked = True
+                print("[V] เลือก Address Item สำเร็จ")
                 break
         except:
             continue
+
+    if not clicked:
+        raise Exception("ไม่พบ Address Item ที่คลิกได้")
+    
     # --- 7. กรอกข้อมูลผู้รับ ---
     print("[*] กรอกข้อมูลผู้รับ")
 
