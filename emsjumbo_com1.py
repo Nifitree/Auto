@@ -212,23 +212,24 @@ def execute_ems_jumbo_flow(main_window):
     time.sleep(1.5) # รอผลการค้นหา หรือการเปลี่ยนหน้า
 
     popup_ok = main_window.child_window(auto_id=CFG['POPUP_OK_ID'])
-    group_btn = main_window.child_window(auto_id=CFG['ADDRESS_SELECT_GROUP_ID'])
-    
-    # 1️⃣ กรณีที่อยู่ไม่ถูก → Popup OK
     if popup_ok.exists(timeout=2):
-        print("[!] ที่อยู่ไม่ถูก → เข้า Manual Address Flow")
         popup_ok.click_input()
-        time.sleep(0.5)
         manual_address_flow(main_window)
         return
 
-    if group_btn.exists(timeout=2):
-        print("[*] พบ Address Group → กดเลือก")
-        group_btn.click_input()
+    group_btn = main_window.child_window(auto_id=CFG['ADDRESS_SELECT_GROUP_ID'])
+    if not group_btn.exists(timeout=3):
+        raise Exception("ไม่พบ Address Group")
+
+    group_btn.click_input()
+    time.sleep(1.0)
+
+    address_item = main_window.child_window(control_type="ListItem")
+    if address_item.exists(timeout=3):
+        address_item.click_input()
         time.sleep(1.0)
     else:
-        print("[!] Warning: ไม่พบ Popup, ปุ่มเลือกกลุ่ม หรือหน้ากรอกชื่อ (พยายามไปต่อ)")
-
+        raise Exception("ไม่พบ Address Item")
     # --- 7. กรอกข้อมูลผู้รับ ---
     print("[*] กรอกข้อมูลผู้รับ")
 
