@@ -119,14 +119,8 @@ def click_menu_button(main_window, title):
     time.sleep(WAIT_TIME)
 
 # ==================== Manual Address Flow ====================
-def manual_address_laksi_flow(main_window):
+def manual_address_flow(main_window):
     print("[*] เข้า Manual Address Flow (กรณีค้นหาที่อยู่ไม่เจอ)")
-
-    popup_ok = main_window.child_window(auto_id=CFG['POPUP_OK_ID'])
-    if popup_ok.exists(timeout=3):
-        print("[*] พบ Popup -> กดตกลง")
-        popup_ok.click_input()
-        time.sleep(1)
 
     fill_field(main_window, CFG['RCV_FNAME_ID'], CFG['RCV_FNAME_VALUE'], "ชื่อผู้รับ")
     fill_field(main_window, CFG['RCV_LNAME_ID'], CFG['RCV_LNAME_VALUE'], "นามสกุลผู้รับ")
@@ -252,9 +246,13 @@ def execute_ems_jumbo_flow(main_window):
         print("[!] Warning: ไม่พบ Popup, ปุ่มเลือกกลุ่ม หรือหน้ากรอกชื่อ (พยายามไปต่อ)")
 
     # --- 7. กรอกข้อมูลผู้รับ ---
-    fill_field(main_window, CFG['RCV_FNAME_ID'], CFG['RCV_FNAME_VALUE'], "ชื่อผู้รับ")
-    fill_field(main_window, CFG['RCV_LNAME_ID'], CFG['RCV_LNAME_VALUE'], "นามสกุลผู้รับ")
-    fill_field(main_window, CFG['RCV_PHONE_ID'], CFG['RCV_PHONE_VALUE'], "เบอร์โทรศัพท์")
+    fname = main_window.child_window(auto_id=CFG['RCV_FNAME_ID'])
+    lname = main_window.child_window(auto_id=CFG['RCV_LNAME_ID'])
+    phone = main_window.child_window(auto_id=CFG['RCV_PHONE_ID'])
+
+    fill_if_empty(main_window, fname, CFG['RCV_FNAME_VALUE'])
+    fill_if_empty(main_window, lname, CFG['RCV_LNAME_VALUE'])
+    fill_if_empty(main_window, phone, CFG['RCV_PHONE_VALUE'])
 
     press_next(main_window)
     press_next(main_window)
