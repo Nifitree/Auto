@@ -232,10 +232,10 @@ def execute_ems_jumbo_flow(main_window):
         return   # ❗ สำคัญมาก: ห้ามให้ flow เดิมทำงานต่อ
 
     # 2️⃣ กรณีพบปุ่มเลือกกลุ่ม
-    elif group_btn.exists(timeout=2):
-        print("[*] พบปุ่มเลือกกลุ่มที่อยู่ -> กำลังกดเลือก")
+    if group_btn.exists(timeout=2):
+        print("[*] พบ Address Group → กดเลือก")
         group_btn.click_input()
-        time.sleep(1.5)
+        time.sleep(1.0)
 
     # 3️⃣ ระบบเลือกที่อยู่อัตโนมัติแล้ว
     elif next_step_field.exists(timeout=2):
