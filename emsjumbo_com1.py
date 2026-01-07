@@ -211,18 +211,17 @@ def execute_ems_jumbo_flow(main_window):
     press_next(main_window)
     time.sleep(1.5) # รอผลการค้นหา หรือการเปลี่ยนหน้า
 
+    # --- 6.1 ตรวจ Popup กรณีที่อยู่ไม่ถูก ---
     popup_ok = main_window.child_window(auto_id=CFG['POPUP_OK_ID'])
-    group_btn = main_window.child_window(auto_id=CFG['ADDRESS_SELECT_GROUP_ID'])
-
-    # 1️⃣ ที่อยู่ไม่ถูก → Popup
     if popup_ok.exists(timeout=2):
         print("[!] ที่อยู่ไม่ถูก → เข้า Manual Address Flow")
         popup_ok.click_input()
         time.sleep(0.5)
         manual_address_flow(main_window)
-        return   # ❗ ห้ามให้ flow เดิมทำต่อ
+        return   # ❗ ห้ามให้ flow หลักทำต่อ
 
-    # 2️⃣ ถ้ามี Address Group → กด
+    # --- 6.2 กด Address Group (ถ้ามี) ---
+    group_btn = main_window.child_window(auto_id=CFG['ADDRESS_SELECT_GROUP_ID'])
     if group_btn.exists(timeout=2):
         print("[*] พบ Address Group → กดเลือก")
         group_btn.click_input()
@@ -230,8 +229,9 @@ def execute_ems_jumbo_flow(main_window):
     else:
         print("[/] ไม่พบ Address Group (ข้ามได้)")
 
-    # 3️⃣ เลือก Address Item (สำคัญที่สุด)
+    # --- 6.3 เลือก Address Item (คลิกด้วยพิกัดฝั่งซ้ายเท่านั้น) ---
     print("[*] กำลังเลือก Address Item")
+
     address_items = main_window.descendants(control_type="ListItem")
 
     if not address_items:
@@ -240,18 +240,20 @@ def execute_ems_jumbo_flow(main_window):
     clicked = False
     for item in address_items:
         try:
-            if item.is_visible():
-                item.click_input()
+            texts = " ".join(item.texts())
+            if "พญาไท" in texts or "10400" in texts:
+                rect = item.rectangle()
+                mouse.click(coords=(rect.left + 15, rect.top + 15))  # 👈 คลิกซ้ายบน
                 time.sleep(1.0)
-                clicked = True
                 print("[V] เลือก Address Item สำเร็จ")
+                clicked = True
                 break
         except:
             continue
 
     if not clicked:
-        raise Exception("ไม่พบ Address Item ที่คลิกได้")
-    
+        raise Exception("ไม่สามารถคลิก Address Item ได้")
+
     # --- 7. กรอกข้อมูลผู้รับ ---
     print("[*] กรอกข้อมูลผู้รับ")
 
