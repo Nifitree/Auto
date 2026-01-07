@@ -230,17 +230,25 @@ def execute_ems_jumbo_flow(main_window):
         print("[!] Warning: ไม่พบ Popup, ปุ่มเลือกกลุ่ม หรือหน้ากรอกชื่อ (พยายามไปต่อ)")
 
     # --- 7. กรอกข้อมูลผู้รับ ---
-    fname = main_window.child_window(auto_id=CFG['RCV_FNAME_ID'])
-    lname = main_window.child_window(auto_id=CFG['RCV_LNAME_ID'])
-    phone = main_window.child_window(auto_id=CFG['RCV_PHONE_ID'])
+    print("[*] กรอกข้อมูลผู้รับ")
 
-    fill_if_empty(main_window, fname, CFG['RCV_FNAME_VALUE'])
-    fill_if_empty(main_window, lname, CFG['RCV_LNAME_VALUE'])
-    fill_if_empty(main_window, phone, CFG['RCV_PHONE_VALUE'])
+    fill_if_empty(
+        main_window,
+        main_window.child_window(auto_id=CFG['RCV_FNAME_ID']),
+        CFG['RCV_FNAME_VALUE']
+    )
 
-    press_next(main_window)
-    press_next(main_window)
-    press_next(main_window)
+    fill_if_empty(
+        main_window,
+        main_window.child_window(auto_id=CFG['RCV_LNAME_ID']),
+        CFG['RCV_LNAME_VALUE']
+    )
+
+    fill_if_empty(
+        main_window,
+        main_window.child_window(auto_id=CFG['RCV_PHONE_ID']),
+        CFG['RCV_PHONE_VALUE']
+    )
 
     # --- 8. จัดการ Popup ---
     print("[*] ตรวจสอบ Popup...")
