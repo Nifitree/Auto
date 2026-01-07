@@ -213,14 +213,14 @@ def execute_ems_jumbo_flow(main_window):
 
     popup_ok = main_window.child_window(auto_id=CFG['POPUP_OK_ID'])
     group_btn = main_window.child_window(auto_id=CFG['ADDRESS_SELECT_GROUP_ID'])
-    next_step_field = main_window.child_window(auto_id=CFG['RCV_FNAME_ID'])
-
+    
     # 1️⃣ กรณีที่อยู่ไม่ถูก → Popup OK
     if popup_ok.exists(timeout=2):
         print("[!] ที่อยู่ไม่ถูก → เข้า Manual Address Flow")
         popup_ok.click_input()
         time.sleep(0.5)
         manual_address_flow(main_window)
+        return
 
     if group_btn.exists(timeout=2):
         print("[*] พบ Address Group → กดเลือก")
