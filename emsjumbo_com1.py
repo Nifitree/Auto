@@ -226,8 +226,6 @@ def execute_ems_jumbo_flow(main_window):
         print("[*] พบ Address Group → กดเลือก")
         group_btn.click_input()
         time.sleep(1.0)
-    elif next_step_field.exists(timeout=2):
-        print("[/] ระบบเลือกที่อยู่อัตโนมัติแล้ว (ข้ามขั้นตอนเลือกกลุ่ม)")
     else:
         print("[!] Warning: ไม่พบ Popup, ปุ่มเลือกกลุ่ม หรือหน้ากรอกชื่อ (พยายามไปต่อ)")
 
