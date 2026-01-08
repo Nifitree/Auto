@@ -155,10 +155,10 @@ def execute_ems_jumbo_flow(main_window):
 
     press_next(main_window) # ถัดไป (1)
 
-    # --- 2. เมนู Y -> A -> A ---
+    # --- 2. เมนู Y -> A -> X ---
     click_menu_button(main_window, CFG['BTN_Y_TITLE'])
     click_menu_button(main_window, CFG['BTN_A_TITLE'])
-    click_menu_button(main_window, CFG['BTN_A_TITLE'])
+    click_menu_button(main_window, CFG['BTN_X_TITLE'])
     
     press_next(main_window) # ถัดไป (2)
 
