@@ -112,7 +112,8 @@ def press_next(main_window):
 
 def click_menu_button(main_window, title):
     print(f"[*] คลิกเมนู: {title}")
-    btn = main_window.child_window(title=title, control_type="Text")
+    btn = main_window.child_window(title=title, found_index=0) 
+    
     if not scroll_until_found(btn, main_window):
         raise Exception(f"หาปุ่มเมนู '{title}' ไม่เจอ")
     btn.click_input()
