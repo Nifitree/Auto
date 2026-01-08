@@ -40,9 +40,9 @@ NEXT_TITLE = "ถัดไป"
 
 # Specific Config
 try:
-    CFG = CONFIG["EMS_JUMBO"]
+    CFG = CONFIG["EMS_JUMBO_FAN"]
 except KeyError:
-    print("[X] ไม่พบ Section [EMS_JUMBO] ใน config.ini")
+    print("[X] ไม่พบ Section [EMS_JUMBO_FAN] ใน config.ini")
     sys.exit(1)
 
 ctx = AppContext(window_title_regex=WINDOW_TITLE)
