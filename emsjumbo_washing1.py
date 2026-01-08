@@ -40,9 +40,9 @@ NEXT_TITLE = "ถัดไป"
 
 # Specific Config
 try:
-    CFG = CONFIG["EMS_JUMBO_TV"]
+    CFG = CONFIG["EMS_JUMBO_WASHING"]
 except KeyError:
-    print("[X] ไม่พบ Section [EMS_JUMBO_TV] ใน config.ini")
+    print("[X] ไม่พบ Section [EMS_JUMBO_WASHING] ใน config.ini")
     sys.exit(1)
 
 ctx = AppContext(window_title_regex=WINDOW_TITLE)
@@ -155,7 +155,7 @@ def execute_ems_jumbo_flow(main_window):
 
     press_next(main_window) # ถัดไป (1)
 
-    # --- 2. เมนู Y -> A -> Q ---
+    # --- 2. เมนู Y -> A -> X ---
     click_menu_button(main_window, CFG['BTN_Y_TITLE'])
     click_menu_button(main_window, CFG['BTN_A_TITLE'])
     click_menu_button(main_window, CFG['BTN_X_TITLE'])
