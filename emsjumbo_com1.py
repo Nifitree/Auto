@@ -82,36 +82,6 @@ def fill_if_empty(window, control, value):
         control.click_input()
         window.type_keys(value)
 
-def click_first_address_item(main_window):
-    items = main_window.children(control_type="ListItem")
-
-    if not items:
-        raise Exception("ไม่พบ Address Item เลย")
-
-    valid_items = []
-    for it in items:
-        try:
-            if it.is_visible() and it.is_enabled():
-                rect = it.rectangle()
-                valid_items.append((rect.top, it))
-        except:
-            continue
-
-    if not valid_items:
-        raise Exception("ไม่พบ Address Item ที่พร้อมคลิก")
-
-    valid_items.sort(key=lambda x: x[0])
-
-    top_item = valid_items[0][1]
-    rect = top_item.rectangle()
-
-    x = rect.left + rect.width() // 2
-    y = rect.top + rect.height() // 2
-
-    mouse.click(coords=(x, y))
-    time.sleep(1)
-
-
 def fill_field(window, auto_id, value, description=""):
     print(f"[*] {description}: {value}")
     control = window.child_window(auto_id=auto_id)
@@ -148,26 +118,20 @@ def click_menu_button(main_window, title):
     btn.click_input()
     time.sleep(WAIT_TIME)
 
-# ==================== Manual Address Flow ====================
-def manual_address_flow(main_window):
-    print("[*] เข้า Manual Address Flow (กรณีค้นหาที่อยู่ไม่เจอ)")
-
-    fill_field(main_window, CFG['RCV_FNAME_ID'], CFG['RCV_FNAME_VALUE'], "ชื่อผู้รับ")
-    fill_field(main_window, CFG['RCV_LNAME_ID'], CFG['RCV_LNAME_VALUE'], "นามสกุลผู้รับ")
-    fill_field(main_window, CFG['ADMIN_AREA_ID'], CFG['ADMIN_AREA_VALUE'], "จังหวัด")
-    fill_field(main_window, CFG['LOCALITY_ID'], CFG['LOCALITY_VALUE'], "เขต/อำเภอ")
-    fill_field(main_window, CFG['DEPENDENT_LOCALITY_ID'], CFG['DEPENDENT_LOCALITY_VALUE'], "แขวง/ตำบล")
-    fill_field(main_window, CFG['STREET_ADDR_ID'], CFG['STREET_ADDR_VALUE'], "ที่อยู่")
-    fill_field(main_window, CFG['RCV_PHONE_ID'], CFG['RCV_PHONE_VALUE'], "เบอร์โทร")
-
-    press_next(main_window)
-    press_next(main_window)
-    press_next(main_window)
-
-    popup_no = main_window.child_window(auto_id=CFG['POPUP_NO_ID'])
-    if popup_no.exists(timeout=3):
-        print("[*] พบ Popup -> กดไม่")
-        popup_no.click_input()
+def do_payment_process(main_window):
+    print("[*] เข้าสู่ขั้นตอนรับเงิน")
+    click_menu_button(main_window, CFG['BTN_RECEIVE_MONEY'])
+    
+    print("[*] ตรวจสอบปุ่ม Fast Cash")
+    fast_cash_btn = main_window.child_window(auto_id=CFG['FAST_CASH_AUTO_ID'])
+    
+    if fast_cash_btn.exists(timeout=2):
+        print("[V] พบปุ่ม Fast Cash -> คลิก")
+        fast_cash_btn.click_input()
+    else:
+        hotkey = CFG.get('PAYMENT_FAST_KEY', 'F')
+        print(f"[!] ไม่พบปุ่ม Fast Cash -> ใช้ Hotkey: {hotkey}")
+        main_window.type_keys(hotkey)
 
 # ==================== 3. LOGIC (แก้ไขตรงนี้) ====================
 
@@ -202,7 +166,7 @@ def execute_ems_jumbo_flow(main_window):
     press_next(main_window) # ถัดไป (3)
 
     # --- 4. เลือกบริการ EMS Jumbo และวงเงิน ---
-    click_element_by_id(main_window, CFG['SERVICE_JUMBO_ID'], "EMS Jumbo อัตราสำเร็จรูป")
+    click_element_by_id(main_window, CFG['SERVICE_JUMBO_ID1'], "EMS Jumbo อัตราสำเร็จรูป")
     click_element_by_id(main_window, CFG['COVERAGE_ICON_ID'], "ไอคอนบวก (Coverage)")
     fill_field(main_window, CFG['COVERAGE_AMOUNT_ID'], CFG['COVERAGE_AMOUNT_VALUE'], "จำนวนเงินคุ้มครอง")
     
@@ -237,90 +201,75 @@ def execute_ems_jumbo_flow(main_window):
     # --- 6. ค้นหาและเลือกที่อยู่ (จุดที่แก้ Error) ---
     fill_field(main_window, CFG['SEARCH_ADDR_ID'], CFG['SEARCH_ADDR_VALUE'], "ค้นหาที่อยู่")
     
-    # กดถัดไป 1 ครั้งเพื่อเริ่มค้นหา
+    print("[*] กดถัดไปเพื่อเริ่มค้นหา...")
     press_next(main_window)
-    time.sleep(1.5) # รอผลการค้นหา หรือการเปลี่ยนหน้า
+    time.sleep(2.0) # รอ Popup หรือ รอเปลี่ยนหน้า
 
-    # --- 6.1 ตรวจ Popup กรณีที่อยู่ไม่ถูก ---
-    popup_ok = main_window.child_window(auto_id=CFG['POPUP_OK_ID'])
-    if popup_ok.exists(timeout=2):
-        print("[!] ที่อยู่ไม่ถูก → เข้า Manual Address Flow")
-        popup_ok.click_input()
-        time.sleep(0.5)
-        manual_address_flow(main_window)
-        return   # ❗ ห้ามให้ flow หลักทำต่อ
+    # --- [NEW LOGIC] ตรวจสอบ Popup OK (กรณีค้นหาไม่เจอ) ---
+    # ใช้ ID จาก config: POPUP_OK_ID
+    popup_ok_btn = main_window.child_window(auto_id=CFG['POPUP_OK_ID'])
+    
+    if popup_ok_btn.exists(timeout=2):
+        print("\n[!!!] พบ Popup (OK) -> เข้าสู่โหมดกรอกมือ (Manual Mode)")
+        
+        # 1. กดตกลงที่ Popup
+        popup_ok_btn.click_input()
+        time.sleep(1)
 
-    # --- 6.2 กด Address Group (ถ้ามี) ---
+        # 2. กรอกข้อมูล Manual ตามลำดับ (ใช้ค่าจาก Config Manual)
+        # ชื่อ-นามสกุล-เบอร์โทร ใช้ค่าเดียวกับตัวแปรปกติ
+        fill_field(main_window, CFG['RCV_FNAME_ID'], CFG['RCV_FNAME_VALUE'], "กรอกมือ: ชื่อ")
+        fill_field(main_window, CFG['RCV_LNAME_ID'], CFG['RCV_LNAME_VALUE'], "กรอกมือ: นามสกุล")
+        
+        # ที่อยู่ manual
+        fill_field(main_window, CFG['ADMIN_AREA_ID'], CFG['ADMIN_AREA_VALUE'], "กรอกมือ: จังหวัด")
+        fill_field(main_window, CFG['LOCALITY_ID'], CFG['LOCALITY_VALUE'], "กรอกมือ: อำเภอ")
+        fill_field(main_window, CFG['DEPENDENT_LOCALITY_ID'], CFG['DEPENDENT_LOCALITY_VALUE'], "กรอกมือ: ตำบล")
+        fill_field(main_window, CFG['STREET_ADDR_ID'], CFG['STREET_ADDR_VALUE'], "กรอกมือ: ที่อยู่")
+        
+        fill_field(main_window, CFG['RCV_PHONE_ID'], CFG['RCV_PHONE_VALUE'], "กรอกมือ: เบอร์โทร")
+
+        # 3. กดถัดไป 3 ครั้ง
+        print("[*] กดถัดไป 3 ครั้ง...")
+        for i in range(3):
+            press_next(main_window)
+            time.sleep(0.5)
+
+        # 4. ถ้าพบป๊อปอัพขึ้น ให้กด 'ไม่' (No)
+        print("[*] ตรวจสอบ Popup เงื่อนไข (กด 'ไม่')...")
+        popup_no = main_window.child_window(auto_id=CFG['POPUP_NO_ID'])
+        if popup_no.exists(timeout=3):
+            print("[V] พบ Popup -> กด 'ไม่'")
+            popup_no.click_input()
+        else:
+            print("[-] ไม่พบ Popup (ข้าม)")
+
+        # 5. จบด้วยการรับเงินทันที
+        do_payment_process(main_window)
+        print("[V] SUCCESS: Manual Flow เสร็จสมบูรณ์")
+        return # <--- จบฟังก์ชันทันที ไม่ทำข้างล่างต่อ
+
+    # --- [NORMAL FLOW] ถ้าไม่มี Popup ก็ทำ Flow ปกติต่อ ---
+    
     group_btn = main_window.child_window(auto_id=CFG['ADDRESS_SELECT_GROUP_ID'])
+    next_step_field = main_window.child_window(auto_id=CFG['RCV_FNAME_ID'])
+
     if group_btn.exists(timeout=2):
-        print("[*] พบ Address Group → กดเลือก")
+        print("[*] พบปุ่มเลือกกลุ่มที่อยู่ -> กำลังกดเลือก")
         group_btn.click_input()
         time.sleep(1.0)
+    elif next_step_field.exists(timeout=2):
+        print("[/] ระบบเลือกที่อยู่อัตโนมัติแล้ว")
     else:
-        print("[/] ไม่พบ Address Group (ข้ามได้)")
-
-    # --- 6.3 เลือก Address Item (เลือกบรรทัดบนสุดที่เป็น Address จริง) ---
-    print("[*] กำลังเลือก Address Item")
-
-    address_items = main_window.descendants(control_type="ListItem")
-
-    if not address_items:
-        raise Exception("ไม่พบ Address Item")
-
-    valid_items = []
-
-    for item in address_items:
-        try:
-            texts = " ".join(item.texts())
-            rect = item.rectangle()
-
-            # เงื่อนไขกรอง: ต้องเป็น address จริง
-            if (
-                ("กรุงเทพ" in texts or "10400" in texts)
-                and rect.width() > 300
-                and rect.height() > 40
-            ):
-                valid_items.append((rect.top, item))
-        except:
-            continue
-
-    if not valid_items:
-        raise Exception("ไม่พบ Address Item ที่เข้าเงื่อนไข")
-
-    # เลือก item ที่อยู่บนสุด (address บรรทัดแรกเสมอ)
-    valid_items.sort(key=lambda x: x[0])
-    target_item = valid_items[0][1]
-    rect = target_item.rectangle()
-
-    # คลิกกึ่งกลางซ้าย (โดน text แน่นอน)
-    x = rect.left + int(rect.width() * 0.3)
-    y = rect.top + rect.height() // 2
-
-    mouse.click(coords=(x, y))
-    time.sleep(1.0)
-
-    print("[V] เลือก Address Item สำเร็จ")
-    
+        print("[!] Warning: ไม่พบปุ่มเลือกกลุ่ม (พยายามไปต่อ)")
     # --- 7. กรอกข้อมูลผู้รับ ---
-    print("[*] กรอกข้อมูลผู้รับ")
+    fill_field(main_window, CFG['RCV_FNAME_ID'], CFG['RCV_FNAME_VALUE'], "ชื่อผู้รับ")
+    fill_field(main_window, CFG['RCV_LNAME_ID'], CFG['RCV_LNAME_VALUE'], "นามสกุลผู้รับ")
+    fill_field(main_window, CFG['RCV_PHONE_ID'], CFG['RCV_PHONE_VALUE'], "เบอร์โทรศัพท์")
 
-    fill_if_empty(
-        main_window,
-        main_window.child_window(auto_id=CFG['RCV_FNAME_ID']),
-        CFG['RCV_FNAME_VALUE']
-    )
-
-    fill_if_empty(
-        main_window,
-        main_window.child_window(auto_id=CFG['RCV_LNAME_ID']),
-        CFG['RCV_LNAME_VALUE']
-    )
-
-    fill_if_empty(
-        main_window,
-        main_window.child_window(auto_id=CFG['RCV_PHONE_ID']),
-        CFG['RCV_PHONE_VALUE']
-    )
+    press_next(main_window)
+    press_next(main_window)
+    press_next(main_window)
 
     # --- 8. จัดการ Popup ---
     print("[*] ตรวจสอบ Popup...")
@@ -333,21 +282,8 @@ def execute_ems_jumbo_flow(main_window):
         print("[-] ไม่พบ Popup (ข้าม)")
 
     # --- 9. รับเงิน (ใช้ Logic Fast Cash แบบใหม่) ---
-    print("[*] เข้าสู่ขั้นตอนรับเงิน")
-    click_menu_button(main_window, CFG['BTN_RECEIVE_MONEY'])
-    
-    print("[*] ตรวจสอบปุ่ม Fast Cash (EnableFastCash)")
-    # ใช้ Logic ตามที่คุณต้องการ: หาปุ่ม EnableFastCash -> ถ้าไม่มี กด Hotkey
-    fast_cash_btn = main_window.child_window(auto_id=CFG['FAST_CASH_AUTO_ID'])
-    
-    if fast_cash_btn.exists(timeout=2):
-        print("[V] พบปุ่ม Fast Cash -> คลิก")
-        fast_cash_btn.click_input()
-    else:
-        # ใช้ Hotkey ที่ตั้งไว้ใน Config (เช่น F)
-        hotkey = CFG.get('PAYMENT_FAST_KEY', 'F')
-        print(f"[!] ไม่พบปุ่ม Fast Cash -> ใช้ Hotkey: {hotkey}")
-        main_window.type_keys(hotkey)
+    do_payment_process(main_window)
+    print("[V] SUCCESS: Normal Flow เสร็จสมบูรณ์")
 
 # ==================== 4. MAIN RUNNER ====================
 
