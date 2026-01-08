@@ -161,19 +161,29 @@ def execute_ems_jumbo_flow(main_window):
     
     press_next(main_window) # ถัดไป (2)
 
-    # --- 3. รหัสไปรษณีย์ปลายทาง ---
-    fill_field(main_window, CFG['DEST_POSTAL_ID'], CFG['DEST_POSTAL_VALUE'], "รหัสไปรษณีย์ปลายทาง")
+    # --- 3. กรอกน้ำหนัก ---
+    fill_field(main_window, CFG['WEIGHT_ID'], CFG['WEIGHT_VAL'], "น้ำหนัก (กรัม)")
     press_next(main_window) # ถัดไป (3)
 
-    # --- 4. เลือกบริการ EMS Jumbo และวงเงิน ---
+    # --- 4. กรอกขนาด (กว้าง ยาว สูง) ---
+    fill_field(main_window, CFG['DIM_L_ID'], CFG['DIM_L_VAL'], "ความยาว (Length)")
+    fill_field(main_window, CFG['DIM_W_ID'], CFG['DIM_W_VAL'], "ความกว้าง (Width)")
+    fill_field(main_window, CFG['DIM_H_ID'], CFG['DIM_H_VAL'], "ความสูง (Height)")
+    press_next(main_window) # ถัดไป (4)
+
+    # --- 5. รหัสไปรษณีย์ปลายทาง ---
+    fill_field(main_window, CFG['DEST_POSTAL_ID'], CFG['DEST_POSTAL_VALUE'], "รหัสไปรษณีย์ปลายทาง")
+    press_next(main_window) # ถัดไป (5)
+
+    # --- 6. เลือกบริการ EMS Jumbo และวงเงิน ---
     click_element_by_id(main_window, CFG['SERVICE_JUMBO_ID2'], "EMS Jumbo อัตราสำเร็จรูป")
     click_element_by_id(main_window, CFG['COVERAGE_ICON_ID'], "ไอคอนบวก (Coverage)")
     fill_field(main_window, CFG['COVERAGE_AMOUNT_ID'], CFG['COVERAGE_AMOUNT_VALUE'], "จำนวนเงินคุ้มครอง")
     
-    press_next(main_window) # ถัดไป (4)
-    press_next(main_window) # ถัดไป (5)
+    press_next(main_window) # ถัดไป (6)
+    press_next(main_window) # ถัดไป (7)
 
-    # --- 5. Logic เลือกบริการพิเศษ (1-4) ---
+    # --- 7. Logic เลือกบริการพิเศษ (1-4) ---
     selected_option = int(CFG['SELECTED_ADDON_OPTION'])
     print(f"\n[*] กำลังเลือกบริการพิเศษ Option ที่: {selected_option}")
 
@@ -198,21 +208,18 @@ def execute_ems_jumbo_flow(main_window):
     
     press_next(main_window) 
 
-    # --- 6. ค้นหาและเลือกที่อยู่ (จุดที่แก้ Error) ---
+    # --- 8. ค้นหาและเลือกที่อยู่ (จุดที่แก้ Error) ---
     fill_field(main_window, CFG['SEARCH_ADDR_ID'], CFG['SEARCH_ADDR_VALUE'], "ค้นหาที่อยู่")
     
     print("[*] กดถัดไปเพื่อเริ่มค้นหา...")
     press_next(main_window)
     time.sleep(2.0) # รอ Popup หรือ รอเปลี่ยนหน้า
 
-    # --- [NEW LOGIC] ตรวจสอบ Popup OK (กรณีค้นหาไม่เจอ) ---
-    # ใช้ ID จาก config: POPUP_OK_ID
+    # --- [MANUAL LOGIC] ตรวจสอบ Popup OK ---
     popup_ok_btn = main_window.child_window(auto_id=CFG['POPUP_OK_ID'])
     
     if popup_ok_btn.exists(timeout=2):
         print("\n[!!!] พบ Popup (OK) -> เข้าสู่โหมดกรอกมือ (Manual Mode)")
-        
-        # 1. กดตกลงที่ Popup
         popup_ok_btn.click_input()
         time.sleep(1)
 
