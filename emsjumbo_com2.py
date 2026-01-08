@@ -118,6 +118,21 @@ def click_menu_button(main_window, title):
     btn.click_input()
     time.sleep(WAIT_TIME)
 
+def do_payment_process(main_window):
+    print("[*] เข้าสู่ขั้นตอนรับเงิน")
+    click_menu_button(main_window, CFG['BTN_RECEIVE_MONEY'])
+    
+    print("[*] ตรวจสอบปุ่ม Fast Cash")
+    fast_cash_btn = main_window.child_window(auto_id=CFG['FAST_CASH_AUTO_ID'])
+    
+    if fast_cash_btn.exists(timeout=2):
+        print("[V] พบปุ่ม Fast Cash -> คลิก")
+        fast_cash_btn.click_input()
+    else:
+        hotkey = CFG.get('PAYMENT_FAST_KEY', 'F')
+        print(f"[!] ไม่พบปุ่ม Fast Cash -> ใช้ Hotkey: {hotkey}")
+        main_window.type_keys(hotkey)
+
 # ==================== 3. LOGIC (แก้ไขตรงนี้) ====================
 
 def execute_ems_jumbo_flow(main_window):
@@ -186,13 +201,55 @@ def execute_ems_jumbo_flow(main_window):
     # --- 6. ค้นหาและเลือกที่อยู่ (จุดที่แก้ Error) ---
     fill_field(main_window, CFG['SEARCH_ADDR_ID'], CFG['SEARCH_ADDR_VALUE'], "ค้นหาที่อยู่")
     
-    # กดถัดไป 1 ครั้งเพื่อเริ่มค้นหา
+    print("[*] กดถัดไปเพื่อเริ่มค้นหา...")
     press_next(main_window)
-    time.sleep(1.5) # รอผลการค้นหา หรือการเปลี่ยนหน้า
+    time.sleep(2.0) # รอ Popup หรือ รอเปลี่ยนหน้า
 
-    # !!! แก้ไขตรงนี้: เช็คก่อนว่ามันข้ามไปหน้าชื่อผู้รับหรือยัง !!!
-    # ถ้าเจอปุ่มเลือกกลุ่ม (Address Group) -> กด
-    # ถ้าไม่เจอ -> เช็คว่าเจอช่องกรอกชื่อ (CustomerFirstName) ไหม -> ถ้าเจอแสดงว่าผ่านแล้ว
+    # --- [NEW LOGIC] ตรวจสอบ Popup OK (กรณีค้นหาไม่เจอ) ---
+    # ใช้ ID จาก config: POPUP_OK_ID
+    popup_ok_btn = main_window.child_window(auto_id=CFG['POPUP_OK_ID'])
+    
+    if popup_ok_btn.exists(timeout=2):
+        print("\n[!!!] พบ Popup (OK) -> เข้าสู่โหมดกรอกมือ (Manual Mode)")
+        
+        # 1. กดตกลงที่ Popup
+        popup_ok_btn.click_input()
+        time.sleep(1)
+
+        # 2. กรอกข้อมูล Manual ตามลำดับ (ใช้ค่าจาก Config Manual)
+        # ชื่อ-นามสกุล-เบอร์โทร ใช้ค่าเดียวกับตัวแปรปกติ
+        fill_field(main_window, CFG['RCV_FNAME_ID'], CFG['RCV_FNAME_VALUE'], "กรอกมือ: ชื่อ")
+        fill_field(main_window, CFG['RCV_LNAME_ID'], CFG['RCV_LNAME_VALUE'], "กรอกมือ: นามสกุล")
+        
+        # ที่อยู่ manual
+        fill_field(main_window, CFG['ADMIN_AREA_ID'], CFG['ADMIN_AREA_VALUE'], "กรอกมือ: จังหวัด")
+        fill_field(main_window, CFG['LOCALITY_ID'], CFG['LOCALITY_VALUE'], "กรอกมือ: อำเภอ")
+        fill_field(main_window, CFG['DEPENDENT_LOCALITY_ID'], CFG['DEPENDENT_LOCALITY_VALUE'], "กรอกมือ: ตำบล")
+        fill_field(main_window, CFG['STREET_ADDR_ID'], CFG['STREET_ADDR_VALUE'], "กรอกมือ: ที่อยู่")
+        
+        fill_field(main_window, CFG['RCV_PHONE_ID'], CFG['RCV_PHONE_VALUE'], "กรอกมือ: เบอร์โทร")
+
+        # 3. กดถัดไป 3 ครั้ง
+        print("[*] กดถัดไป 3 ครั้ง...")
+        for i in range(3):
+            press_next(main_window)
+            time.sleep(0.5)
+
+        # 4. ถ้าพบป๊อปอัพขึ้น ให้กด 'ไม่' (No)
+        print("[*] ตรวจสอบ Popup เงื่อนไข (กด 'ไม่')...")
+        popup_no = main_window.child_window(auto_id=CFG['POPUP_NO_ID'])
+        if popup_no.exists(timeout=3):
+            print("[V] พบ Popup -> กด 'ไม่'")
+            popup_no.click_input()
+        else:
+            print("[-] ไม่พบ Popup (ข้าม)")
+
+        # 5. จบด้วยการรับเงินทันที
+        do_payment_process(main_window)
+        print("[V] SUCCESS: Manual Flow เสร็จสมบูรณ์")
+        return # <--- จบฟังก์ชันทันที ไม่ทำข้างล่างต่อ
+
+    # --- [NORMAL FLOW] ถ้าไม่มี Popup ก็ทำ Flow ปกติต่อ ---
     
     group_btn = main_window.child_window(auto_id=CFG['ADDRESS_SELECT_GROUP_ID'])
     next_step_field = main_window.child_window(auto_id=CFG['RCV_FNAME_ID'])
@@ -202,11 +259,9 @@ def execute_ems_jumbo_flow(main_window):
         group_btn.click_input()
         time.sleep(1.0)
     elif next_step_field.exists(timeout=2):
-        print("[/] ระบบเลือกที่อยู่อัตโนมัติแล้ว (ข้ามขั้นตอนกดเลือกกลุ่ม)")
+        print("[/] ระบบเลือกที่อยู่อัตโนมัติแล้ว")
     else:
-        # ถ้าหาไม่เจอทั้งคู่ ค่อย Error
-        print("[!] Warning: ไม่พบปุ่มเลือกกลุ่ม และยังไม่ถึงหน้ากรอกชื่อ (พยายามไปต่อ)")
-
+        print("[!] Warning: ไม่พบปุ่มเลือกกลุ่ม (พยายามไปต่อ)")
     # --- 7. กรอกข้อมูลผู้รับ ---
     fill_field(main_window, CFG['RCV_FNAME_ID'], CFG['RCV_FNAME_VALUE'], "ชื่อผู้รับ")
     fill_field(main_window, CFG['RCV_LNAME_ID'], CFG['RCV_LNAME_VALUE'], "นามสกุลผู้รับ")
@@ -227,21 +282,8 @@ def execute_ems_jumbo_flow(main_window):
         print("[-] ไม่พบ Popup (ข้าม)")
 
     # --- 9. รับเงิน (ใช้ Logic Fast Cash แบบใหม่) ---
-    print("[*] เข้าสู่ขั้นตอนรับเงิน")
-    click_menu_button(main_window, CFG['BTN_RECEIVE_MONEY'])
-    
-    print("[*] ตรวจสอบปุ่ม Fast Cash (EnableFastCash)")
-    # ใช้ Logic ตามที่คุณต้องการ: หาปุ่ม EnableFastCash -> ถ้าไม่มี กด Hotkey
-    fast_cash_btn = main_window.child_window(auto_id=CFG['FAST_CASH_AUTO_ID'])
-    
-    if fast_cash_btn.exists(timeout=2):
-        print("[V] พบปุ่ม Fast Cash -> คลิก")
-        fast_cash_btn.click_input()
-    else:
-        # ใช้ Hotkey ที่ตั้งไว้ใน Config (เช่น F)
-        hotkey = CFG.get('PAYMENT_FAST_KEY', 'F')
-        print(f"[!] ไม่พบปุ่ม Fast Cash -> ใช้ Hotkey: {hotkey}")
-        main_window.type_keys(hotkey)
+    do_payment_process(main_window)
+    print("[V] SUCCESS: Normal Flow เสร็จสมบูรณ์")
 
 # ==================== 4. MAIN RUNNER ====================
 
