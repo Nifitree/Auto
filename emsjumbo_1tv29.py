@@ -177,8 +177,6 @@ def execute_ems_jumbo_flow(main_window):
     press_next(main_window) # ถัดไป (5)
 
     print("[*] ตรวจสอบ Popup Error (API)...")
-    
-    # ดึง ID จาก Config (ถ้าไม่มี ให้ใช้ค่า Default เป็น AcceptButton)
     api_popup_id = CFG.get('API_POPUP_OK_ID', 'AcceptButton')
     
     try:
@@ -256,7 +254,6 @@ def execute_ems_jumbo_flow(main_window):
 
     # --- 8. ค้นหาและเลือกที่อยู่ (จุดที่แก้ Error) ---
     fill_field(main_window, CFG['SEARCH_ADDR_ID'], CFG['SEARCH_ADDR_VALUE'], "ค้นหาที่อยู่")
-    
     print("[*] กดถัดไปเพื่อเริ่มค้นหา...")
     press_next(main_window)
     time.sleep(2.0) # รอ Popup หรือ รอเปลี่ยนหน้า
@@ -276,9 +273,14 @@ def execute_ems_jumbo_flow(main_window):
         fill_field(main_window, CFG['STREET_ADDR_ID'], CFG['STREET_ADDR_VALUE'], "ที่อยู่")
         fill_field(main_window, CFG['RCV_PHONE_ID'], CFG['RCV_PHONE_VALUE'], "โทร")
 
-        print("[*] (Manual) กดถัดไป 3 ครั้ง...")
-        for _ in range(3): press_next(main_window); time.sleep(0.5)
-
+        print(f"[*] (Manual) ตรวจสอบเงื่อนไขการกดถัดไป (มี Addon? : {has_addon_selected})")
+        if has_addon_selected:
+            print("[Logic] มี Addon -> กดถัดไป 3 ครั้ง")
+            press_next(main_window); press_next(main_window); press_next(main_window)
+        else:
+            print("[Logic] ไม่มี Addon (ข้าม) -> กดถัดไป 1 ครั้ง")
+            press_next(main_window)
+            
         # Check No popup -> Pay
         popup_no = main_window.child_window(auto_id=CFG['POPUP_NO_ID'])
         if popup_no.exists(timeout=3): popup_no.click_input()
