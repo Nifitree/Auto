@@ -42,9 +42,9 @@ NEXT_TITLE = "ถัดไป"
 
 # Specific Config
 try:
-    CFG = CONFIG["EMS_JUMBO_COM"]
+    CFG = CONFIG["EMS_JUMBO_AIR_STANDING"]
 except KeyError:
-    print("[X] ไม่พบ Section [EMS_JUMBO_COM] ใน config.ini")
+    print("[X] ไม่พบ Section [EMS_JUMBO_AIR_STANDING] ใน config.ini")
     sys.exit(1)
 
 ctx = AppContext(window_title_regex=WINDOW_TITLE)
@@ -114,7 +114,8 @@ def press_next(main_window):
 
 def click_menu_button(main_window, title):
     print(f"[*] คลิกเมนู: {title}")
-    btn = main_window.child_window(title=title, control_type="Text")
+    btn = main_window.child_window(title=title, found_index=0) 
+    
     if not scroll_until_found(btn, main_window):
         raise Exception(f"หาปุ่มเมนู '{title}' ไม่เจอ")
     btn.click_input()
@@ -156,88 +157,112 @@ def execute_ems_jumbo_flow(main_window):
 
     press_next(main_window) # ถัดไป (1)
 
-    # --- 2. เมนู Y -> A -> A ---
+    # --- 2. เมนู Y -> A -> Q ---
     click_menu_button(main_window, CFG['BTN_Y_TITLE'])
     click_menu_button(main_window, CFG['BTN_A_TITLE'])
-    click_menu_button(main_window, CFG['BTN_A_TITLE'])
+    click_menu_button(main_window, CFG['BTN_Q_TITLE'])
     
     press_next(main_window) # ถัดไป (2)
 
-    # --- 3. รหัสไปรษณีย์ปลายทาง ---
-    fill_field(main_window, CFG['DEST_POSTAL_ID'], CFG['DEST_POSTAL_VALUE'], "รหัสไปรษณีย์ปลายทาง")
+    # --- 3. กรอกน้ำหนัก ---
+    fill_field(main_window, CFG['WEIGHT_ID'], CFG['WEIGHT_VAL'], "น้ำหนัก (กรัม)")
     press_next(main_window) # ถัดไป (3)
 
-    # --- 4. เลือกบริการ EMS Jumbo และวงเงิน ---
-    click_element_by_id(main_window, CFG['SERVICE_JUMBO_ID2'], "EMS Jumbo อัตราสำเร็จรูป")
-    click_element_by_id(main_window, CFG['COVERAGE_ICON_ID'], "ไอคอนบวก (Coverage)")
-    fill_field(main_window, CFG['COVERAGE_AMOUNT_ID'], CFG['COVERAGE_AMOUNT_VALUE'], "จำนวนเงินคุ้มครอง")
-    
+    # --- 4. กรอกขนาด (กว้าง ยาว สูง) ---
+    fill_field(main_window, CFG['DIM_L_ID'], CFG['DIM_L_VAL'], "ความยาว (Length)")
+    fill_field(main_window, CFG['DIM_W_ID'], CFG['DIM_W_VAL'], "ความกว้าง (Width)")
+    fill_field(main_window, CFG['DIM_H_ID'], CFG['DIM_H_VAL'], "ความสูง (Height)")
     press_next(main_window) # ถัดไป (4)
+
+    # --- 5. รหัสไปรษณีย์ปลายทาง ---
+    fill_field(main_window, CFG['DEST_POSTAL_ID'], CFG['DEST_POSTAL_VALUE'], "รหัสไปรษณีย์ปลายทาง")
     press_next(main_window) # ถัดไป (5)
 
-    # --- 5. Logic เลือกบริการพิเศษ (1-4) ---
-    selected_option = int(CFG['SELECTED_ADDON_OPTION'])
-    print(f"\n[*] กำลังเลือกบริการพิเศษ Option ที่: {selected_option}")
+    # --- 6. เลือกบริการ EMS Jumbo และวงเงิน ---
+    service_id = CFG.get('SERVICE_JUMBO_ID2', 'SKIP') 
 
-    if selected_option == 1:
-        click_element_by_id(main_window, CFG['ADDON_1_ID'], "EMS Jumbo รับฝาก ณ ที่อยู่")
-        time.sleep(0.5)
-        fill_field(main_window, CFG['ADDON_1_AMOUNT_ID'], CFG['ADDON_1_AMOUNT_VALUE'], "ยอดเงินเก็บปลายทาง")
-        press_next(main_window) 
-        press_next(main_window) 
+    if service_id.upper() == 'SKIP':
+        print("[*] Config สั่งข้ามการเลือกบริการ EMS Jumbo (กดถัดไปทันที)")
+        press_next(main_window)
+    else:
+        # Flow ปกติ: เลือก Service -> Coverage -> กรอกเงิน -> ถัดไป 2 ครั้ง
+        try:
+            click_element_by_id(main_window, service_id, "EMS Jumbo Service")
+        except:
+            print("[-] หาปุ่ม Service ไม่เจอ หรืออาจถูกเลือกแล้ว")
 
-    elif selected_option == 2:
-        click_element_by_id(main_window, CFG['ADDON_2_ID'], "ตอบรับ")
-        press_next(main_window) 
+        click_element_by_id(main_window, CFG['COVERAGE_ICON_ID'], "ไอคอนบวก (Coverage)")
+        fill_field(main_window, CFG['COVERAGE_AMOUNT_ID'], CFG['COVERAGE_AMOUNT_VALUE'], "จำนวนเงินคุ้มครอง")
+        
+        press_next(main_window) # ถัดไป (6)
+        press_next(main_window) # ถัดไป (7)
 
-    elif selected_option == 3:
-        click_element_by_id(main_window, CFG['ADDON_3_ID'], "ตอบรับ - Track")
-        press_next(main_window) 
-
-    elif selected_option == 4:
-        click_element_by_id(main_window, CFG['ADDON_4_ID'], "ส่งไปยังที่อยู่ของผู้รับ")
-        press_next(main_window) 
+    # =======================================================
+    # --- 7. เลือกบริการพิเศษ (แก้ไขให้เลือกหลายข้อได้ & ข้ามได้) ---
+    # =======================================================
+    # อ่านค่าจาก Config รองรับแบบใส่คอมม่า (เช่น 2,3)
+    raw_options = CFG.get('SELECTED_ADDON_OPTIONS', CFG.get('SELECTED_ADDON_OPTION', '0'))
     
+    try:
+        # แปลง "2,3" ให้เป็น list [2, 3]
+        selected_options = [int(x.strip()) for x in str(raw_options).split(',') if x.strip().isdigit() and int(x.strip()) > 0]
+    except:
+        selected_options = []
+
+    if not selected_options:
+        print("[*] ไม่มีการเลือกบริการพิเศษ (ข้าม)")
+    else:
+        print(f"[*] กำลังเลือกบริการพิเศษ: {selected_options}")
+        for opt in selected_options:
+            if opt == 1:
+                # Option 1: รับฝาก ณ ที่อยู่ (มีการกรอกเงิน)
+                click_element_by_id(main_window, CFG['ADDON_1_ID'], "EMS Jumbo รับฝาก ณ ที่อยู่")
+                time.sleep(0.5)
+                fill_field(main_window, CFG['ADDON_1_AMOUNT_ID'], CFG['ADDON_1_AMOUNT_VALUE'], "ยอดเงินเก็บปลายทาง")
+            elif opt == 2:
+                click_element_by_id(main_window, CFG['ADDON_2_ID'], "ตอบรับ")
+            elif opt == 3:
+                click_element_by_id(main_window, CFG['ADDON_3_ID'], "ตอบรับ - Track")
+            elif opt == 4:
+                click_element_by_id(main_window, CFG['ADDON_4_ID'], "ส่งไปยังที่อยู่ของผู้รับ")
+            
+            time.sleep(0.5) # พักนิดนึงระหว่างติ๊กแต่ละข้อ
+
+    # กดถัดไป เพื่อจบหน้านี้ (ถ้าไม่เลือกอะไรเลย ก็จะกดถัดไปเพื่อข้าม)
     press_next(main_window) 
 
-    # --- 6. ค้นหาและเลือกที่อยู่ (จุดที่แก้ Error) ---
+    # =======================================================
+    # --- 8. ค้นหาและเลือกที่อยู่ (Logic Manual เดิม) ---
+    # =======================================================
     fill_field(main_window, CFG['SEARCH_ADDR_ID'], CFG['SEARCH_ADDR_VALUE'], "ค้นหาที่อยู่")
     
     print("[*] กดถัดไปเพื่อเริ่มค้นหา...")
     press_next(main_window)
     time.sleep(2.0) # รอ Popup หรือ รอเปลี่ยนหน้า
 
-    # --- [NEW LOGIC] ตรวจสอบ Popup OK (กรณีค้นหาไม่เจอ) ---
-    # ใช้ ID จาก config: POPUP_OK_ID
+    # --- [MANUAL LOGIC] ตรวจสอบ Popup OK ---
     popup_ok_btn = main_window.child_window(auto_id=CFG['POPUP_OK_ID'])
     
     if popup_ok_btn.exists(timeout=2):
         print("\n[!!!] พบ Popup (OK) -> เข้าสู่โหมดกรอกมือ (Manual Mode)")
-        
-        # 1. กดตกลงที่ Popup
         popup_ok_btn.click_input()
         time.sleep(1)
 
-        # 2. กรอกข้อมูล Manual ตามลำดับ (ใช้ค่าจาก Config Manual)
-        # ชื่อ-นามสกุล-เบอร์โทร ใช้ค่าเดียวกับตัวแปรปกติ
+        # กรอกข้อมูล Manual
         fill_field(main_window, CFG['RCV_FNAME_ID'], CFG['RCV_FNAME_VALUE'], "กรอกมือ: ชื่อ")
         fill_field(main_window, CFG['RCV_LNAME_ID'], CFG['RCV_LNAME_VALUE'], "กรอกมือ: นามสกุล")
-        
-        # ที่อยู่ manual
         fill_field(main_window, CFG['ADMIN_AREA_ID'], CFG['ADMIN_AREA_VALUE'], "กรอกมือ: จังหวัด")
         fill_field(main_window, CFG['LOCALITY_ID'], CFG['LOCALITY_VALUE'], "กรอกมือ: อำเภอ")
         fill_field(main_window, CFG['DEPENDENT_LOCALITY_ID'], CFG['DEPENDENT_LOCALITY_VALUE'], "กรอกมือ: ตำบล")
         fill_field(main_window, CFG['STREET_ADDR_ID'], CFG['STREET_ADDR_VALUE'], "กรอกมือ: ที่อยู่")
-        
         fill_field(main_window, CFG['RCV_PHONE_ID'], CFG['RCV_PHONE_VALUE'], "กรอกมือ: เบอร์โทร")
 
-        # 3. กดถัดไป 3 ครั้ง
         print("[*] กดถัดไป 3 ครั้ง...")
         for i in range(3):
             press_next(main_window)
             time.sleep(0.5)
 
-        # 4. ถ้าพบป๊อปอัพขึ้น ให้กด 'ไม่' (No)
+        # ตรวจสอบ Popup เงื่อนไข (กด 'ไม่')
         print("[*] ตรวจสอบ Popup เงื่อนไข (กด 'ไม่')...")
         popup_no = main_window.child_window(auto_id=CFG['POPUP_NO_ID'])
         if popup_no.exists(timeout=3):
@@ -246,13 +271,11 @@ def execute_ems_jumbo_flow(main_window):
         else:
             print("[-] ไม่พบ Popup (ข้าม)")
 
-        # 5. จบด้วยการรับเงินทันที
         do_payment_process(main_window)
         print("[V] SUCCESS: Manual Flow เสร็จสมบูรณ์")
-        return # <--- จบฟังก์ชันทันที ไม่ทำข้างล่างต่อ
+        return # จบฟังก์ชัน
 
-    # --- [NORMAL FLOW] ถ้าไม่มี Popup ก็ทำ Flow ปกติต่อ ---
-    
+    # --- [NORMAL FLOW] ---
     group_btn = main_window.child_window(auto_id=CFG['ADDRESS_SELECT_GROUP_ID'])
     next_step_field = main_window.child_window(auto_id=CFG['RCV_FNAME_ID'])
 
@@ -264,7 +287,8 @@ def execute_ems_jumbo_flow(main_window):
         print("[/] ระบบเลือกที่อยู่อัตโนมัติแล้ว")
     else:
         print("[!] Warning: ไม่พบปุ่มเลือกกลุ่ม (พยายามไปต่อ)")
-    # --- 7. กรอกข้อมูลผู้รับ ---
+
+    # กรอกข้อมูลผู้รับ
     fill_field(main_window, CFG['RCV_FNAME_ID'], CFG['RCV_FNAME_VALUE'], "ชื่อผู้รับ")
     fill_field(main_window, CFG['RCV_LNAME_ID'], CFG['RCV_LNAME_VALUE'], "นามสกุลผู้รับ")
     fill_field(main_window, CFG['RCV_PHONE_ID'], CFG['RCV_PHONE_VALUE'], "เบอร์โทรศัพท์")
@@ -273,7 +297,7 @@ def execute_ems_jumbo_flow(main_window):
     press_next(main_window)
     press_next(main_window)
 
-    # --- 8. จัดการ Popup ---
+    # จัดการ Popup
     print("[*] ตรวจสอบ Popup...")
     time.sleep(1.0)
     popup_no = main_window.child_window(auto_id=CFG['POPUP_NO_ID'])
@@ -283,7 +307,6 @@ def execute_ems_jumbo_flow(main_window):
     else:
         print("[-] ไม่พบ Popup (ข้าม)")
 
-    # --- 9. รับเงิน (ใช้ Logic Fast Cash แบบใหม่) ---
     do_payment_process(main_window)
     print("[V] SUCCESS: Normal Flow เสร็จสมบูรณ์")
 
