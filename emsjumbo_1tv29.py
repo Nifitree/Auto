@@ -47,7 +47,7 @@ except KeyError:
 
 ctx = AppContext(window_title_regex=WINDOW_TITLE)
 
-# ==================== 2. HELPERS (เพิ่ม try_click) ====================
+# ==================== 2. HELPERS ====================
 
 def connect_main_window():
     return ctx.connect()
@@ -295,9 +295,7 @@ def execute_ems_jumbo_flow(main_window):
     fill_field(main_window, CFG['RCV_LNAME_ID'], CFG['RCV_LNAME_VALUE'], "นามสกุลผู้รับ")
     fill_field(main_window, CFG['RCV_PHONE_ID'], CFG['RCV_PHONE_VALUE'], "เบอร์โทรศัพท์")
 
-    # =======================================================
     # *** LOGIC ไฮไลท์: ตัดสินใจกดถัดไป กี่ครั้ง? ***
-    # =======================================================
     print(f"[*] ตรวจสอบเงื่อนไขการกดถัดไป (มี Addon? : {has_addon_selected})")
     
     if has_addon_selected:
