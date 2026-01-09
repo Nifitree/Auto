@@ -178,6 +178,24 @@ def execute_ems_jumbo_flow(main_window):
     fill_field(main_window, CFG['DEST_POSTAL_ID'], CFG['DEST_POSTAL_VALUE'], "รหัสไปรษณีย์ปลายทาง")
     press_next(main_window) # ถัดไป (5)
 
+    print("[*] ตรวจสอบ Popup Error (API)...")
+    
+    # ดึง ID จาก Config (ถ้าไม่มี ให้ใช้ค่า Default เป็น AcceptButton)
+    api_popup_id = CFG.get('API_POPUP_OK_ID', 'AcceptButton')
+    
+    try:
+        # ลองหาปุ่มนี้ดู (รอสูงสุด 3 วินาที เผื่อเครื่องช้า)
+        api_btn = main_window.child_window(auto_id=api_popup_id)
+        
+        if api_btn.exists(timeout=3):
+            print(f"[!] พบ Popup Error (API Connect) -> กดปุ่ม 'ตกลง' (ID: {api_popup_id})")
+            api_btn.click_input()
+            time.sleep(1.0) # รอให้ป๊อปอัพปิด
+        else:
+            print("[-] ไม่พบ Popup Error (ทำงานต่อทันที)")
+    except Exception as e:
+        print(f"[-] Error check popup skipped: {e}")
+
     # --- 6. เลือกบริการ EMS Jumbo และวงเงิน ---
     service_id = CFG.get('SERVICE_JUMBO_ID1', 'SKIP')
     if service_id.upper() != 'SKIP':
