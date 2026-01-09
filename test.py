@@ -263,10 +263,6 @@ def execute_ems_jumbo_flow(main_window):
         fill_field(main_window, CFG['STREET_ADDR_ID'], CFG['STREET_ADDR_VALUE'], "ที่อยู่")
         fill_field(main_window, CFG['RCV_PHONE_ID'], CFG['RCV_PHONE_VALUE'], "โทร")
 
-        # *** จุดที่ Manual Flow ต้องตัดสินใจเรื่องจำนวนครั้งกดถัดไปไหม? ***
-        # ปกติ Manual Flow มักจะกด 3 ครั้งคงที่ เพราะหน้าจอ Manual มันบังคับ 
-        # แต่ถ้าต้องการ Logic เดียวกัน ก็ใช้ has_addon_selected เช็คได้
-        # เบื้องต้นผมคงไว้ 3 ครั้งสำหรับ Manual ตาม Flow เดิมที่เคยคุยไว้
         print("[*] (Manual) กดถัดไป 3 ครั้ง...")
         for _ in range(3): press_next(main_window); time.sleep(0.5)
 
