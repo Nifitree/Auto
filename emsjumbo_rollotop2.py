@@ -166,12 +166,6 @@ def execute_ems_jumbo_flow(main_window):
     fill_field(main_window, CFG['WEIGHT_ID'], CFG['WEIGHT_VAL'], "น้ำหนัก (กรัม)")
     press_next(main_window) # ถัดไป (3)
 
-    # --- 4. กรอกขนาด (กว้าง ยาว สูง) ---
-    fill_field(main_window, CFG['DIM_L_ID'], CFG['DIM_L_VAL'], "ความยาว (Length)")
-    fill_field(main_window, CFG['DIM_W_ID'], CFG['DIM_W_VAL'], "ความกว้าง (Width)")
-    fill_field(main_window, CFG['DIM_H_ID'], CFG['DIM_H_VAL'], "ความสูง (Height)")
-    press_next(main_window) # ถัดไป (4)
-
     # --- 5. รหัสไปรษณีย์ปลายทาง ---
     fill_field(main_window, CFG['DEST_POSTAL_ID'], CFG['DEST_POSTAL_VALUE'], "รหัสไปรษณีย์ปลายทาง")
     press_next(main_window) # ถัดไป (5)
