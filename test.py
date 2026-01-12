@@ -9,7 +9,7 @@ from app_context import AppContext
 
 CONFIG_FILE = "config.ini"
 
-# ==================== 1. CONFIGURATION (เหมือนเดิม) ====================
+# ==================== 1. CONFIGURATION ====================
 
 def read_config(filename=CONFIG_FILE):
     config = configparser.ConfigParser()
@@ -40,14 +40,14 @@ NEXT_TITLE = "ถัดไป"
 
 # Specific Config
 try:
-    CFG = CONFIG["EMS_JUMBO_TV29"]
+    CFG = CONFIG["EMS_JUMBO_MOTORCYCLE1_2"]
 except KeyError:
-    print("[X] ไม่พบ Section [EMS_JUMBO_TV29] ใน config.ini")
+    print("[X] ไม่พบ Section [EMS_JUMBO_MOTORCYCLE1_2] ใน config.ini")
     sys.exit(1)
 
 ctx = AppContext(window_title_regex=WINDOW_TITLE)
 
-# ==================== 2. HELPERS ====================
+# ==================== 2. HELPERS (แก้ไขการเลื่อนหา) ====================
 
 def connect_main_window():
     return ctx.connect()
@@ -65,11 +65,17 @@ def force_scroll_down(window):
     except Exception:
         window.type_keys("{PGDN}")
 
-def scroll_until_found(control, window, max_scrolls=3):
-    for _ in range(max_scrolls):
+# [FIXED] เพิ่มจำนวนการเลื่อนสูงสุดเป็น 10 รอบ
+def scroll_until_found(control, window, max_scrolls=10):
+    # เช็คก่อนหนึ่งรอบ ถ้าเจอเลยก็จบ
+    if control.exists(timeout=1):
+        return True
+        
+    print(f"[*] กำลังเลื่อนหน้าจอหา Element... (Max {max_scrolls})")
+    for i in range(max_scrolls):
+        force_scroll_down(window)
         if control.exists(timeout=1):
             return True
-        force_scroll_down(window)
     return False
 
 def fill_if_empty(window, control, value):
@@ -85,8 +91,9 @@ def fill_if_empty(window, control, value):
 def fill_field(window, auto_id, value, description=""):
     print(f"[*] {description}: {value}")
     control = window.child_window(auto_id=auto_id)
+    # scroll_until_found จะช่วยเลื่อนหาให้จนเจอ
     if not scroll_until_found(control, window):
-        raise Exception(f"ไม่พบช่อง {description} (ID: {auto_id})")
+        raise Exception(f"ไม่พบช่อง {description} (ID: {auto_id}) แม้จะเลื่อนหาแล้ว")
     control.click_input()
     window.type_keys(value)
 
@@ -94,7 +101,7 @@ def click_element_by_id(window, auto_id, description=""):
     print(f"[*] คลิก: {description} (ID: {auto_id})")
     control = window.child_window(auto_id=auto_id)
     if not scroll_until_found(control, window):
-        raise Exception(f"ไม่พบปุ่ม {description}")
+        raise Exception(f"ไม่พบปุ่ม {description} (ID: {auto_id}) แม้จะเลื่อนหาแล้ว")
     control.click_input()
     time.sleep(0.5)
 
@@ -126,7 +133,8 @@ def do_payment_process(main_window):
     print("[*] ตรวจสอบปุ่ม Fast Cash")
     fast_cash_btn = main_window.child_window(auto_id=CFG['FAST_CASH_AUTO_ID'])
     
-    if fast_cash_btn.exists(timeout=2):
+    # [FIXED] ใช้ scroll_until_found แทน exists เฉยๆ เผื่อปุ่มตกขอบ
+    if scroll_until_found(fast_cash_btn, main_window, max_scrolls=3):
         print("[V] พบปุ่ม Fast Cash -> คลิก")
         fast_cash_btn.click_input()
     else:
@@ -134,14 +142,19 @@ def do_payment_process(main_window):
         print(f"[!] ไม่พบปุ่ม Fast Cash -> ใช้ Hotkey: {hotkey}")
         main_window.type_keys(hotkey)
 
-# ==================== 3. LOGIC (แก้ไขตรงนี้) ====================
+# ==================== 3. LOGIC (Updated) ====================
 
 def execute_ems_jumbo_flow(main_window):
     # --- 1. เมนู S และข้อมูลผู้ส่ง ---
     click_menu_button(main_window, CFG['BTN_S_TITLE'])
 
     print("[*] อ่านบัตรประชาชน")
-    main_window.child_window(title=ID_CARD_BUTTON_TITLE, control_type="Text").click_input()
+    # [FIXED] เพิ่มการเลื่อนหาปุ่มอ่านบัตรประชาชน
+    id_card_btn = main_window.child_window(title=ID_CARD_BUTTON_TITLE, control_type="Text")
+    if scroll_until_found(id_card_btn, main_window):
+        id_card_btn.click_input()
+    else:
+        print(f"[!] คำเตือน: หาปุ่ม '{ID_CARD_BUTTON_TITLE}' ไม่เจอ (ข้าม)")
     
     print("[*] ตรวจสอบรหัสไปรษณีย์ผู้ส่ง")
     postal = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
@@ -178,17 +191,13 @@ def execute_ems_jumbo_flow(main_window):
 
     print("[*] ตรวจสอบ Popup Error (API)...")
     api_popup_id = CFG.get('API_POPUP_OK_ID', 'AcceptButton')
-    
     try:
-        # ลองหาปุ่มนี้ดู (รอสูงสุด 3 วินาที เผื่อเครื่องช้า)
         api_btn = main_window.child_window(auto_id=api_popup_id)
-        
+        # Popup ไม่ต้อง scroll
         if api_btn.exists(timeout=3):
             print(f"[!] พบ Popup Error (API Connect) -> กดปุ่ม 'ตกลง' (ID: {api_popup_id})")
             api_btn.click_input()
-            time.sleep(1.0) # รอให้ป๊อปอัพปิด
-        else:
-            print("[-] ไม่พบ Popup Error (ทำงานต่อทันที)")
+            time.sleep(1.0)
     except Exception as e:
         print(f"[-] Error check popup skipped: {e}")
 
@@ -200,23 +209,20 @@ def execute_ems_jumbo_flow(main_window):
         except:
             print("[-] หาปุ่ม Service ไม่เจอ หรือถูกเลือกแล้ว")
 
-    # 2. เช็คตัวแปร SKIP_COVERAGE ว่าเป็น Yes หรือไม่?
-    # (อ่านค่าจาก Config ถ้าไม่มีให้ถือว่าเป็น No)
+    # เช็คตัวแปร SKIP_COVERAGE
     is_skip_coverage = CFG.get('SKIP_COVERAGE', 'No')
     
     if is_skip_coverage.upper() == 'YES':
         print("[*] Config สั่งข้าม Coverage (SKIP_COVERAGE=Yes) -> กดถัดไป 1 ครั้ง")
-        press_next(main_window) # กด 1 ครั้ง
+        press_next(main_window)
     else:
-        # Flow ปกติ: ทำงานเมื่อ SKIP_COVERAGE = No
         coverage_id = CFG.get('COVERAGE_ICON_ID', 'CoverageIcon')
-        
         click_element_by_id(main_window, coverage_id, "ไอคอนบวก (Coverage)")
         fill_field(main_window, CFG['COVERAGE_AMOUNT_ID'], CFG['COVERAGE_AMOUNT_VALUE'], "เงินคุ้มครอง")
         
         print("[*] เลือก Coverage ครบ -> กดถัดไป 2 ครั้ง")
         press_next(main_window)
-        press_next(main_window) # กด 2 ครั้ง
+        press_next(main_window)
 
     # --- 7. Logic เลือกบริการพิเศษ (1-4) ---
     raw_options = CFG.get('SELECTED_ADDON_OPTIONS', CFG.get('SELECTED_ADDON_OPTION', '0'))
@@ -225,15 +231,13 @@ def execute_ems_jumbo_flow(main_window):
     except:
         selected_options = []
 
-    # *** ตัวแปรสำคัญ: จำว่าเลือก Addon หรือเปล่า ***
     has_addon_selected = False 
-
     if not selected_options:
         print("[*] ไม่มีการเลือกบริการพิเศษ (ข้าม)")
         has_addon_selected = False
     else:
         print(f"[*] กำลังเลือกบริการพิเศษ: {selected_options}")
-        has_addon_selected = True # จำไว้ว่ามีการเลือก
+        has_addon_selected = True
         
         for opt in selected_options:
             if opt == 1:
@@ -248,15 +252,14 @@ def execute_ems_jumbo_flow(main_window):
                 click_element_by_id(main_window, CFG['ADDON_4_ID'], "Addon 4")
             time.sleep(0.5)
 
-    # กดถัดไป เพื่อจบหน้านี้ (ถ้าไม่เลือกอะไรเลย ก็จะกดถัดไปเพื่อข้าม)
     press_next(main_window) 
     press_next(main_window)
 
-    # --- 8. ค้นหาและเลือกที่อยู่ (จุดที่แก้ Error) ---
+    # --- 8. ค้นหาและเลือกที่อยู่ ---
     fill_field(main_window, CFG['SEARCH_ADDR_ID'], CFG['SEARCH_ADDR_VALUE'], "ค้นหาที่อยู่")
     print("[*] กดถัดไปเพื่อเริ่มค้นหา...")
     press_next(main_window)
-    time.sleep(2.0) # รอ Popup หรือ รอเปลี่ยนหน้า
+    time.sleep(2.0)
 
     # --- [MANUAL LOGIC] ตรวจสอบ Popup OK ---
     popup_ok_btn = main_window.child_window(auto_id=CFG['POPUP_OK_ID'])
@@ -264,7 +267,7 @@ def execute_ems_jumbo_flow(main_window):
         print("\n[!!!] พบ Popup (OK) -> เข้าสู่โหมดกรอกมือ")
         popup_ok_btn.click_input(); time.sleep(1)
         
-        # กรอกข้อมูล Manual ... (โค้ดส่วนนี้เหมือนเดิม ย่อไว้)
+        # กรอกข้อมูล Manual
         fill_field(main_window, CFG['RCV_FNAME_ID'], CFG['RCV_FNAME_VALUE'], "ชื่อ")
         fill_field(main_window, CFG['RCV_LNAME_ID'], CFG['RCV_LNAME_VALUE'], "นามสกุล")
         fill_field(main_window, CFG['ADMIN_AREA_ID'], CFG['ADMIN_AREA_VALUE'], "จว.")
@@ -281,7 +284,6 @@ def execute_ems_jumbo_flow(main_window):
             print("[Logic] ไม่มี Addon (ข้าม) -> กดถัดไป 1 ครั้ง")
             press_next(main_window)
             
-        # Check No popup -> Pay
         popup_no = main_window.child_window(auto_id=CFG['POPUP_NO_ID'])
         if popup_no.exists(timeout=3): popup_no.click_input()
         do_payment_process(main_window)
@@ -289,15 +291,25 @@ def execute_ems_jumbo_flow(main_window):
 
     # --- [NORMAL FLOW] ---
     group_btn = main_window.child_window(auto_id=CFG['ADDRESS_SELECT_GROUP_ID'])
-    if group_btn.exists(timeout=2): group_btn.click_input()
+    
+    # [FIXED] เพิ่ม scroll_until_found ให้กับปุ่มเลือกกลุ่ม เผื่อต้องเลื่อนหา
+    if scroll_until_found(group_btn, main_window, max_scrolls=10):
+        print("[*] พบปุ่มเลือกกลุ่มที่อยู่ -> กำลังกดเลือก")
+        group_btn.click_input()
+        time.sleep(1.0)
+    else:
+        # ถ้าหาไม่เจอ ลองเช็คว่าข้ามไปหน้าชื่อเลยไหม
+        next_step_field = main_window.child_window(auto_id=CFG['RCV_FNAME_ID'])
+        if next_step_field.exists(timeout=2):
+            print("[/] ระบบเลือกที่อยู่อัตโนมัติแล้ว")
+        else:
+            print("[!] Warning: ไม่พบปุ่มเลือกกลุ่ม และไม่พบช่องกรอกชื่อ (พยายามไปต่อ)")
 
     fill_field(main_window, CFG['RCV_FNAME_ID'], CFG['RCV_FNAME_VALUE'], "ชื่อผู้รับ")
     fill_field(main_window, CFG['RCV_LNAME_ID'], CFG['RCV_LNAME_VALUE'], "นามสกุลผู้รับ")
     fill_field(main_window, CFG['RCV_PHONE_ID'], CFG['RCV_PHONE_VALUE'], "เบอร์โทรศัพท์")
 
-    # *** LOGIC ไฮไลท์: ตัดสินใจกดถัดไป กี่ครั้ง? ***
     print(f"[*] ตรวจสอบเงื่อนไขการกดถัดไป (มี Addon? : {has_addon_selected})")
-    
     if has_addon_selected:
         print("[Logic] มี Addon -> กดถัดไป 3 ครั้ง")
         press_next(main_window)
@@ -307,7 +319,6 @@ def execute_ems_jumbo_flow(main_window):
         print("[Logic] ไม่มี Addon (ข้าม) -> กดถัดไป 1 ครั้ง")
         press_next(main_window)
 
-    # จัดการ Popup
     time.sleep(1.0)
     popup_no = main_window.child_window(auto_id=CFG['POPUP_NO_ID'])
     if popup_no.exists(timeout=3):
@@ -319,7 +330,7 @@ def execute_ems_jumbo_flow(main_window):
 # ==================== 4. MAIN RUNNER ====================
 
 def run_service():
-    step_name = "EMS Jumbo Com1 Flow (Fixed)"
+    step_name = "EMS Jumbo Automation"
     app = None
     print(f"\n{'='*50}\n[*] เริ่มทำรายการ: {step_name}")
 
