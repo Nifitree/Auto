@@ -667,6 +667,9 @@ def run_smart_scenario(main_window, config):
         return
     time.sleep(step_delay) 
 
+    smart_next(main_window)
+    time.sleep(1)
+
     # --- เริ่ม Logic ใหม่แยกตาม AddInsurance ---
     use_insurance_flow = str(add_insurance_flag).lower() in ['true', 'yes', 'on', '1']
 
@@ -824,6 +827,9 @@ def run_smart_scenario(main_window, config):
             main_window.type_keys("{ENTER}")
             
         time.sleep(1.0)
+
+        # 3. ถ้าไม่เข้าเงื่อนไขบน ก็จะลงมาทำชำระเงินต่อ
+        process_payment(main_window, pay_method, pay_amount)
 
     log("\n[SUCCESS] จบการทำงานครบทุกขั้นตอน")
 
