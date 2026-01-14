@@ -33,25 +33,43 @@ if __name__ == "__main__":
         time.sleep(WAIT_TIME)
 
         # ---------------------------------------------------------
-        # [FIXED] กรอกวันครบกำหนดชำระ (ลบค่าเก่าก่อน)
+        # [FIXED v2] กรอกวันครบกำหนดชำระ (แบบ Force Focus)
         # ---------------------------------------------------------
         due_date_id = S_CFG.get('DUE_DATE_ID', 'REFNO7') 
         due_date_val = S_CFG.get('DUE_DATE_VALUE', '02/02/2026')
 
-        print(f"[*] Clearing & Inputting Due Date: {due_date_val} at ID: {due_date_id}")
+        print(f"[*] Looking for Due Date field (ID: {due_date_id})...")
         
-        # จับ Element ช่องวันที่
-        due_date_field = main_window.child_window(auto_id=due_date_id)
-        
-        # 1. คลิกเพื่อ Focus
-        due_date_field.click_input()
-        
-        # 2. กด Ctrl+A (Select All) แล้วกด Delete เพื่อลบค่าเก่า
-        # ^ คือ Ctrl, a คือ a, {DELETE} คือปุ่ม Delete
-        due_date_field.type_keys("^a{DELETE}") 
-        
-        # 3. กรอกค่าใหม่
-        due_date_field.type_keys(due_date_val)
+        # 1. ค้นหาแบบเจาะจงว่าเป็น Edit (ถ้ามั่นใจว่าเป็นช่องกรอก)
+        # แต่ถ้า ID นี้มันดันเป็น Group/Pane ให้ลองลบ control_type="Edit" ออก
+        try:
+            due_date_field = main_window.child_window(auto_id=due_date_id)
+            
+            # 2. รอให้เห็นตัวตนจริงๆ
+            due_date_field.wait('visible', timeout=3)
+            
+            # 3. เน้นการโฟกัส 3 สเต็ป: set_focus -> click -> double click
+            try: due_date_field.set_focus()
+            except: pass
+            
+            due_date_field.click_input()
+            time.sleep(0.5)
+            due_date_field.click_input(double=True) # ดับเบิ้ลคลิกเพื่อเลือกข้อความทั้งหมด (ถ้ามี)
+            
+            # 4. ลบค่าเก่าแบบ "กด Backspace 20 ที" (ชัวร์กว่า Ctrl+A ในบางแอพ)
+            print(f"[*] Clearing old value...")
+            due_date_field.type_keys("{BACKSPACE 20}")
+            time.sleep(0.5)
+            
+            # 5. กรอกค่าใหม่
+            print(f"[*] Typing: {due_date_val}")
+            due_date_field.type_keys(due_date_val)
+            
+        except Exception as e:
+            print(f"[!] Error accessing Due Date field: {e}")
+            # ถ้าหาไม่เจอจริงๆ ลองพิมพ์ Blind (พิมพ์ลอยๆ เผื่อ Cursor อยู่ตรงนั้นแล้ว)
+            # main_window.type_keys(due_date_val)
+
         time.sleep(1)
 
         # 4. กดถัดไป (ครั้งที่ 2)
