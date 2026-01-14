@@ -34,46 +34,46 @@ if __name__ == "__main__":
 
         # ---------------------------------------------------------
         # [FIXED DUPLICATE ID] กรอกวันครบกำหนดชำระ
-        # แก้ปัญหาเจอ ID ซ้ำ 2 ตัว โดยการระบุ found_index=0
         # ---------------------------------------------------------
         due_date_id = S_CFG.get('DUE_DATE_ID', 'REFNO7') 
         due_date_val = S_CFG.get('DUE_DATE_VALUE', '02/02/2026')
 
         print(f"[*] Force setting Due Date: {due_date_val} at ID: {due_date_id}")
         
-        # ใช้ found_index=0 เพื่อบอกว่า "เอาตัวแรกที่เจอ" (แก้ Error: There are 2 elements...)
-        # ถ้าตัวแรกพิมพ์ไม่ได้ ให้ลองเปลี่ยนเป็น found_index=1
         try:
+            # ใช้ found_index=0 แก้ปัญหา ID ซ้ำ
             due_date_field = main_window.child_window(auto_id=due_date_id, found_index=0)
-            
-            # ใช้ท่าไม้ตาย set_text (ไม่ต้องคลิก ไม่ต้องลบค่าเก่า)
-            # ถ้าวิธีนี้ผ่าน ค่าจะเปลี่ยนทันที
             due_date_field.set_text(due_date_val)
-            print("[/] Used set_text() successfully on index 0.")
+            print("[/] Used set_text() successfully.")
 
-        except Exception as e_set_text:
-            print(f"[!] set_text failed ({e_set_text}), trying Focus & Type method...")
-            
+        except Exception as e:
+            print(f"[!] set_text failed ({e}), trying manual type...")
             try:
-                # ถ้า set_text ไม่ได้ ลองวิธีบ้านๆ: คลิก -> ลบ -> พิมพ์
-                # ต้องระบุ found_index=0 เหมือนเดิม
                 due_date_field = main_window.child_window(auto_id=due_date_id, found_index=0)
-                
                 due_date_field.set_focus()
                 due_date_field.click_input()
                 time.sleep(0.5)
-                
-                # ลบค่าเก่า: กด Backspace 15 ครั้ง (ชัวร์กว่า Ctrl+A)
                 due_date_field.type_keys("{BACKSPACE 15}")
                 time.sleep(0.5)
-                
-                # พิมพ์ค่าใหม่
                 due_date_field.type_keys(due_date_val)
-                print("[/] Typed value manually.")
-                
-            except Exception as e_manual:
-                 print(f"[X] Failed to input date: {e_manual}")
+            except Exception as e2:
+                 print(f"[X] Failed to input date: {e2}")
 
+        time.sleep(1)
+
+        # ---------------------------------------------------------
+        # [NEW STEP] กดปุ่ม PART_Button (อ่านจาก Config)
+        # ---------------------------------------------------------
+        part_btn_id = S_CFG.get('PART_BUTTON_ID', 'PART_Button') # อ่านจาก config
+        print(f"[*] Clicking '{part_btn_id}'...")
+        
+        try:
+            # ใช้ found_index=0 เพื่อความชัวร์ (เหมือน REFNO7)
+            main_window.child_window(auto_id=part_btn_id, found_index=0).click_input()
+        except:
+            # ถ้าไม่เจอ ลองหาแบบปกติ
+            main_window.child_window(auto_id=part_btn_id).click_input()
+        
         time.sleep(1)
 
         # 4. กดถัดไป (ครั้งที่ 2)
@@ -98,7 +98,7 @@ if __name__ == "__main__":
         main_window.child_window(auto_id=fast_cash_id).click_input()
         time.sleep(WAIT_TIME)
 
-        # 8. กดเสร็จสิ้น (ถ้ามี)
+        # 8. กดเสร็จสิ้น
         try:
             finish_btn = main_window.child_window(title=B_CFG["FINISH_BUTTON_TITLE"])
             if finish_btn.exists(timeout=2):
