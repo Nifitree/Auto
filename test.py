@@ -613,8 +613,8 @@ def process_receiver_details_form(window, fname, lname, phone, is_manual_mode, m
     except Exception as e:
         log(f"[!] Error Details: {e}")
 
-    log("...จบขั้นตอนข้อมูลผู้รับ -> กด 'ถัดไป' 1 ครั้ง...")
-    for i in range(1):
+    log("...จบขั้นตอนข้อมูลผู้รับ -> กด 'ถัดไป' 3 ครั้ง...")
+    for i in range(3):
         log(f"   -> Enter ครั้งที่ {i+1}")
         smart_next(window)
         time.sleep(1.8)
@@ -741,7 +741,7 @@ def run_smart_scenario(main_window, config):
     time.sleep(step_delay)
     process_sender_info_popup(main_window, phone, sender_postal)
     time.sleep(step_delay)
-    if not smart_click_with_scroll(main_window, "กล่องสำเร็จรูปแบบ ข.", scroll_dist=scroll_dist):
+    if not smart_click_with_scroll(main_window, "กล่องสำเร็จรูปแบบ ง.", scroll_dist=scroll_dist):
         return
     time.sleep(step_delay)
     if special_options_str.strip():
@@ -774,7 +774,7 @@ def run_smart_scenario(main_window, config):
     log("...รอหน้าบริการหลัก...")
 
     # [แก้ไข] เพิ่ม timeout เป็น 60 และใส่ if not เพื่อเช็คว่าถ้าไม่เจอให้หยุดทันที
-    target_service_id = "ShippingService_360144"
+    target_service_id = "ShippingService_500007"
     if not wait_until_id_appears(main_window, target_service_id, timeout=60):
         log("Error: รอนานเกิน 60 วินาทีแล้ว ยังไม่เข้าหน้าบริการหลัก")
         return
@@ -790,6 +790,8 @@ def run_smart_scenario(main_window, config):
     smart_next(main_window)
     time.sleep(step_delay)
     process_special_services(main_window, special_services)
+    time.sleep(step_delay)
+    process_sender_info_page(main_window)
     time.sleep(step_delay)
     # 1. ค้นหาที่อยู่ และรับค่าสถานะว่าเป็น Manual Mode หรือไม่?
     is_manual_mode = process_receiver_address_selection(
