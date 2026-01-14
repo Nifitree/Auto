@@ -25,7 +25,7 @@ if __name__ == "__main__":
         # 2. พิมพ์บาร์โค้ด
         # ใช้ ID2 ตาม Config
         BARCODE_ID = S_CFG['BARCODE_INPUT_ID2']      # Barcode_50387
-        BARCODE_VAL = S_CFG.get('TEST_BARCODE_VALUE', "9999999999") 
+        BARCODE_VAL = S_CFG.get('TEST_BARCODE_VALUE2', "|0107564000014007010795803392836551009202337036") 
         
         main_window.child_window(auto_id=BARCODE_ID).type_keys(BARCODE_VAL)
         print(f"[*] Typed Barcode: {BARCODE_VAL}")
@@ -36,15 +36,36 @@ if __name__ == "__main__":
         main_window.child_window(title=B_CFG["NEXT_TITLE"], auto_id=B_CFG["ID_AUTO_ID"]).click_input()
         time.sleep(WAIT_TIME)
 
-        # 4. กดตกลง
-        print("[*] Clicked OK")
-        accept_title = B_CFG.get("ACCEPT_TITLE", "ตกลง")
-        main_window.child_window(title=accept_title, auto_id=B_CFG["ID_AUTO_ID"]).click_input()
-        time.sleep(1)
+        # 4. กดถัดไป
+        print("[*] Next")
+        main_window.child_window(title=B_CFG["NEXT_TITLE"], auto_id=B_CFG["ID_AUTO_ID"]).click_input()
+        time.sleep(WAIT_TIME)
 
-        # 5. กดเสร็จสิ้น
-        main_window.child_window(title=B_CFG["FINISH_BUTTON_TITLE"]).click_input()
-        print(f"[*] Clicked {B_CFG['FINISH_BUTTON_TITLE']}")
+        # 5. กดถัดไป
+        print("[*] Next")
+        main_window.child_window(title=B_CFG["NEXT_TITLE"], auto_id=B_CFG["ID_AUTO_ID"]).click_input()
+        time.sleep(WAIT_TIME)
+
+        # 6. กดรับเงิน
+        receive_btn_title = S_CFG.get('BTN_RECEIVE_MONEY_TITLE', 'รับเงิน')
+        print(f"[*] Click Receive Money ({receive_btn_title})")
+        main_window.child_window(title=receive_btn_title).click_input()
+        time.sleep(WAIT_TIME)
+
+        # 7. จ่ายด้วยวิธี Fast Cash
+        fast_cash_id = S_CFG.get('BTN_FAST_CASH_ID', 'EnableFastCash')
+        print(f"[*] Click Fast Cash ({fast_cash_id})")
+        main_window.child_window(auto_id=fast_cash_id).click_input()
+        time.sleep(WAIT_TIME)
+
+        # 8. กดเสร็จสิ้น
+        try:
+            finish_btn = main_window.child_window(title=B_CFG["FINISH_BUTTON_TITLE"])
+            if finish_btn.exists(timeout=2):
+                finish_btn.click_input()
+                print(f"[*] Clicked {B_CFG['FINISH_BUTTON_TITLE']}")
+        except:
+            print("[*] Finish button not found or process completed.")
 
     except Exception as e:
         target_app = app if (app is not None) else (ctx.app if 'ctx' in globals() else None)
