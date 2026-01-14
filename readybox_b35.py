@@ -667,9 +667,6 @@ def run_smart_scenario(main_window, config):
         return
     time.sleep(step_delay)
 
-    smart_next(main_window)
-    time.sleep(step_delay)
-
     # --- เริ่ม Logic ใหม่แยกตาม AddInsurance ---
     use_insurance_flow = str(add_insurance_flag).lower() in ['true', 'yes', 'on', '1']
 
@@ -727,7 +724,8 @@ def run_smart_scenario(main_window, config):
         log("...Config ไม่ทำประกัน -> กด Next เพื่อเข้าสู่ Popup จำนวน...")
         
         # 1. กด Enter (Next) เพื่อเรียก Popup จำนวน
-        main_window.type_keys("{ENTER}")
+        smart_next(main_window) 
+        time.sleep(step_delay)
         
         # 2. จัดการ Popup จำนวน
         log(f"...ค้นหา Popup 'จำนวน' (ใส่ค่า: {qty})...")

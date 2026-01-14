@@ -656,7 +656,7 @@ def run_smart_scenario(main_window, config):
     log("...รอหน้าบริการหลัก...")
     
     # [แก้ไข] เพิ่ม timeout เป็น 60 และใส่ if not เพื่อเช็คว่าถ้าไม่เจอให้หยุดทันที
-    target_service_id = "ShippingService_356966" 
+    target_service_id = "ShippingService_356966"
     if not wait_until_id_appears(main_window, target_service_id, timeout=60):
         log("Error: รอนานเกิน 60 วินาทีแล้ว ยังไม่เข้าหน้าบริการหลัก")
         return 
@@ -665,10 +665,7 @@ def run_smart_scenario(main_window, config):
     if not find_and_click_with_rotate_logic(main_window, target_service_id):
         log(f"[Error] หาปุ่มบริการไม่เจอ ({target_service_id})")
         return
-    time.sleep(step_delay) 
-
-    smart_next(main_window)
-    time.sleep(1)
+    time.sleep(step_delay)
 
     # --- เริ่ม Logic ใหม่แยกตาม AddInsurance ---
     use_insurance_flow = str(add_insurance_flag).lower() in ['true', 'yes', 'on', '1']
@@ -727,7 +724,8 @@ def run_smart_scenario(main_window, config):
         log("...Config ไม่ทำประกัน -> กด Next เพื่อเข้าสู่ Popup จำนวน...")
         
         # 1. กด Enter (Next) เพื่อเรียก Popup จำนวน
-        main_window.type_keys("{ENTER}")
+        smart_next(main_window) 
+        time.sleep(step_delay)
         
         # 2. จัดการ Popup จำนวน
         log(f"...ค้นหา Popup 'จำนวน' (ใส่ค่า: {qty})...")
@@ -827,9 +825,6 @@ def run_smart_scenario(main_window, config):
             main_window.type_keys("{ENTER}")
             
         time.sleep(1.0)
-
-        # 3. ถ้าไม่เข้าเงื่อนไขบน ก็จะลงมาทำชำระเงินต่อ
-        process_payment(main_window, pay_method, pay_amount)
 
     log("\n[SUCCESS] จบการทำงานครบทุกขั้นตอน")
 
