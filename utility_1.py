@@ -33,14 +33,25 @@ if __name__ == "__main__":
         time.sleep(WAIT_TIME)
 
         # ---------------------------------------------------------
-        # [NEW] เพิ่มขั้นตอนกรอกวันครบกำหนดชำระ
+        # [FIXED] กรอกวันครบกำหนดชำระ (ลบค่าเก่าก่อน)
         # ---------------------------------------------------------
-        # ใช้ค่าจาก Config หรือ Hardcode ตามที่คุณระบุถ้ายังไม่ได้แก้ Config
         due_date_id = S_CFG.get('DUE_DATE_ID', 'REFNO7') 
         due_date_val = S_CFG.get('DUE_DATE_VALUE', '02/02/2026')
 
-        print(f"[*] Input Due Date: {due_date_val} at ID: {due_date_id}")
-        main_window.child_window(auto_id=due_date_id).type_keys(due_date_val)
+        print(f"[*] Clearing & Inputting Due Date: {due_date_val} at ID: {due_date_id}")
+        
+        # จับ Element ช่องวันที่
+        due_date_field = main_window.child_window(auto_id=due_date_id)
+        
+        # 1. คลิกเพื่อ Focus
+        due_date_field.click_input()
+        
+        # 2. กด Ctrl+A (Select All) แล้วกด Delete เพื่อลบค่าเก่า
+        # ^ คือ Ctrl, a คือ a, {DELETE} คือปุ่ม Delete
+        due_date_field.type_keys("^a{DELETE}") 
+        
+        # 3. กรอกค่าใหม่
+        due_date_field.type_keys(due_date_val)
         time.sleep(1)
 
         # 4. กดถัดไป (ครั้งที่ 2)
@@ -48,38 +59,31 @@ if __name__ == "__main__":
         main_window.child_window(title=B_CFG["NEXT_TITLE"], auto_id=B_CFG["ID_AUTO_ID"]).click_input()
         time.sleep(WAIT_TIME)
 
-        # ---------------------------------------------------------
-        # [NEW] เพิ่มขั้นตอนกดถัดไปอีกครั้ง -> รับเงิน -> Fast Cash
-        # ---------------------------------------------------------
-        
-        # 5. กดถัดไป (ครั้งที่ 3 - เพิ่มตามคำขอ)
+        # 5. กดถัดไป (ครั้งที่ 3)
         print("[*] Next (3)")
         main_window.child_window(title=B_CFG["NEXT_TITLE"], auto_id=B_CFG["ID_AUTO_ID"]).click_input()
         time.sleep(WAIT_TIME)
 
         # 6. กดรับเงิน
-        # หมายเหตุ: ชื่อปุ่มรับเงินปกติคือ "รับเงิน" ถ้าในระบบคุณเป็นชื่ออื่น ให้แก้ตรง title="..."
         receive_btn_title = S_CFG.get('BTN_RECEIVE_MONEY_TITLE', 'รับเงิน')
         print(f"[*] Click Receive Money ({receive_btn_title})")
         main_window.child_window(title=receive_btn_title).click_input()
         time.sleep(WAIT_TIME)
 
         # 7. จ่ายด้วยวิธี Fast Cash
-        # ปกติ Fast Cash จะใช้ AutomationID "EnableFastCash"
         fast_cash_id = S_CFG.get('BTN_FAST_CASH_ID', 'EnableFastCash')
         print(f"[*] Click Fast Cash ({fast_cash_id})")
         main_window.child_window(auto_id=fast_cash_id).click_input()
         time.sleep(WAIT_TIME)
 
-        # 8. กดเสร็จสิ้น (ถ้ามีหน้าสรุป)
-        # ถ้าหลังจาก Fast Cash แล้วจบเลย อาจจะไม่ต้องกดบรรทัดนี้ แต่ใส่เผื่อไว้ตาม Flow เดิม
+        # 8. กดเสร็จสิ้น (ถ้ามี)
         try:
             finish_btn = main_window.child_window(title=B_CFG["FINISH_BUTTON_TITLE"])
             if finish_btn.exists(timeout=2):
                 finish_btn.click_input()
                 print(f"[*] Clicked {B_CFG['FINISH_BUTTON_TITLE']}")
         except:
-            print("[*] Finish button not found or process completed via Fast Cash.")
+            print("[*] Finish button not found or process completed.")
 
     except Exception as e:
         target_app = app if (app is not None) else (ctx.app if 'ctx' in globals() else None)
