@@ -826,6 +826,7 @@ def run_smart_scenario(main_window, config):
             
         time.sleep(1.0)
 
+    process_payment(main_window, pay_method, pay_amount)
     log("\n[SUCCESS] จบการทำงานครบทุกขั้นตอน")
 
 # ================= 5. Start App =================
