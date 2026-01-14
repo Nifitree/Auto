@@ -33,42 +33,40 @@ if __name__ == "__main__":
         time.sleep(WAIT_TIME)
 
         # ---------------------------------------------------------
-        # [FIXED v2] กรอกวันครบกำหนดชำระ (แบบ Force Focus)
+        # [FIXED FINAL] กรอกวันครบกำหนดชำระ (ใช้ท่าไม้ตาย set_text)
         # ---------------------------------------------------------
         due_date_id = S_CFG.get('DUE_DATE_ID', 'REFNO7') 
         due_date_val = S_CFG.get('DUE_DATE_VALUE', '02/02/2026')
 
-        print(f"[*] Looking for Due Date field (ID: {due_date_id})...")
+        print(f"[*] Force setting Due Date: {due_date_val} at ID: {due_date_id}")
         
-        # 1. ค้นหาแบบเจาะจงว่าเป็น Edit (ถ้ามั่นใจว่าเป็นช่องกรอก)
-        # แต่ถ้า ID นี้มันดันเป็น Group/Pane ให้ลองลบ control_type="Edit" ออก
-        try:
-            due_date_field = main_window.child_window(auto_id=due_date_id)
-            
-            # 2. รอให้เห็นตัวตนจริงๆ
-            due_date_field.wait('visible', timeout=3)
-            
-            # 3. เน้นการโฟกัส 3 สเต็ป: set_focus -> click -> double click
-            try: due_date_field.set_focus()
-            except: pass
-            
-            due_date_field.click_input()
-            time.sleep(0.5)
-            due_date_field.click_input(double=True) # ดับเบิ้ลคลิกเพื่อเลือกข้อความทั้งหมด (ถ้ามี)
-            
-            # 4. ลบค่าเก่าแบบ "กด Backspace 20 ที" (ชัวร์กว่า Ctrl+A ในบางแอพ)
-            print(f"[*] Clearing old value...")
-            due_date_field.type_keys("{BACKSPACE 20}")
-            time.sleep(0.5)
-            
-            # 5. กรอกค่าใหม่
-            print(f"[*] Typing: {due_date_val}")
-            due_date_field.type_keys(due_date_val)
-            
-        except Exception as e:
-            print(f"[!] Error accessing Due Date field: {e}")
-            # ถ้าหาไม่เจอจริงๆ ลองพิมพ์ Blind (พิมพ์ลอยๆ เผื่อ Cursor อยู่ตรงนั้นแล้ว)
-            # main_window.type_keys(due_date_val)
+        # จับ Element
+        due_date_field = main_window.child_window(auto_id=due_date_id)
+        
+        # รอให้แน่ใจว่าช่องนี้โผล่มาแล้ว
+        if due_date_field.exists(timeout=5):
+            try:
+                # --- วิธีที่ 1: ท่าไม้ตาย set_text (ไม่ต้องคลิก ไม่ต้องลบ) ---
+                # วิธีนี้จะเปลี่ยนค่าข้างในโปรแกรมเลย ถ้าระบบรองรับ UIA
+                due_date_field.set_text(due_date_val)
+                print("[/] Used set_text() successfully.")
+                
+            except Exception as e:
+                # --- วิธีที่ 2: ถ้า set_text ไม่ได้ ให้ใช้ท่า Selection ---
+                print(f"[!] set_text failed ({e}), trying Keyboard Selection method...")
+                
+                due_date_field.set_focus() # บังคับโฟกัส
+                due_date_field.click_input() # คลิก 1 ที
+                time.sleep(0.5)
+                
+                # กด Home เพื่อไปหน้าสุด -> กด Shift+End เพื่อคลุมดำทั้งหมด -> กด Delete
+                due_date_field.type_keys("{HOME}+{END}{DELETE}")
+                time.sleep(0.5)
+                
+                # พิมพ์ค่าใหม่
+                due_date_field.type_keys(due_date_val, with_spaces=True)
+        else:
+            print(f"[!] Error: ไม่พบช่อง ID {due_date_id} (REFNO7) บนหน้าจอ")
 
         time.sleep(1)
 
