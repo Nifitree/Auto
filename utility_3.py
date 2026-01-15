@@ -40,7 +40,7 @@ if __name__ == "__main__":
         # =======================================================
         # อ่านจาก Config ถ้าไม่มีให้ใช้ค่า Default ตามที่คุณระบุ
         date_id = S_CFG.get('UTILITY_3_DATE_ID', 'D_DATE_01')
-        date_val = S_CFG.get('UTILITY_3_DATE_VALUE', '02/02/2026')
+        date_val = S_CFG.get('DUE_DATE_VALUE', '02/02/2026')
 
         print(f"[*] Inputting Due Date: {date_val} at ID: {date_id}")
 
