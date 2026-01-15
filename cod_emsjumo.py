@@ -265,32 +265,53 @@ def execute_cod_ems_flow(main_window):
     print("[*] ขั้นตอนสุดท้าย: กด 'กลับ' -> กด 'เสร็จสิ้น'")
     time.sleep(1.0)
 
-    # 8.1 กดปุ่มย้อนกลับ
+    # 8.1 กดปุ่มย้อนกลับ (ที่อยู่ใน Popup)
     back_title = S_CFG.get('BTN_BACK_TITLE', 'กลับ')
-    back_id = S_CFG.get('BTN_BACK_ID', 'LocalCommand_Previous')
-    print(f"[*] กำลังหาปุ่มกลับ (Title: '{back_title}' / ID: '{back_id}')")
+    print(f"[*] กำลังหาปุ่มกลับใน Popup")
 
     back_clicked = False
     try:
-        # วิธี 1: หาจาก Title + visible_only + found_index=0 (เลือกตัวแรกที่เห็น)
-        back_btn = main_window.child_window(title=back_title, visible_only=True, found_index=0)
-        if back_btn.exists(timeout=1):
-            print(f"[/] พบปุ่มกลับ (Title: '{back_title}', index=0) -> คลิก")
-            back_btn.click_input()
-            back_clicked = True
-        
-        # วิธี 2: หาจาก AutomationId
-        if not back_clicked:
-            back_btn = main_window.child_window(auto_id=back_id, visible_only=True)
+        # วิธี 1: หา Popup ก่อน (โดยหา Dialog หรือ Pane ที่มีปุ่ม "ตกลง")
+        # แล้วค่อยหาปุ่ม "กลับ" ใน Popup นั้น
+        popup = main_window.child_window(title="ตกลง", control_type="Button").parent()
+        if popup:
+            print(f"[*] พบ Popup -> หาปุ่มกลับใน Popup")
+            back_btn = popup.child_window(title=back_title, visible_only=True)
             if back_btn.exists(timeout=1):
-                print(f"[/] พบปุ่มกลับ (ID: {back_id}) -> คลิก")
+                print(f"[/] พบปุ่มกลับใน Popup -> คลิก")
                 back_btn.click_input()
                 back_clicked = True
+        
+        # วิธี 2: ถ้าหา Popup ไม่ได้ ลองหาปุ่มกลับตัวที่อยู่ใกล้ปุ่ม "ตกลง" มากที่สุด
+        if not back_clicked:
+            # หาปุ่มกลับทั้งหมด แล้วเลือกตัวที่ตำแหน่ง Y ใกล้กับปุ่ม "ตกลง"
+            ok_btn = main_window.child_window(title="ตกลง", control_type="Button")
+            if ok_btn.exists(timeout=1):
+                ok_rect = ok_btn.rectangle()
+                # หา "กลับ" ทั้งหมด
+                all_back = main_window.children(title=back_title)
+                best_btn = None
+                min_dist = 9999
+                for btn in all_back:
+                    try:
+                        if btn.is_visible():
+                            btn_rect = btn.rectangle()
+                            # คำนวณระยะห่าง Y จากปุ่มตกลง
+                            dist = abs(btn_rect.top - ok_rect.top)
+                            if dist < min_dist:
+                                min_dist = dist
+                                best_btn = btn
+                    except: pass
+                
+                if best_btn:
+                    print(f"[/] พบปุ่มกลับใกล้ปุ่มตกลง (dist={min_dist}) -> คลิก")
+                    best_btn.click_input()
+                    back_clicked = True
                     
         if back_clicked:
             time.sleep(WAIT_TIME)
         else:
-            print("[!] หาปุ่มย้อนกลับไม่เจอเลย")
+            print("[!] หาปุ่มย้อนกลับใน Popup ไม่เจอ")
     except Exception as e:
         print(f"[!] Error กดปุ่มย้อนกลับ: {e}")
 
