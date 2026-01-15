@@ -265,29 +265,27 @@ def execute_cod_ems_flow(main_window):
     print("[*] ขั้นตอนสุดท้าย: กด 'กลับ' -> กด 'เสร็จสิ้น'")
     time.sleep(1.0)
 
-    # 8.1 กดปุ่มย้อนกลับ
-    # อ่านชื่อปุ่มจาก config หรือใช้ค่า Default "กลับ"
-    back_title = S_CFG.get('BTN_BACK_TITLE', 'กลับ')
-    print(f"[*] กำลังหาปุ่ม: {back_title}")
+    # 8.1 กดปุ่มย้อนกลับ (อ่าน ID จาก config)
+    # ถ้าใน config ไม่มี ให้ใช้ค่า default 'LocalCommand_Previous'
+    back_id = S_CFG.get('BTN_BACK_ID', 'LocalCommand_Previous')
+    print(f"[*] กำลังหาปุ่ม ID: {back_id}")
 
     try:
-        back_btn = main_window.child_window(title=back_title, control_type="Text")
-        # ถ้าหา Text ไม่เจอ ลองหา Button
+        back_btn = main_window.child_window(auto_id=back_id)
         if not back_btn.exists(timeout=2):
-             back_btn = main_window.child_window(title=back_title, control_type="Button")
+             back_btn = main_window.child_window(auto_id=back_id, control_type="Button")
 
         if back_btn.exists():
             back_btn.click_input()
             time.sleep(WAIT_TIME)
         else:
-            # สำรอง: ลองหาด้วย Automation ID เผื่อชื่อปุ่มเปลี่ยน
-            back_id = S_CFG.get('BTN_BACK_ID', 'BackButton')
-            back_btn = main_window.child_window(auto_id=back_id)
-            if back_btn.exists(timeout=1):
+            print(f"[!] หาปุ่ม ID '{back_id}' ไม่เจอ -> ลองหาจาก Title 'กลับ'")
+            back_btn = main_window.child_window(title="กลับ", control_type="Button")
+            if back_btn.exists():
                 back_btn.click_input()
                 time.sleep(WAIT_TIME)
             else:
-                print(f"[!] หาปุ่มย้อนกลับไม่เจอ ({back_title})")
+                print("[!] หาปุ่มย้อนกลับไม่เจอเลย")
     except Exception as e:
         print(f"[!] Error กดปุ่มย้อนกลับ: {e}")
 
