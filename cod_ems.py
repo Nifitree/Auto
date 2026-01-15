@@ -62,7 +62,6 @@ def force_scroll_down(window):
 
 def scroll_until_found(control, window, max_scrolls=3):
     """เลื่อนหน้าจอจนกว่าจะเจอ Element"""
-    # เช็คก่อนหนึ่งรอบ
     if control.exists(timeout=1):
         return True
 
@@ -73,6 +72,7 @@ def scroll_until_found(control, window, max_scrolls=3):
             return True
     return False
 
+# [FIXED] แก้ไขให้พิมพ์ลง Control โดยตรง (ป้องกันการพิมพ์ผิดช่อง)
 def fill_if_empty(window, control, value):
     """กรอกข้อมูลเฉพาะถ้าช่องว่างอยู่"""
     try:
@@ -81,17 +81,23 @@ def fill_if_empty(window, control, value):
         text = ""
 
     if not text:
+        # คลิกเพื่อย้าย Focus มาที่ช่องนี้จริงๆ
         control.click_input()
-        window.type_keys(value)
+        time.sleep(0.5) 
+        # ใช้ control.type_keys แทน window.type_keys เพื่อความชัวร์
+        control.type_keys(value, with_spaces=True)
 
+# [FIXED] แก้ไขให้พิมพ์ลง Control โดยตรง
 def fill_field(window, auto_id, value, description=""):
     """ฟังก์ชันช่วยกรอกข้อมูลโดยระบุ AutoID"""
     print(f"[*] {description}: {value}")
     control = window.child_window(auto_id=auto_id)
     if not scroll_until_found(control, window):
         raise Exception(f"ไม่พบช่อง {description} (ID: {auto_id})")
+    
     control.click_input()
-    window.type_keys(value)
+    time.sleep(0.5)
+    control.type_keys(value, with_spaces=True)
 
 def press_next(main_window):
     print(f"[*] กดปุ่ม '{NEXT_TITLE}'")
@@ -113,7 +119,7 @@ def click_menu_button(main_window, title):
     btn.click_input()
     time.sleep(WAIT_TIME)
 
-# ==================== 3. LOGIC (แก้ไขตรงนี้) ====================
+# ==================== 3. LOGIC ====================
 
 def execute_cod_ems_flow(main_window):
     # --- 1. เข้าเมนู S และกรอกข้อมูลผู้ส่ง ---
@@ -126,17 +132,16 @@ def execute_cod_ems_flow(main_window):
     postal = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
     if scroll_until_found(postal, main_window):
         fill_if_empty(main_window, postal, POSTAL_CODE)
-        time.sleep(WAIT_TIME)
 
     # =======================================================
-    # [UPDATED] เลื่อนหาเบอร์โทรศัพท์ก่อนกรอก
+    # [UPDATED] เลื่อนหาเบอร์โทรศัพท์ -> คลิกให้ชัวร์ -> กรอก
     # =======================================================
     print("[*] ตรวจสอบเบอร์โทร (กำลังเลื่อนหา...)")
     phone = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
     
-    # เพิ่ม max_scrolls เป็น 5 เพื่อความชัวร์
+    # เลื่อนหา (Max 5 รอบ)
     if scroll_until_found(phone, main_window, max_scrolls=5):
-        # เจอแล้วค่อยสั่งกรอก
+        # ใช้ fill_if_empty ตัวใหม่ที่แก้แล้ว (พิมพ์ลงช่องโดยตรง)
         fill_if_empty(main_window, phone, PHONE_NUMBER)
     else:
         print("[!] Warning: หาช่องเบอร์โทรไม่เจอ (ข้าม)")
@@ -161,7 +166,7 @@ def execute_cod_ems_flow(main_window):
     else:
         raise Exception(f"หาปุ่มเมนู '{btn_4_title}' ไม่เจอ (เลื่อนหาจนสุดแล้ว)")
 
-    # ปุ่ม A มักจะอยู่ตำแหน่งบนๆ หรือเห็นชัดแล้ว ใช้ฟังก์ชันปกติได้
+    # ปุ่ม A
     click_menu_button(main_window, S_CFG['BUTTON_A_TITLE'])
     
     press_next(main_window) # ถัดไป (1)
