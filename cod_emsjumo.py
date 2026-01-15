@@ -42,12 +42,13 @@ NEXT_TITLE = "ถัดไป"
 S_CFG = CONFIG["COD_EMS"]
 ctx = AppContext(window_title_regex=WINDOW_TITLE)
 
-# ==================== 2. HELPERS ====================
+# ==================== 2. HELPERS (แก้ไขใหม่) ====================
 
 def connect_main_window():
     return ctx.connect()
 
 def force_scroll_down(window):
+    """Scroll แบบใช้เมาส์ (Backup ด้วย PageDown)"""
     try:
         cfg = CONFIG["MOUSE_SCROLL"]
         center_x = cfg.getint("CENTER_X_OFFSET", fallback=300)
@@ -61,37 +62,43 @@ def force_scroll_down(window):
         window.type_keys("{PGDN}")
 
 def scroll_until_found(control, window, max_scrolls=3):
+    if control is None: return False
+    if control.exists(timeout=1): return True
+    print(f"[*] กำลังเลื่อนหน้าจอหา Element... (Max {max_scrolls})")
     for _ in range(max_scrolls):
-        if control.exists(timeout=1):
-            return True
         force_scroll_down(window)
+        if control.exists(timeout=1): return True
     return False
 
+# [FIXED] แก้ให้พิมพ์ลง Control โดยตรง (ป้องกันการพิมพ์ผิดช่อง)
 def fill_if_empty(window, control, value):
-    """กรอกข้อมูลเฉพาะถ้าช่องว่างอยู่"""
-    if not control.texts()[0].strip():
+    try: text = control.texts()[0].strip()
+    except: text = ""
+    
+    if not text:
+        # คลิกเพื่อย้าย Focus มาที่ช่องนี้จริงๆ
         control.click_input()
-        window.type_keys(value)
+        time.sleep(0.5) 
+        # ใช้ control.type_keys แทน window.type_keys เพื่อความชัวร์
+        control.type_keys(value, with_spaces=True)
 
+# [FIXED] แก้ให้พิมพ์ลง Control โดยตรง
 def fill_field(window, auto_id, value, description=""):
-    """ฟังก์ชันช่วยกรอกข้อมูลโดยระบุ AutoID"""
     print(f"[*] {description}: {value}")
     control = window.child_window(auto_id=auto_id)
     if not scroll_until_found(control, window):
         raise Exception(f"ไม่พบช่อง {description} (ID: {auto_id})")
     control.click_input()
-    window.type_keys(value)
+    time.sleep(0.5)
+    control.type_keys(value, with_spaces=True)
 
 def press_next(main_window):
     print(f"[*] กดปุ่ม '{NEXT_TITLE}'")
     try:
         btn = main_window.child_window(title=NEXT_TITLE, control_type="Text")
-        if btn.exists():
-            btn.click_input()
-        else:
-            main_window.type_keys("{ENTER}")
-    except:
-        main_window.type_keys("{ENTER}") 
+        if btn.exists(): btn.click_input()
+        else: main_window.type_keys("{ENTER}")
+    except: main_window.type_keys("{ENTER}") 
     time.sleep(WAIT_TIME)
 
 def click_menu_button(main_window, title):
@@ -106,51 +113,43 @@ def click_menu_button(main_window, title):
 SCROLL_DOWN_BTN_ID = S_CFG.get('SCROLL_DOWN_BTN_ID', 'LineDown')
 
 def click_scroll_arrow_smart(window, repeat=3):
-    """คลิกปุ่ม LineDown เพื่อเลื่อนหน้าจอลง"""
+    """
+    ฟังก์ชันเลื่อนหน้าจอโดยใช้แป้นพิมพ์ {DOWN}
+    [Fix] เพิ่มการคลิกพื้นที่ปลอดภัย เพื่อไม่ให้ไปโฟกัสผิดที่ (เช่น เมนูซ้าย)
+    """
     try:
-        scroll_btn = window.child_window(auto_id=SCROLL_DOWN_BTN_ID)
-        if scroll_btn.exists(timeout=0.5):
-            for _ in range(repeat):
-                scroll_btn.click_input()
-                time.sleep(0.2)
-            return True
-        else:
-            print(f"[!] Warning: ไม่พบปุ่ม Scroll (ID: {SCROLL_DOWN_BTN_ID})")
-            return False
-    except Exception as e:
-        print(f"[!] Warning: Scroll ผิดพลาด: {e}")
+        # 1. คลิกที่พื้นที่ว่าง (กลางจอค่อนไปทางขวา เพื่อหลบเมนู)
+        rect = window.rectangle()
+        safe_x = rect.left + int(rect.width() * 0.6) # 60% จากซ้าย
+        safe_y = rect.top + int(rect.height() * 0.5) # กึ่งกลางแนวตั้ง
+        mouse.click(coords=(safe_x, safe_y))
+    except:
+        window.set_focus()
+
+    # 2. กดลูกศรลง
+    try:
+        window.type_keys("{DOWN}" * repeat, pause=0.1)
+        return True
+    except:
         return False
 
 # --- [NEW Helper 2] ค้นหาปุ่ม + เช็ค Safe Zone + เลื่อนลงอัตโนมัติ ---
 def find_and_click_smart(window, target_title, max_loops=15):
-    """
-    ค้นหาปุ่มจาก Title แบบฉลาด:
-    1. หาปุ่ม
-    2. ถ้าเจอ -> เช็คว่าอยู่ใน Safe Zone (ไม่ตกขอบล่าง) ไหม?
-    3. ถ้าไม่เจอ หรือ ตกขอบ -> สั่งเลื่อนลง แล้วหาใหม่
-    """
     print(f"[*] Scanning for '{target_title}' (Smart Scroll)...")
     
     for i in range(max_loops):
-        # 1. ลองหาปุ่ม
         btn = window.child_window(title=target_title, control_type="Text")
         
-        # 2. เช็คการมีอยู่
         if btn.exists(timeout=0.5):
             rect = btn.rectangle()
             win_rect = window.rectangle()
-            
-            # [Vertical Safe Zone] : พื้นที่ปลอดภัยคือ ส่วนบนถึง 90% ของความสูงหน้าต่าง
-            # (เผื่อ Footer ด้านล่างบัง 10%)
             safe_limit = win_rect.top + (win_rect.height() * 0.90)
             
-            # เช็คว่าขอบล่างของปุ่ม (rect.bottom) อยู่ในเขตปลอดภัยไหม
             if rect.bottom < safe_limit and rect.top > win_rect.top:
                 print(f"[/] Found '{target_title}' in Safe Zone -> Clicking")
                 try:
                     btn.click_input()
                 except:
-                    # ถ้าคลิกไม่ได้ ให้กด Enter ย้ำ
                     btn.set_focus()
                     window.type_keys("{ENTER}")
                 return True
@@ -159,9 +158,8 @@ def find_and_click_smart(window, target_title, max_loops=15):
         else:
             print(f"[*] '{target_title}' not found in view -> Scrolling Down")
         
-        # 3. สั่งเลื่อนลง
-        click_scroll_arrow_smart(window, repeat=4) # กดลง 4 ที
-        time.sleep(0.8) # รอหน้าจอขยับ
+        click_scroll_arrow_smart(window, repeat=4)
+        time.sleep(0.8)
         
     raise Exception(f"Could not find or click '{target_title}' after {max_loops} scrolls.")
 
@@ -182,9 +180,13 @@ def execute_cod_ems_flow(main_window):
     if scroll_until_found(postal, main_window):
         fill_if_empty(main_window, postal, POSTAL_CODE)
 
+    # [FIXED Logic] เลื่อนหาเบอร์โทรให้เจอก่อน
     print("[*] ตรวจสอบเบอร์โทร")
     phone = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
+    
+    # เลื่อนหา (max_scrolls=5)
     if scroll_until_found(phone, main_window, max_scrolls=5):
+        # ใช้ fill_if_empty แบบใหม่ จะพิมพ์ถูกช่องแน่นอน
         fill_if_empty(main_window, phone, PHONE_NUMBER)
     else:
         print("[!] Warning: หาช่องเบอร์โทรไม่เจอ (ข้าม)")
@@ -196,8 +198,6 @@ def execute_cod_ems_flow(main_window):
 
     # [USE SMART FUNCTION] ใช้ฟังก์ชันใหม่ที่นี่
     btn_4_title = S_CFG['BUTTON_4_TITLE']
-    
-    # เรียกใช้ Helper ใหม่: หา -> เช็คขอบ -> เลื่อนลง -> คลิก
     find_and_click_smart(main_window, btn_4_title)
     
     time.sleep(WAIT_TIME)
@@ -231,6 +231,7 @@ def execute_cod_ems_flow(main_window):
     press_next(main_window) # ถัดไป (4)
 
     # --- 6. เลือกบริการ COD EMS และกรอกรายละเอียด ---
+    # หมายเหตุ: ตรงนี้คุณใช้ ID2 หรือ ID1 เช็ค Config ให้ดีนะครับ (ในโค้ดเดิมใช้ ID2)
     print(f"[*] เลือกบริการ (ID: {S_CFG['SERVICE_SELECTION_ID2']})")
     service_btn = main_window.child_window(auto_id=S_CFG['SERVICE_SELECTION_ID2'])
     if not scroll_until_found(service_btn, main_window):
