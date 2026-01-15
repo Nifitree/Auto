@@ -19,7 +19,7 @@ def run_banking_1_custom():
 
         app, window = connect_main_window()
 
-        # 2. เลือกรายการ 30156
+        # 2. เลือกรายการ 
         service_title = S_CFG["BANKING_2_TITLE"]
         print(f"[*] Selecting Service: {service_title}")
         window.child_window(
