@@ -255,31 +255,54 @@ def execute_cod_ems_flow(main_window):
         print("[-] ไม่พบ Popup (ข้าม)")
 
     # [STEP 8] กดกลับ (Back) -> กดเสร็จสิ้น (Finish)
-    # =======================================================
+    
     print("[*] ขั้นตอนสุดท้าย: กด 'กลับ' -> กด 'เสร็จสิ้น'")
     time.sleep(1.0)
 
-    # 8.1 กดปุ่มย้อนกลับ (อ่าน ID จาก config)
-    # ถ้าใน config ไม่มี ให้ใช้ค่า default 'LocalCommand_Previous'
-    back_id = S_CFG.get('BTN_BACK_ID', 'LocalCommand_Previous')
-    print(f"[*] กำลังหาปุ่ม ID: {back_id}")
+    # 8.1 กดปุ่มย้อนกลับ (ที่อยู่ใน Popup - ตรงกลางหน้าจอ)
+    back_title = S_CFG.get('BTN_BACK_TITLE', 'กลับ')
+    print(f"[*] กำลังหาปุ่มกลับใน Popup")
 
+    back_clicked = False
     try:
-        back_btn = main_window.child_window(auto_id=back_id)
-        if not back_btn.exists(timeout=2):
-             back_btn = main_window.child_window(auto_id=back_id, control_type="Button")
-
-        if back_btn.exists():
-            back_btn.click_input()
+        # หาพิกัดกลางหน้าต่าง
+        win_rect = main_window.rectangle()
+        center_x = (win_rect.left + win_rect.right) // 2
+        center_y = (win_rect.top + win_rect.bottom) // 2
+        
+        # หาปุ่ม "กลับ" ทั้งหมด
+        all_back_btns = list(main_window.descendants(title=back_title))
+        print(f"[*] พบปุ่ม '{back_title}' ทั้งหมด {len(all_back_btns)} ตัว")
+        
+        # เลือกปุ่มที่อยู่ใกล้กลางหน้าจอที่สุด (Popup อยู่ตรงกลาง)
+        best_btn = None
+        min_dist = 99999
+        
+        for btn in all_back_btns:
+            try:
+                if btn.is_visible():
+                    btn_rect = btn.rectangle()
+                    btn_cx = (btn_rect.left + btn_rect.right) // 2
+                    btn_cy = (btn_rect.top + btn_rect.bottom) // 2
+                    
+                    # คำนวณระยะห่างจากกลางหน้าจอ
+                    dist = abs(btn_cx - center_x) + abs(btn_cy - center_y)
+                    print(f"   - ปุ่ม pos=({btn_cx},{btn_cy}) dist={dist}")
+                    
+                    if dist < min_dist:
+                        min_dist = dist
+                        best_btn = btn
+            except: pass
+        
+        if best_btn:
+            print(f"[/] เลือกปุ่มกลับที่ใกล้กลางที่สุด (dist={min_dist}) -> คลิก")
+            best_btn.click_input()
+            back_clicked = True
+                    
+        if back_clicked:
             time.sleep(WAIT_TIME)
         else:
-            print(f"[!] หาปุ่ม ID '{back_id}' ไม่เจอ -> ลองหาจาก Title 'กลับ'")
-            back_btn = main_window.child_window(title="กลับ", control_type="Button")
-            if back_btn.exists():
-                back_btn.click_input()
-                time.sleep(WAIT_TIME)
-            else:
-                print("[!] หาปุ่มย้อนกลับไม่เจอเลย")
+            print("[!] หาปุ่มย้อนกลับใน Popup ไม่เจอ")
     except Exception as e:
         print(f"[!] Error กดปุ่มย้อนกลับ: {e}")
 
