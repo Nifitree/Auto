@@ -64,10 +64,8 @@ if __name__ == "__main__":
                  print(f"[X] Failed to input date: {e2}")
 
         time.sleep(1)
-
-        # ---------------------------------------------------------
-        # [NEW STEP] กดปุ่ม PART_Button (อ่านจาก Config)
-        # ---------------------------------------------------------
+        
+        # กดปุ่ม PART_Button (อ่านจาก Config)
         part_btn_id = S_CFG.get('PART_BUTTON_ID', 'PART_Button') # อ่านจาก config
         print(f"[*] Clicking '{part_btn_id}'...")
         
