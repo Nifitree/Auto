@@ -265,27 +265,38 @@ def execute_cod_ems_flow(main_window):
     print("[*] ขั้นตอนสุดท้าย: กด 'กลับ' -> กด 'เสร็จสิ้น'")
     time.sleep(1.0)
 
-    # 8.1 กดปุ่มย้อนกลับ (อ่าน ID จาก config)
-    # ถ้าใน config ไม่มี ให้ใช้ค่า default 'LocalCommand_Previous'
+    # 8.1 กดปุ่มย้อนกลับ
+    back_title = S_CFG.get('BTN_BACK_TITLE', 'กลับ')
     back_id = S_CFG.get('BTN_BACK_ID', 'LocalCommand_Previous')
-    print(f"[*] กำลังหาปุ่ม ID: {back_id}")
+    print(f"[*] กำลังหาปุ่มกลับ (Title: '{back_title}' / ID: '{back_id}')")
 
+    back_clicked = False
     try:
-        back_btn = main_window.child_window(auto_id=back_id)
-        if not back_btn.exists(timeout=2):
-             back_btn = main_window.child_window(auto_id=back_id, control_type="Button")
-
-        if back_btn.exists():
+        # ลองหาจาก Title ก่อน (แบบ Text)
+        back_btn = main_window.child_window(title=back_title, control_type="Text")
+        if back_btn.exists(timeout=1):
+            print(f"[/] พบปุ่มกลับ (Title: Text) -> คลิก")
             back_btn.click_input()
+            back_clicked = True
+        else:
+            # ลองหาจาก Title แบบ Button
+            back_btn = main_window.child_window(title=back_title, control_type="Button")
+            if back_btn.exists(timeout=1):
+                print(f"[/] พบปุ่มกลับ (Title: Button) -> คลิก")
+                back_btn.click_input()
+                back_clicked = True
+            else:
+                # ลองหาจาก AutomationId
+                back_btn = main_window.child_window(auto_id=back_id)
+                if back_btn.exists(timeout=1):
+                    print(f"[/] พบปุ่มกลับ (ID: {back_id}) -> คลิก")
+                    back_btn.click_input()
+                    back_clicked = True
+                    
+        if back_clicked:
             time.sleep(WAIT_TIME)
         else:
-            print(f"[!] หาปุ่ม ID '{back_id}' ไม่เจอ -> ลองหาจาก Title 'กลับ'")
-            back_btn = main_window.child_window(title="กลับ", control_type="Button")
-            if back_btn.exists():
-                back_btn.click_input()
-                time.sleep(WAIT_TIME)
-            else:
-                print("[!] หาปุ่มย้อนกลับไม่เจอเลย")
+            print("[!] หาปุ่มย้อนกลับไม่เจอเลย ทุกวิธี")
     except Exception as e:
         print(f"[!] Error กดปุ่มย้อนกลับ: {e}")
 
