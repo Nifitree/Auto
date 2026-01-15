@@ -272,43 +272,25 @@ def execute_cod_ems_flow(main_window):
 
     back_clicked = False
     try:
-        # วิธี 1: หาจาก Title ไม่ระบุ control_type (หาทุกประเภท)
-        back_btn = main_window.child_window(title=back_title)
+        # วิธี 1: หาจาก Title + visible_only + found_index=0 (เลือกตัวแรกที่เห็น)
+        back_btn = main_window.child_window(title=back_title, visible_only=True, found_index=0)
         if back_btn.exists(timeout=1):
-            print(f"[/] พบปุ่มกลับ (Title: '{back_title}') -> คลิก")
+            print(f"[/] พบปุ่มกลับ (Title: '{back_title}', index=0) -> คลิก")
             back_btn.click_input()
             back_clicked = True
         
         # วิธี 2: หาจาก AutomationId
         if not back_clicked:
-            back_btn = main_window.child_window(auto_id=back_id)
+            back_btn = main_window.child_window(auto_id=back_id, visible_only=True)
             if back_btn.exists(timeout=1):
                 print(f"[/] พบปุ่มกลับ (ID: {back_id}) -> คลิก")
-                back_btn.click_input()
-                back_clicked = True
-        
-        # วิธี 3: หาปุ่มที่มีคำว่า "กลับ" อยู่ใน title (title_re)
-        if not back_clicked:
-            import re
-            back_btn = main_window.child_window(title_re=".*กลับ.*")
-            if back_btn.exists(timeout=1):
-                print(f"[/] พบปุ่มกลับ (title_re) -> คลิก")
                 back_btn.click_input()
                 back_clicked = True
                     
         if back_clicked:
             time.sleep(WAIT_TIME)
         else:
-            print("[!] หาปุ่มย้อนกลับไม่เจอเลย ทุกวิธี")
-            # Debug: แสดง elements ทั้งหมดที่มี
-            print("[DEBUG] กำลัง Scan หา elements ที่คล้ายปุ่มกลับ...")
-            try:
-                all_texts = main_window.children(control_type="Text")
-                for txt in all_texts[:20]:  # แสดงแค่ 20 ตัวแรก
-                    try:
-                        print(f"   - Text: '{txt.window_text()}' | ID: {txt.automation_id()}")
-                    except: pass
-            except: pass
+            print("[!] หาปุ่มย้อนกลับไม่เจอเลย")
     except Exception as e:
         print(f"[!] Error กดปุ่มย้อนกลับ: {e}")
 
