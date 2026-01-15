@@ -57,6 +57,22 @@ def run_banking_1_custom():
         ).click_input()
         time.sleep(WAIT_TIME)
 
+        # 5. กรอกชื่อ (REFNO5)
+        ACCOUNT_NAME = "นายทดสอบ ระบบ"
+        print(f"[*] Typing Account Name '{ACCOUNT_NAME}'...")
+        name_input = window.child_window(auto_id="REFNO5", control_type="Edit")
+        name_input.click_input()
+        name_input.type_keys(ACCOUNT_NAME, with_spaces=True)
+        time.sleep(WAIT_TIME)
+
+        # 6. กรอกหมายเลขโทรศัพท์ (REFNO8)
+        PHONE_NUM = "0812345678"
+        print(f"[*] Typing Phone Number '{PHONE_NUM}'...")
+        phone_input = window.child_window(auto_id="REFNO8", control_type="Edit")
+        phone_input.click_input()
+        phone_input.type_keys(PHONE_NUM, with_spaces=True)
+        time.sleep(WAIT_TIME)
+
         # 5. กรอกจำนวนเงิน (AutoID = "Amount")
         print(f"[*] Typing Amount '{PAYMENT_AMOUNT}'...")
         amount_input = window.child_window(auto_id="Amount", control_type="Edit")
