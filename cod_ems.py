@@ -105,19 +105,23 @@ def click_menu_button(main_window, title):
     time.sleep(WAIT_TIME)
 
 # --- [NEW Helper 1] กดลูกศรเลื่อนหน้าจอ ---
-def click_scroll_arrow_smart(window, repeat=3):
-    """กดปุ่มลูกศรลง (Down Arrow) เพื่อเลื่อนหน้าจอ"""
-    try:
-        # พยายามคลิกกลางจอเพื่อ Focus ก่อน
-        rect = window.rectangle()
-        cx, cy = rect.mid_point()
-        mouse.click(coords=(cx, cy))
-    except:
-        window.set_focus()
+SCROLL_DOWN_BTN_ID = S_CFG.get('SCROLL_DOWN_BTN_ID', 'LineDown')
 
-    # กดลูกศรลงรัวๆ
-    window.type_keys("{DOWN}" * repeat, pause=0.1)
-    return True
+def click_scroll_arrow_smart(window, repeat=3):
+    """คลิกปุ่ม LineDown เพื่อเลื่อนหน้าจอลง"""
+    try:
+        scroll_btn = window.child_window(auto_id=SCROLL_DOWN_BTN_ID)
+        if scroll_btn.exists(timeout=0.5):
+            for _ in range(repeat):
+                scroll_btn.click_input()
+                time.sleep(0.2)
+            return True
+        else:
+            print(f"[!] Warning: ไม่พบปุ่ม Scroll (ID: {SCROLL_DOWN_BTN_ID})")
+            return False
+    except Exception as e:
+        print(f"[!] Warning: Scroll ผิดพลาด: {e}")
+        return False
 
 # --- [NEW Helper 2] ค้นหาปุ่ม + เช็ค Safe Zone + เลื่อนลงอัตโนมัติ ---
 def find_and_click_smart(window, target_title, max_loops=15):
