@@ -1,4 +1,3 @@
-# Save as: banking_1.py
 import time
 from banking_core import *
 from evidence import save_evidence_context
