@@ -272,31 +272,43 @@ def execute_cod_ems_flow(main_window):
 
     back_clicked = False
     try:
-        # ลองหาจาก Title ก่อน (แบบ Text)
-        back_btn = main_window.child_window(title=back_title, control_type="Text")
+        # วิธี 1: หาจาก Title ไม่ระบุ control_type (หาทุกประเภท)
+        back_btn = main_window.child_window(title=back_title)
         if back_btn.exists(timeout=1):
-            print(f"[/] พบปุ่มกลับ (Title: Text) -> คลิก")
+            print(f"[/] พบปุ่มกลับ (Title: '{back_title}') -> คลิก")
             back_btn.click_input()
             back_clicked = True
-        else:
-            # ลองหาจาก Title แบบ Button
-            back_btn = main_window.child_window(title=back_title, control_type="Button")
+        
+        # วิธี 2: หาจาก AutomationId
+        if not back_clicked:
+            back_btn = main_window.child_window(auto_id=back_id)
             if back_btn.exists(timeout=1):
-                print(f"[/] พบปุ่มกลับ (Title: Button) -> คลิก")
+                print(f"[/] พบปุ่มกลับ (ID: {back_id}) -> คลิก")
                 back_btn.click_input()
                 back_clicked = True
-            else:
-                # ลองหาจาก AutomationId
-                back_btn = main_window.child_window(auto_id=back_id)
-                if back_btn.exists(timeout=1):
-                    print(f"[/] พบปุ่มกลับ (ID: {back_id}) -> คลิก")
-                    back_btn.click_input()
-                    back_clicked = True
+        
+        # วิธี 3: หาปุ่มที่มีคำว่า "กลับ" อยู่ใน title (title_re)
+        if not back_clicked:
+            import re
+            back_btn = main_window.child_window(title_re=".*กลับ.*")
+            if back_btn.exists(timeout=1):
+                print(f"[/] พบปุ่มกลับ (title_re) -> คลิก")
+                back_btn.click_input()
+                back_clicked = True
                     
         if back_clicked:
             time.sleep(WAIT_TIME)
         else:
             print("[!] หาปุ่มย้อนกลับไม่เจอเลย ทุกวิธี")
+            # Debug: แสดง elements ทั้งหมดที่มี
+            print("[DEBUG] กำลัง Scan หา elements ที่คล้ายปุ่มกลับ...")
+            try:
+                all_texts = main_window.children(control_type="Text")
+                for txt in all_texts[:20]:  # แสดงแค่ 20 ตัวแรก
+                    try:
+                        print(f"   - Text: '{txt.window_text()}' | ID: {txt.automation_id()}")
+                    except: pass
+            except: pass
     except Exception as e:
         print(f"[!] Error กดปุ่มย้อนกลับ: {e}")
 
