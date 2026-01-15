@@ -60,7 +60,7 @@ def run_banking_1_custom():
         # 5. กรอกชื่อลูกค้า (AcctNo_UserControlBase)
         CUSTOMER_NAME = "นายทดสอบ ระบบ"  # ชื่อลูกค้าทดสอบ
         print(f"[*] Typing Customer Name '{CUSTOMER_NAME}'...")
-        name_input = window.child_window(auto_id="REFN05", control_type="Edit")
+        name_input = window.child_window(auto_id="REFNO5", control_type="Edit")
         name_input.click_input()
         name_input.type_keys(CUSTOMER_NAME, with_spaces=True)
         time.sleep(WAIT_TIME)
