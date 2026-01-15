@@ -61,10 +61,8 @@ def force_scroll_down(window):
         window.type_keys("{PGDN}")
 
 def scroll_until_found(control, window, max_scrolls=3):
-    """เลื่อนหน้าจอจนกว่าจะเจอ Element"""
     if control.exists(timeout=1):
         return True
-
     print(f"[*] กำลังเลื่อนหน้าจอหา Element... (Max {max_scrolls})")
     for _ in range(max_scrolls):
         force_scroll_down(window)
@@ -72,29 +70,21 @@ def scroll_until_found(control, window, max_scrolls=3):
             return True
     return False
 
-# [FIXED] แก้ไขให้พิมพ์ลง Control โดยตรง (ป้องกันการพิมพ์ผิดช่อง)
 def fill_if_empty(window, control, value):
-    """กรอกข้อมูลเฉพาะถ้าช่องว่างอยู่"""
     try:
         text = control.texts()[0].strip()
     except:
         text = ""
-
     if not text:
-        # คลิกเพื่อย้าย Focus มาที่ช่องนี้จริงๆ
         control.click_input()
         time.sleep(0.5) 
-        # ใช้ control.type_keys แทน window.type_keys เพื่อความชัวร์
         control.type_keys(value, with_spaces=True)
 
-# [FIXED] แก้ไขให้พิมพ์ลง Control โดยตรง
 def fill_field(window, auto_id, value, description=""):
-    """ฟังก์ชันช่วยกรอกข้อมูลโดยระบุ AutoID"""
     print(f"[*] {description}: {value}")
     control = window.child_window(auto_id=auto_id)
     if not scroll_until_found(control, window):
         raise Exception(f"ไม่พบช่อง {description} (ID: {auto_id})")
-    
     control.click_input()
     time.sleep(0.5)
     control.type_keys(value, with_spaces=True)
@@ -122,7 +112,7 @@ def click_menu_button(main_window, title):
 # ==================== 3. LOGIC ====================
 
 def execute_cod_ems_flow(main_window):
-    # --- 1. เข้าเมนู S และกรอกข้อมูลผู้ส่ง ---
+    # --- 1. เข้าเมนู S และข้อมูลผู้ส่ง ---
     click_menu_button(main_window, S_CFG['BUTTON_S_TITLE'])
 
     print("[*] อ่านบัตรประชาชน")
@@ -133,15 +123,9 @@ def execute_cod_ems_flow(main_window):
     if scroll_until_found(postal, main_window):
         fill_if_empty(main_window, postal, POSTAL_CODE)
 
-    # =======================================================
-    # [UPDATED] เลื่อนหาเบอร์โทรศัพท์ -> คลิกให้ชัวร์ -> กรอก
-    # =======================================================
     print("[*] ตรวจสอบเบอร์โทร (กำลังเลื่อนหา...)")
     phone = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
-    
-    # เลื่อนหา (Max 5 รอบ)
     if scroll_until_found(phone, main_window, max_scrolls=5):
-        # ใช้ fill_if_empty ตัวใหม่ที่แก้แล้ว (พิมพ์ลงช่องโดยตรง)
         fill_if_empty(main_window, phone, PHONE_NUMBER)
     else:
         print("[!] Warning: หาช่องเบอร์โทรไม่เจอ (ข้าม)")
@@ -152,42 +136,47 @@ def execute_cod_ems_flow(main_window):
     print("[*] เข้าเมนู 4 -> A")
 
     # =======================================================
-    # [UPDATED] เลื่อนหาปุ่มเมนู 4 ก่อนคลิก (เพราะตกขอบ)
+    # [FIXED] ใช้การจิ้มปุ่ม Scroll Down (LineDown) จนกว่าจะเจอ
     # =======================================================
     btn_4_title = S_CFG['BUTTON_4_TITLE']
-    print(f"[*] กำลังค้นหาปุ่มเมนู: {btn_4_title}")
+    print(f"[*] กำลังเลื่อนหาปุ่มเมนู: {btn_4_title}")
     
-    # สร้างตัวแทนปุ่ม (ยังไม่คลิก)
-    btn_4 = main_window.child_window(title=btn_4_title, control_type="Text")
+    target_btn = main_window.child_window(title=btn_4_title, control_type="Text")
+    
+    # อ่านชื่อปุ่มจาก Config (ถ้าไม่มีใช้ LineDown)
+    scroll_id = S_CFG.get('SCROLL_DOWN_BTN_ID', 'LineDown')
+    scroll_down_btn = main_window.child_window(auto_id=scroll_id) 
     
     found = False
-    # วนลูปกด Page Down สูงสุด 15 ครั้ง
-    for i in range(15):
-        # 1. เช็คก่อนว่าเจอหรือยัง?
-        if btn_4.exists(timeout=1):
+    for i in range(20): # กดสูงสุด 20 ครั้ง
+        if target_btn.exists(timeout=0.5):
+            print(f"[/] เจอเมนู '{btn_4_title}' แล้ว!")
             found = True
             break
             
-        # 2. ถ้ายังไม่เจอ ให้กด Page Down
-        print(f"[*] ยังไม่เจอ... กด Page Down ครั้งที่ {i+1}")
-        main_window.type_keys("{PGDN}") 
-        time.sleep(1.5) # รอให้หน้าจอเลื่อนและโหลด
+        print(f"[*] ยังไม่เจอ... จิ้มปุ่ม {scroll_id} (ครั้งที่ {i+1})")
         
-    if found:
-        print(f"[*] เจอแล้ว! กำลังคลิก: {btn_4_title}")
-        # เจอแล้วคลิกเลย
         try:
-            btn_4.click_input()
+            if scroll_down_btn.exists():
+                scroll_down_btn.click_input()
+            else:
+                print(f"[!] ไม่เจอปุ่ม {scroll_id} -> ใช้คีย์บอร์ด PageDown แทน")
+                main_window.type_keys("{PGDN}")
         except:
-            # ถ้าคลิกไม่ได้ (อาจจะอยู่ขอบล่างสุดพอดี) ให้เลื่อนอีกนิดแล้วคลิกใหม่
-            print("[!] คลิกไม่ได้ (อาจตกขอบ) -> ขยับจออีกนิด")
-            main_window.type_keys("{DOWN 2}") # กดลูกศรลง 2 ที
-            time.sleep(0.5)
-            btn_4.click_input()
-            
+            main_window.type_keys("{DOWN 3}") # กดลูกศรลงแก้ขัด
+
+        time.sleep(0.5)
+
+    if found:
+        try:
+            target_btn.click_input()
+        except:
+            print("[!] เจอแล้วแต่คลิกยาก -> ขยับลงอีกนิด")
+            main_window.type_keys("{DOWN}")
+            target_btn.click_input()
         time.sleep(WAIT_TIME)
     else:
-        raise Exception(f"หาปุ่มเมนู '{btn_4_title}' ไม่เจอ (กด Page Down จนสุดแล้ว)")
+        raise Exception(f"หาปุ่มเมนู '{btn_4_title}' ไม่เจอ (ลองเลื่อนลงสุดแล้ว)")
 
     # ปุ่ม A
     click_menu_button(main_window, S_CFG['BUTTON_A_TITLE'])
@@ -203,23 +192,20 @@ def execute_cod_ems_flow(main_window):
     time.sleep(0.5)
 
     fill_field(main_window, S_CFG['WEIGHT_INPUT_ID'], S_CFG['WEIGHT_VALUE'], "กรอกน้ำหนัก")
-
     press_next(main_window) # ถัดไป (2)
 
-    # --- 4. กรอกขนาด (กว้าง x ยาว x สูง) ---
+    # --- 4. กรอกขนาด ---
     print("[*] กรอกขนาดพัสดุ (L/W/H)")
     fill_field(main_window, S_CFG['LENGTH_INPUT_ID'], S_CFG['DIM_L_VALUE'], "Length")
     fill_field(main_window, S_CFG['WIDTH_INPUT_ID'], S_CFG['DIM_W_VALUE'], "Width")
     fill_field(main_window, S_CFG['HEIGHT_INPUT_ID'], S_CFG['DIM_H_VALUE'], "Height")
-
     press_next(main_window) # ถัดไป (3)
 
     # --- 5. กรอกรหัสไปรษณีย์ปลายทาง ---
     fill_field(main_window, S_CFG['DEST_POSTAL_ID'], S_CFG['DEST_POSTAL_VALUE'], "รหัสไปรษณีย์ปลายทาง")
-
     press_next(main_window) # ถัดไป (4)
 
-    # --- 6. เลือกบริการ COD EMS และกรอกรายละเอียด ---
+    # --- 6. เลือกบริการ COD EMS ---
     print(f"[*] เลือกบริการ (ID: {S_CFG['SERVICE_SELECTION_ID1']})")
     service_btn = main_window.child_window(auto_id=S_CFG['SERVICE_SELECTION_ID1'])
     if not scroll_until_found(service_btn, main_window):
@@ -229,14 +215,12 @@ def execute_cod_ems_flow(main_window):
 
     fill_field(main_window, S_CFG['PACKAGE_NUM_ID'], S_CFG['PACKAGE_NUM_VALUE'], "เลขที่ขนส่งตั้งต้น")
     fill_field(main_window, S_CFG['RETURN_REASON_ID'], S_CFG['RETURN_REASON_VALUE'], "เหตุผลในการส่งคืน")
+    press_next(main_window) # ถัดไป (5)
 
-    press_next(main_window) # ถัดไป (5) - จบขั้นตอนการกรอก
-
-    # --- 7. จัดการ Popup (ถ้ามี) ---
+    # --- 7. Popup ---
     print("[*] ตรวจสอบ Popup...")
-    time.sleep(1.0) # รอ Popup เด้ง
+    time.sleep(1.0) 
     popup_ok = main_window.child_window(title=S_CFG['POPUP_OK_TITLE'], control_type="Button")
-    
     if popup_ok.exists(timeout=3):
         print("[!] พบ Popup -> กดตกลง")
         popup_ok.click_input()
@@ -249,12 +233,10 @@ def run_service():
     step_name = "COD EMS Flow"
     app = None
     print(f"\n{'='*50}\n[*] เริ่มทำรายการ: {step_name}")
-
     try:
         app, main_window = connect_main_window()
         execute_cod_ems_flow(main_window)
         print(f"[V] SUCCESS: {step_name} สำเร็จ")
-
     except Exception as e:
         print(f"\n[X] FAILED: {step_name} -> {e}")
         if app:
