@@ -1,0 +1,3452 @@
+#----------------เครื่องใช้ไฟฟ้า----------------
+
+[EMS_JUMBO_COM]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เครื่องใช้ไฟฟ้า
+BTN_X_TITLE = คอมพิวเตอร์ (รวม CPU กรณีใส่กล่องเดียวกันหรือมัดติดกัน)
+BTN_RECEIVE_MONEY = รับเงิน
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+# ที่อยู่ 
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+; ===== (เฉพาะ Manual) =====
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_TV]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เครื่องใช้ไฟฟ้า
+BTN_Q_TITLE = โทรทัศน์ไม่เกิน 21 นิ้ว
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_CHAK]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เครื่องใช้ไฟฟ้า
+BTN_R_TITLE = จักรเย็บผ้าอุตสาหกรรม (รวมขาถีบ)
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_LCD]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เครื่องใช้ไฟฟ้า
+BTN_V_TITLE = LCD TV,LED TV,Plasma TV ไม่เกิน 42 นิ้ว
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_FAN]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เครื่องใช้ไฟฟ้า
+BTN_X_TITLE = พัดลมอุตสาหกรรม
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_WASHING]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เครื่องใช้ไฟฟ้า
+BTN_X_TITLE = เครื่องซักผ้า (ถังคู่/ฝาบน/ฝาหน้า)
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_TV29]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เครื่องใช้ไฟฟ้า
+BTN_Q_TITLE = โทรทัศน์ไม่เกิน 29 นิ้ว
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_AIR]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เครื่องใช้ไฟฟ้า
+BTN_Q_TITLE = เครื่องปรับอากาศแบบแขวนผนัง
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_AIR_STANDING]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เครื่องใช้ไฟฟ้า
+BTN_Q_TITLE = เครื่องปรับอากาศแบบตั้งพื้น
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_LCD2]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เครื่องใช้ไฟฟ้า
+BTN_Q_TITLE = LCD TV,LED TV,Plasma TV ไม่เกิน 50 นิ้ว
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_TV40]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เครื่องใช้ไฟฟ้า
+BTN_Q_TITLE = โทรทัศน์เกิน 29นิ้ว แต่ไม่เกิน 40 นิ้ว
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_TUYEN1]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เครื่องใช้ไฟฟ้า
+BTN_Q_TITLE = ตู้เย็นขนาดไม่เกิน 12 คิว
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_TUYEN2]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เครื่องใช้ไฟฟ้า
+BTN_Q_TITLE = ตู้เย็นขนาดไม่เกิน 15 คิว
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_AIRTU]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เครื่องใช้ไฟฟ้า
+BTN_Q_TITLE = เครื่องปรับอากาศแบบตู้
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+#----------------ยานพาหนะ---------------
+
+[EMS_JUMBO_BET]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = ยานพาหนะ
+BTN_Q_TITLE = รถแบตเตอรี่สำหรับเด็ก/รถสามล้อโยกคนพิการ/วีลแชร์ (พับไม่ได้)
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_BICYCLE]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = ยานพาหนะ
+BTN_Q_TITLE = จักรยาน/รถจักรยานพับได้ใส่กล่อง
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_FAIFA]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = ยานพาหนะ
+BTN_Q_TITLE = รถจักรยานไฟฟ้า/รถจักรยานยนต์ไฟฟ้า
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_MOTORCYCLE1_2]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = ยานพาหนะ
+BTN_Q_TITLE = จักรยานยนต์ขนาดเครื่องยนต์ไม่เกิน 150 CC. ที่มีความกว้างไม่เกิน 820 มม.และ ไม่ใช่รูปทรงขนาดใหญ่ เช่นเดียวกับ Big Bike
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_MOTORCYCLE3_4]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = ยานพาหนะ
+BTN_Q_TITLE = จักรยานยนต์ขนาดเครื่องยนต์เกิน 150 แต่ไม่เกิน 400 CC. ที่มีความกว้างไม่เกิน 820 มม.และ ไม่ใช่รูปทรงขนาดใหญ่ เช่นเดียวกับ Big Bike
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_MOTORCYCLE5_6]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = ยานพาหนะ
+BTN_Q_TITLE = จักรยานยนต์ขนาดเครื่องยนต์เกิน 400 CC. หรือจักรยานยนต์ที่มีความกว้างเกิน 820 มม.หรือ มีรูปทรงขนาดใหญ่/Big Bike ทุกกขนาด CC.
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+#----------------เฟอร์นิเจอร์----------------
+
+[EMS_JUMBO_CHAIR]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เฟอร์นิเจอร์
+BTN_Q_TITLE = เก้าอี้ 1 ที่นั่ง
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_SOFA1]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เฟอร์นิเจอร์
+BTN_Q_TITLE = โซฟา 1 ที่นั่ง
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_SOFA2]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เฟอร์นิเจอร์
+BTN_Q_TITLE = โซฟา 2 ที่นั่ง
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_SOFA3]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เฟอร์นิเจอร์
+BTN_Q_TITLE = โซฟา 3 ที่นั่ง
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_METTRESS1]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เฟอร์นิเจอร์
+BTN_Q_TITLE = ที่นอนขนาดไม่เกิน 3.5 ฟุต
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_METTRESS2]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เฟอร์นิเจอร์
+BTN_Q_TITLE = ที่นอนขนาดไม่เกิน 6 ฟุต
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_CLOSET1]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เฟอร์นิเจอร์
+BTN_Q_TITLE = ตู้เสื้อผ้าประตู 1 บาน
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_CLOSET2]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เฟอร์นิเจอร์
+BTN_Q_TITLE = ตู้เสื้อผ้าประตู 2 บาน
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_BED1]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เฟอร์นิเจอร์
+BTN_Q_TITLE = เตียงขนาดไม่เกิน 3.5 ฟุต
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_BED2]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เฟอร์นิเจอร์
+BTN_Q_TITLE = เตียงขนาดไม่เกิน 6 ฟุต
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+#----------------เบ็ดเตล็ด----------------
+
+[EMS_JUMBO_GAS]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เบ็ดเตล็ด
+BTN_Q_TITLE = เตาแก๊ส 1 หัว/2หัว
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_SATELLITE1_2]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เบ็ดเตล็ด
+BTN_Q_TITLE = จานดาวเทียม ขนาดเส้นผ่านศูนย์กลางไม่เกิน 75 ซม.
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_SATELLITE3_4]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เบ็ดเตล็ด
+BTN_Q_TITLE = จานดาวเทียม ขนาดเส้นผ่านศูนย์กลาง 75 ซม. ไม่เกิน 200 ซม.
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_SATELLITE5_6]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เบ็ดเตล็ด
+BTN_Q_TITLE = จานดาวเทียม ขนาดเส้นผ่าศูนย์กลางเกิน 200 ซม.แต่ไม่เกิน 250 ซม. (น้ำหนักเกิน 100 Kg.)
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_MAXNO]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เบ็ดเตล็ด
+BTN_Q_TITLE = ล้อแม็กไม่รวมยาง 1 ล้อ
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_BUMPER]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เบ็ดเตล็ด
+BTN_Q_TITLE = กันชนรถยนต์ขนาดด้านใดด้านหนึ่งไม่เกิน 200 ซม.
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_TIRE]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เบ็ดเตล็ด
+BTN_Q_TITLE = ยางรถยนต์นั่งส่วนบุคคล 1 ล้อ
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_GASTU]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เบ็ดเตล็ด
+BTN_Q_TITLE = เตาแก๊ส (รวมตู้/ชั้นวาง)
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_DOOR]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เบ็ดเตล็ด
+BTN_Q_TITLE = บานประตู 1 บาน ขนาดมาตราฐานไม่เกิน 90x200 ซม.
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_COOLER]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เบ็ดเตล็ด
+BTN_Q_TITLE = เครื่องทำน้ำเย็นขนาดเล็ก
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_PUMP]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เบ็ดเตล็ด
+BTN_Q_TITLE = เครื่องสูบน้ำ/ปั้มน้ำ
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_MAX]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เบ็ดเตล็ด
+BTN_Q_TITLE = ล้อแม็กพร้อมยาง 1ล้อ
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_GRASS]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เบ็ดเตล็ด
+BTN_Q_TITLE = เครื่องตัดหญ้า
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_PARAMOTOR]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เบ็ดเตล็ด
+BTN_Q_TITLE = เครื่องพารามอเตอร์ (น้ำหนักเกิน 100 Kg.)
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_SKY]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เบ็ดเตล็ด
+BTN_Q_TITLE = สกายแลป (น้ำหนักเกิน 100 Kg.)
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_SPEAKER]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เบ็ดเตล็ด
+BTN_Q_TITLE = ลำโพง/ตู้เกมส์คอมพิวเตอร์
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_ATV]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เบ็ดเตล็ด
+BTN_Q_TITLE = ATV (น้ำหนักเกิน 100 Kg.)
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_SIDECAR]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เบ็ดเตล็ด
+BTN_Q_TITLE = จักรยานยนต์พ่วงข้าง (น้ำหนักเกิน 100 Kg.)
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_ROTSAMLO]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เบ็ดเตล็ด
+BTN_Q_TITLE = รถสามล้อเครื่อง (น้ำหนักเกิน 100 Kg.)
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+[EMS_JUMBO_EXERCISE]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = เบ็ดเตล็ด
+BTN_Q_TITLE = เครื่องออกกำลังกาย ขนาดด้านในด้านหนึ่งไม่เกิน 150 ซม.
+BTN_RECEIVE_MONEY = รับเงิน
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+# --------------- Roll Pallet (EMS JUMBO) ---------------
+
+[EMS_JUMBO_ROLLOTOP]
+BTN_S_TITLE = รับฝากสิ่งของ
+BTN_Y_TITLE = EMS Jumbo สิ่งของสำเร็จรูป
+BTN_A_TITLE = Roll Pallet (EMS JUMBO)
+BTN_Q_TITLE = Roll Pallet สำหรับนักเรียน นิสิต นักศึกษา และผู้ประกอบการ OTOP
+WEIGHT_ID = EG_WEIGHT_INPUT_ELEMENT
+WEIGHT_VAL = 200
+DIM_L_ID = Length
+DIM_L_VAL = 25
+DIM_W_ID = Width
+DIM_W_VAL = 14
+DIM_H_ID = Height
+DIM_H_VAL = 0
+DEST_POSTAL_ID = PostCodeDestination
+DEST_POSTAL_VALUE = 10400
+SERVICE_JUMBO_ID1 = ShippingService_2584
+SERVICE_JUMBO_ID2 = ShippingService_364120
+COVERAGE_ICON_ID = CoverageIcon
+COVERAGE_AMOUNT_ID = CoverageAmount
+COVERAGE_AMOUNT_VALUE = 200.00
+API_POPUP_OK_ID = AcceptButton
+
+; ใส่ Yes ถ้าต้องการข้าม, ใส่ No ถ้าต้องการทำปกติ
+SKIP_COVERAGE = No
+# เลือกโหมดที่ต้องการทำงาน:
+# 0 = ข้าม Step 7 (บริการพิเศษ)
+# 1 = EMS Jumbo รับฝาก ณ ที่อยู่ (ต้องกรอกเงิน)
+# 2 = ตอบรับ
+# 3 = ตอบรับ - Track
+# 4 = ส่งไปยังที่อยู่ของผู้รับ
+; ถ้าต้องการเลือกหลายอัน ให้คั่นด้วยคอมม่า เช่น 2,3
+SELECTED_ADDON_OPTIONS = 2
+
+ADDON_1_ID = ShippingAddOnService_364094
+ADDON_1_AMOUNT_ID = MissingAddOnAmount
+ADDON_1_AMOUNT_VALUE = 200.00
+ADDON_2_ID = ShippingAddOnService_8510
+ADDON_3_ID = ShippingAddOnService_8511
+ADDON_4_ID = ShippingAddOnService_10117
+SEARCH_ADDR_ID = SearchField1
+; --- ที่อยู่---
+SEARCH_ADDR_VALUE = พญาไท
+ADDRESS_SELECT_GROUP_ID = Group
+RCV_FNAME_ID = CustomerFirstName
+RCV_FNAME_VALUE = test
+RCV_LNAME_ID = CustomerLastName
+RCV_LNAME_VALUE = ttt
+RCV_PHONE_ID = PhoneNumber
+RCV_PHONE_VALUE = 0987654321
+POPUP_NO_ID = No
+FAST_CASH_AUTO_ID = EnableFastCash
+PAYMENT_FAST_KEY = F
+
+; --- Manual Flow (กรณี Search ไม่เจอ) ---
+POPUP_OK_ID = Ok
+ADMIN_AREA_ID = AdministrativeArea
+ADMIN_AREA_VALUE = กรุงเทพ
+LOCALITY_ID = Locality
+LOCALITY_VALUE = พญาไท
+DEPENDENT_LOCALITY_ID = DependentLocality
+DEPENDENT_LOCALITY_VALUE = พญาไท
+STREET_ADDR_ID = StreetAddress1
+STREET_ADDR_VALUE = 11
+
+
+; [APP]
+; ; ชื่อ Title ของหน้าต่างโปรแกรม POS (รองรับ Regex)
+; WindowTitle = .*Riposte POS Application.*
+
+; [SETTINGS]
+; ; เวลาที่รอในการหาปุ่มแต่ละปุ่ม (วินาที)
+; ConnectTimeout = 10
+; ; เวลาหน่วงระหว่าง Step (วินาที)
+; StepDelay = 0.8
+; ; ระยะการเลื่อน Scroll Mouse (ติดลบคือเลื่อนลง)
+; ScrollDistance = -5
+; ; เวลารอปุ่ม (สำหรับ ElementWait)
+; ElementWaitTimeout = 15
+
+; [TEST_DATA]
+; ; --- ข้อมูลผู้ฝากส่ง (ต้นทาง) ---
+; ; เบอร์โทรศัพท์ผู้ฝากส่ง
+; PhoneNumber = 0812345678
+; ; รหัสไปรษณีย์ผู้ฝากส่ง (ต้นทาง)
+; SenderPostalCode = 72230
+
+; [MONEY_ORDER]
+; ; จำนวนเงินที่ส่ง
+; Amount = 10000
+; ; รหัสไปรษณีย์ปลายทาง (สำหรับธนาณัติ)
+; DestinationPostalCode = 10110
+; ; ชื่อ-นามสกุล ผู้รับเงิน
+; ReceiverFirstName = สมชาย
+; ReceiverLastName = ใจดี
+; ; เลือกได้ 1 อย่าง: Paper, EMS, SMS หรือปล่อยว่างถ้าไม่เอา
+; Options = Paper
+; ; ต้องการส่ง SMS แจ้งเตือนหรือไม่? (Yes/No)
+; SendSMS = No
+; ; เบอร์โทรศัพท์ผู้รับ (จำเป็นต้องมีถ้าเลือก SendSMS = Yes)
+; ReceiverPhone = 0612569592
+
+; [MO_PRISON]
+; PrisonName = สำนักงานขนส่งเขตพื้นที่1       
+; ;ตัวอย่าง = กมลา                   
+; [TRAFFIC_POLICE]
+; PoliceStationName = 
+; ; ชื่อผู้รับเงิน (นักโทษ)
+; PrisonerName = สมชาย ใจดี
+
+; [DEPOSIT_ENVELOPE]
+; ; --- ข้อมูลพัสดุ (ปลายทาง) ---
+; ; น้ำหนักรวม (กรัม)
+; Weight = 25
+
+; ; --- ขนาดพัสดุ (ซม.) กรอกแยกตามช่อง ---
+; ; ความกว้าง
+; Width = 15
+; ; ความยาว
+; Length = 20
+; ; ความสูง
+; Height = 10
+
+; ; รหัสไปรษณีย์ปลายทาง (ผู้รับ)
+; ReceiverPostalCode = 10110
+
+; ; ตัวเลือกพิเศษหน้าแรก (เช่น LQ, FR, LI)
+; SpecialOptions =
+; ; ลงทะเบียนเพิ่ม (True = ติ๊ก, False = ไม่ติ๊ก)
+; RegisterOption=False
+; ; ต้องการเพิ่มราคารับประกันหรือไม่ (กดปุ่ม +)
+; ; True = กดเพิ่ม, False = ไม่กด
+; AddInsurance = False
+; ; วงเงินรับประกัน (บาท) -> ใส่ 0 ถ้าไม่ต้องการประกัน
+; Insurance = 10000
+
+; [SPECIAL_SERVICES]
+; ; บริการพิเศษหน้าถัดไป (ใส่ชื่อปุ่มที่ต้องการกด คั่นด้วยคอมม่า)
+; ; [แก้ไข] ใช้คำว่า "Track" คำเดียว เพื่อความแม่นยำและไม่ซ้ำกับปุ่ม "ตอบรับ" ธรรมดา
+; Services = ตอบรับ
+
+; [RECEIVER]
+; ; คำค้นหาที่อยู่ (เพื่อเรียกรายการขึ้นมา)
+; AddressKeyword = หมู่บ้านทดสอบ ถนนตัวอย่าง แขวงตัวอย่าง เขตตัวอย่าง กทม. 10220
+
+; [RECEIVER_DETAILS]
+; ; ข้อมูลผู้รับ (ที่จะกรอกในหน้าถัดไป)
+; FirstName = สมชาย
+; LastName = รักชาติ
+; PhoneNumber = 0998887777
+
+; [REPEAT_TRANSACTION]
+; ; ต้องการทำรายการซ้ำหรือไม่ (True/Yes = ใช่, False/No = ไม่)
+; Repeat = False
+
+; [MANUAL_ADDRESS_FALLBACK]
+; ; ข้อมูลสำหรับกรอกเอง กรณีระบบขึ้น Popup แจ้งเตือน (Error) และไม่สามารถดึงรายการที่อยู่ได้
+; ; --- เพิ่มข้อมูลที่อยู่ 1 และ 2 ตรงนี้ ---
+; Address1 = 99/99 หมู่บ้านตัวอย่าง
+; Address2 = ซอย 5 ถนนหลัก
+; Province = กรุงเทพมหานคร
+; District = บางเขน
+; SubDistrict = อนุสาวรีย์
+
+; [PRODUCT_QUANTITY]
+; ; จำนวนชิ้นที่ต้องการ (สำหรับสินค้าที่มี Popup ถามจำนวน)
+; Quantity = 3
+
+; [PAYMENT]
+; ; วิธีการชำระเงิน (ต้องตรงกับชื่อปุ่มบนหน้าจอ)
+; Method = เงินสด
+; ; จำนวนเงินที่รับจากลูกค้า (บาท)
+; ReceivedAmount = 50000
+
+; ; Config Edit ธนาณัติ แก้ไขจากส่วนนี้ ############################# Config ธนาณัติ #############################
+; [CAR_TAX]
+; ; 1. ประเภทรถหลัก (ต้องสะกดให้ตรงเป๊ะ เพื่อใช้ค้นหา)
+; ; ตัวอย่าง: (รย.๑) รถยนต์นั่งส่วนบุคคลไม่เกิน 7 คน
+; ; ตัวอย่าง: (รย.๑๒) รถจักรยานยนต์ส่วนบุคคล
+; VehicleType = รถใช้งานเกษตรกรรม
+
+; ; --- กลุ่มข้อมูลรถยนต์ (รย.1, รย.2, รย.3) ---
+; ; Element1: ขนาดซีซี
+; EngineCC = 1000
+; ; Element2: ปีที่จดทะเบียน (พ.ศ.)
+; RegYear = 2023
+; ; Element3: น้ำหนัก (กก.)
+; VehicleWeight = 1200
+; ; Element4: ประเภทเจ้าของ (1.นิติบุคคล / 2.ส่วนบุคคล)
+; OwnerType = ส่วนบุคคล
+
+; ; --- กลุ่มข้อมูลมอเตอร์ไซค์ (รย.12) ---
+; ; Element5: ประเภทจักรยานยนต์ (1.ไฟฟ้า / 2.น้ำมัน)
+; MotorcycleType = น้ำมัน
+
+; ; --- ข้อมูลทั่วไป (ต้องมีทุกคัน) ---
+; ; Element7: วันครบกำหนดภาษี
+; TaxDueDate = 15/2/2026
+
+; ; SwitchThumb: ค่าธรรมเนียมเปลี่ยนเล่ม (Yes/No)
+; ; ระบบเลือก "ไม่" มาให้อยู่แล้ว ถ้าจะเอา "ใช่" ให้ใส่ Yes
+; ChangeBookFee = Yes
