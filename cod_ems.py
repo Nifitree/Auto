@@ -61,8 +61,13 @@ def force_scroll_down(window):
         window.type_keys("{PGDN}")
 
 def scroll_until_found(control, window, max_scrolls=3):
+    """เลื่อนหน้าจอจนกว่าจะเจอ Element"""
+    if control is None: # [SAFETY] ป้องกัน NoneType
+        return False
+        
     if control.exists(timeout=1):
         return True
+
     print(f"[*] กำลังเลื่อนหน้าจอหา Element... (Max {max_scrolls})")
     for _ in range(max_scrolls):
         force_scroll_down(window)
@@ -75,6 +80,7 @@ def fill_if_empty(window, control, value):
         text = control.texts()[0].strip()
     except:
         text = ""
+
     if not text:
         control.click_input()
         time.sleep(0.5) 
@@ -109,9 +115,13 @@ def click_menu_button(main_window, title):
     btn.click_input()
     time.sleep(WAIT_TIME)
 
-# ==================== 3. LOGIC ====================
+# ==================== 3. LOGIC (แก้ไขจุด Error) ====================
 
 def execute_cod_ems_flow(main_window):
+    # [SAFETY] เช็คก่อนเลยว่า main_window มาจริงไหม
+    if main_window is None:
+        raise Exception("Main Window is None (Connection Failed)")
+
     # --- 1. เข้าเมนู S และข้อมูลผู้ส่ง ---
     click_menu_button(main_window, S_CFG['BUTTON_S_TITLE'])
 
@@ -136,36 +146,45 @@ def execute_cod_ems_flow(main_window):
     print("[*] เข้าเมนู 4 -> A")
 
     # =======================================================
-    # [FIXED] ใช้การจิ้มปุ่ม Scroll Down (LineDown) จนกว่าจะเจอ
+    # [FIXED & SAFETY] ระบบเลื่อนหาปุ่มเมนู 4 (ป้องกัน Error NoneType)
     # =======================================================
     btn_4_title = S_CFG['BUTTON_4_TITLE']
-    print(f"[*] กำลังเลื่อนหาปุ่มเมนู: {btn_4_title}")
+    print(f"[*] กำลังค้นหาปุ่มเมนู: {btn_4_title}")
     
-    target_btn = main_window.child_window(title=btn_4_title, control_type="Text").click_input()
+    # 1. สร้างตัวแทนปุ่มเป้าหมาย
+    target_btn = main_window.child_window(title=btn_4_title, control_type="Text")
     
-    # อ่านชื่อปุ่มจาก Config (ถ้าไม่มีใช้ LineDown)
+    # 2. สร้างตัวแทนปุ่มเลื่อน (Scroll Down)
     scroll_id = S_CFG.get('SCROLL_DOWN_BTN_ID', 'LineDown')
     scroll_down_btn = main_window.child_window(auto_id=scroll_id) 
     
     found = False
-    for i in range(20): # กดสูงสุด 20 ครั้ง
-        if target_btn.exists(timeout=0.5):
+    
+    # ลูปค้นหา 20 รอบ
+    for i in range(20):
+        # [SAFETY] เช็คก่อนเรียก .exists()
+        if target_btn is not None and target_btn.exists(timeout=0.5):
             print(f"[/] เจอเมนู '{btn_4_title}' แล้ว!")
             found = True
             break
             
-        print(f"[*] ยังไม่เจอ... จิ้มปุ่ม {scroll_id} (ครั้งที่ {i+1})")
+        print(f"[*] ยังไม่เจอ... (ครั้งที่ {i+1})")
         
+        # พยายามเลื่อนหน้าจอ
         try:
-            if scroll_down_btn.exists():
+            # ลองกดปุ่มลูกศรในจอก่อน
+            if scroll_down_btn is not None and scroll_down_btn.exists(timeout=0.5):
+                print(f"   -> คลิกปุ่ม {scroll_id}")
                 scroll_down_btn.click_input()
             else:
-                print(f"[!] ไม่เจอปุ่ม {scroll_id} -> ใช้คีย์บอร์ด PageDown แทน")
+                # ถ้าไม่เจอปุ่มลูกศร ให้กด PGDN บนคีย์บอร์ด
+                print("   -> ไม่เจอปุ่ม Scroll, ใช้คีย์บอร์ด PageDown")
                 main_window.type_keys("{PGDN}")
-        except:
-            main_window.type_keys("{DOWN 3}") # กดลูกศรลงแก้ขัด
+        except Exception as scroll_err:
+            print(f"   [!] Error ขณะเลื่อน: {scroll_err} -> กดลูกศรลงแทน")
+            main_window.type_keys("{DOWN 3}")
 
-        time.sleep(0.5)
+        time.sleep(0.5) # รอหน้าจอขยับ
 
     if found:
         try:
@@ -221,7 +240,9 @@ def execute_cod_ems_flow(main_window):
     print("[*] ตรวจสอบ Popup...")
     time.sleep(1.0) 
     popup_ok = main_window.child_window(title=S_CFG['POPUP_OK_TITLE'], control_type="Button")
-    if popup_ok.exists(timeout=3):
+    
+    # [SAFETY] เช็ค popup_ok ก่อนเรียก exists
+    if popup_ok is not None and popup_ok.exists(timeout=3):
         print("[!] พบ Popup -> กดตกลง")
         popup_ok.click_input()
     else:
