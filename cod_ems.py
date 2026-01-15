@@ -254,6 +254,54 @@ def execute_cod_ems_flow(main_window):
     else:
         print("[-] ไม่พบ Popup (ข้าม)")
 
+    # [STEP 8] กดกลับ (Back) -> กดเสร็จสิ้น (Finish)
+    # =======================================================
+    print("[*] ขั้นตอนสุดท้าย: กด 'ย้อนกลับ' -> กด 'เสร็จสิ้น'")
+    time.sleep(1.0)
+
+    # 8.1 กดปุ่มย้อนกลับ
+    # อ่านชื่อปุ่มจาก config หรือใช้ค่า Default "ย้อนกลับ"
+    back_title = S_CFG.get('BTN_BACK_TITLE', 'ย้อนกลับ')
+    print(f"[*] กำลังหาปุ่ม: {back_title}")
+
+    try:
+        back_btn = main_window.child_window(title=back_title, control_type="Text")
+        # ถ้าหา Text ไม่เจอ ลองหา Button
+        if not back_btn.exists(timeout=2):
+             back_btn = main_window.child_window(title=back_title, control_type="Button")
+
+        if back_btn.exists():
+            back_btn.click_input()
+            time.sleep(WAIT_TIME)
+        else:
+            # สำรอง: ลองหาด้วย Automation ID เผื่อชื่อปุ่มเปลี่ยน
+            back_id = S_CFG.get('BTN_BACK_ID', 'BackButton')
+            back_btn = main_window.child_window(auto_id=back_id)
+            if back_btn.exists(timeout=1):
+                back_btn.click_input()
+                time.sleep(WAIT_TIME)
+            else:
+                print(f"[!] หาปุ่มย้อนกลับไม่เจอ ({back_title})")
+    except Exception as e:
+        print(f"[!] Error กดปุ่มย้อนกลับ: {e}")
+
+    # 8.2 กดเสร็จสิ้น
+    finish_title = S_CFG.get('BTN_FINISH_TITLE', 'เสร็จสิ้น')
+    print(f"[*] กำลังหาปุ่ม: {finish_title}")
+    
+    try:
+        finish_btn = main_window.child_window(title=finish_title, control_type="Text")
+        if not finish_btn.exists(timeout=2):
+             finish_btn = main_window.child_window(title=finish_title, control_type="Button")
+             
+        if finish_btn.exists():
+            finish_btn.click_input()
+            print("[V] กดเสร็จสิ้นเรียบร้อย")
+        else:
+             print(f"[!] หาปุ่ม '{finish_title}' ไม่เจอ")
+    except Exception as e:
+        print(f"[!] Error กดเสร็จสิ้น: {e}")
+
 # ==================== 4. MAIN RUNNER ====================
 
 def run_service():
