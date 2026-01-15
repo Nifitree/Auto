@@ -70,19 +70,34 @@ def force_scroll_down(window):
     except Exception:
         window.type_keys("{PGDN}")
 
-def scroll_until_found(control, window, max_scrolls=3):
-    """วนลูป Scroll จนกว่าจะเจอ Object"""
+def scroll_until_found(control, window, max_scrolls=5):
+    """วนลูป Scroll จนกว่าจะเจอ Object (เพิ่มรอบเป็น 5 เพื่อความชัวร์)"""
+    # เช็คก่อนหนึ่งรอบ เผื่อเจอเลย
+    if control.exists(timeout=1):
+        return True
+        
+    print(f"[*] Scrolling to find element: {control.window_text()}...")
     for _ in range(max_scrolls):
+        force_scroll_down(window)
         if control.exists(timeout=1):
             return True
-        force_scroll_down(window)
     return False
 
 def fill_if_empty(window, control, value):
-    """กรอกข้อมูลเฉพาะในกรณีที่ช่องว่าง"""
-    if not control.texts()[0].strip():
+    """กรอกข้อมูลเฉพาะในกรณีที่ช่องว่าง (เพิ่มการคลิกเน้นๆ)"""
+    try:
+        current_text = control.texts()[0].strip()
+    except:
+        current_text = ""
+        
+    if not current_text:
+        print(f"[*] Filling value: {value}")
+        control.set_focus()
         control.click_input()
+        time.sleep(0.5) # รอให้ Cursor กระพริบ
         window.type_keys(value)
+    else:
+        print(f"[*] Field already has value: {current_text} (Skip)")
 
 # ==================== 3. TRANSACTION FLOWS ====================
 
@@ -99,22 +114,38 @@ def utility_services_main():
         main_window.child_window(title=B_CFG["HOTKEY_BaS_TITLE"], control_type="Text").click_input()
         time.sleep(WAIT_TIME)
 
-        # กดอ่านบัตร
-        main_window.child_window(title=ID_CARD_BUTTON_TITLE, control_type="Text").click_input()
+        # กดอ่านบัตร (เพิ่ม scroll หาปุ่มอ่านบัตรด้วย กันเหนียว)
+        id_card_btn = main_window.child_window(title=ID_CARD_BUTTON_TITLE, control_type="Text")
+        if scroll_until_found(id_card_btn, main_window):
+            id_card_btn.click_input()
+        else:
+            print("[!] Warning: ID Card button not found")
 
         # ตรวจสอบและกรอกรหัสไปรษณีย์
+        print("[*] Checking Postal Code...")
         postal = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
         if not scroll_until_found(postal, main_window):
+            print("[X] Postal Code field not found!")
             return False
         fill_if_empty(main_window, postal, POSTAL_CODE)
 
-        # ตรวจสอบและกรอกเบอร์โทร
+        # =======================================================
+        # [UPDATED] ส่วนกรอกเบอร์โทร (เน้นการเลื่อนหา)
+        # =======================================================
+        print("[*] Checking Phone Number...")
         phone = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
-        if not scroll_until_found(phone, main_window):
+        
+        # 1. สั่งเลื่อนหาจนกว่าจะเจอ (Max 5 รอบ)
+        if scroll_until_found(phone, main_window, max_scrolls=5):
+            # 2. เมื่อเจอแล้ว สั่งกรอกข้อมูล
+            fill_if_empty(main_window, phone, PHONE_NUMBER)
+        else:
+            print("[X] Phone Number field not found even after scrolling!")
             return False
-        fill_if_empty(main_window, phone, PHONE_NUMBER)
+        # =======================================================
 
         # กดถัดไป
+        print("[*] Pressing Next...")
         main_window.child_window(title=B_CFG["NEXT_TITLE"], auto_id=B_CFG["ID_AUTO_ID"], control_type="Text").click_input()
         time.sleep(WAIT_TIME)
 
