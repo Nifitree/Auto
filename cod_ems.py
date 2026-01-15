@@ -61,15 +61,26 @@ def force_scroll_down(window):
         window.type_keys("{PGDN}")
 
 def scroll_until_found(control, window, max_scrolls=3):
+    """เลื่อนหน้าจอจนกว่าจะเจอ Element"""
+    # เช็คก่อนหนึ่งรอบ
+    if control.exists(timeout=1):
+        return True
+
+    print(f"[*] กำลังเลื่อนหน้าจอหา Element... (Max {max_scrolls})")
     for _ in range(max_scrolls):
+        force_scroll_down(window)
         if control.exists(timeout=1):
             return True
-        force_scroll_down(window)
     return False
 
 def fill_if_empty(window, control, value):
     """กรอกข้อมูลเฉพาะถ้าช่องว่างอยู่"""
-    if not control.texts()[0].strip():
+    try:
+        text = control.texts()[0].strip()
+    except:
+        text = ""
+
+    if not text:
         control.click_input()
         window.type_keys(value)
 
@@ -102,7 +113,7 @@ def click_menu_button(main_window, title):
     btn.click_input()
     time.sleep(WAIT_TIME)
 
-# ==================== 3. LOGIC ====================
+# ==================== 3. LOGIC (แก้ไขตรงนี้) ====================
 
 def execute_cod_ems_flow(main_window):
     # --- 1. เข้าเมนู S และกรอกข้อมูลผู้ส่ง ---
@@ -116,17 +127,42 @@ def execute_cod_ems_flow(main_window):
     if scroll_until_found(postal, main_window):
         fill_if_empty(main_window, postal, POSTAL_CODE)
 
-    print("[*] ตรวจสอบเบอร์โทร")
+    # =======================================================
+    # [UPDATED] เลื่อนหาเบอร์โทรศัพท์ก่อนกรอก
+    # =======================================================
+    print("[*] ตรวจสอบเบอร์โทร (กำลังเลื่อนหา...)")
     phone = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
-    if scroll_until_found(phone, main_window):
+    
+    # เพิ่ม max_scrolls เป็น 5 เพื่อความชัวร์
+    if scroll_until_found(phone, main_window, max_scrolls=5):
+        # เจอแล้วค่อยสั่งกรอก
         fill_if_empty(main_window, phone, PHONE_NUMBER)
+    else:
+        print("[!] Warning: หาช่องเบอร์โทรไม่เจอ (ข้าม)")
 
     press_next(main_window)
     
     # --- 2. เข้าเมนู 4 -> A ---
     print("[*] เข้าเมนู 4 -> A")
-    click_menu_button(main_window, S_CFG['BUTTON_4_TITLE'])
+
+    # =======================================================
+    # [UPDATED] เลื่อนหาปุ่มเมนู 4 ก่อนคลิก (เพราะตกขอบ)
+    # =======================================================
+    btn_4_title = S_CFG['BUTTON_4_TITLE']
+    print(f"[*] กำลังเลื่อนหาปุ่มเมนู: {btn_4_title}")
+    
+    btn_4 = main_window.child_window(title=btn_4_title, control_type="Text")
+    
+    # กำหนด max_scrolls=10 เพื่อให้เลื่อนลงไปลึกๆ จนกว่าจะเจอ
+    if scroll_until_found(btn_4, main_window, max_scrolls=10):
+        btn_4.click_input()
+        time.sleep(WAIT_TIME)
+    else:
+        raise Exception(f"หาปุ่มเมนู '{btn_4_title}' ไม่เจอ (เลื่อนหาจนสุดแล้ว)")
+
+    # ปุ่ม A มักจะอยู่ตำแหน่งบนๆ หรือเห็นชัดแล้ว ใช้ฟังก์ชันปกติได้
     click_menu_button(main_window, S_CFG['BUTTON_A_TITLE'])
+    
     press_next(main_window) # ถัดไป (1)
 
     # --- 3. ยืนยันและกรอกน้ำหนัก ---
