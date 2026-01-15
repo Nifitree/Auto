@@ -57,7 +57,15 @@ def run_banking_1_custom():
         ).click_input()
         time.sleep(WAIT_TIME)
 
-        # 5. กรอกจำนวนเงิน (AutoID = "Amount")
+        # 5. กรอกชื่อลูกค้า (AcctNo_UserControlBase)
+        CUSTOMER_NAME = "นายทดสอบ ระบบ"  # ชื่อลูกค้าทดสอบ
+        print(f"[*] Typing Customer Name '{CUSTOMER_NAME}'...")
+        name_input = window.child_window(auto_id="AcctNo_UserControlBase", control_type="Edit")
+        name_input.click_input()
+        name_input.type_keys(CUSTOMER_NAME, with_spaces=True)
+        time.sleep(WAIT_TIME)
+
+        # 6. กรอกจำนวนเงิน (AutoID = "Amount")
         print(f"[*] Typing Amount '{PAYMENT_AMOUNT}'...")
         amount_input = window.child_window(auto_id="Amount", control_type="Edit")
         amount_input.click_input()
