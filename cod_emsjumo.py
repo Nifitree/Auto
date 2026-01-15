@@ -262,12 +262,12 @@ def execute_cod_ems_flow(main_window):
 
     # [STEP 8] กดกลับ (Back) -> กดเสร็จสิ้น (Finish)
     # =======================================================
-    print("[*] ขั้นตอนสุดท้าย: กด 'ย้อนกลับ' -> กด 'เสร็จสิ้น'")
+    print("[*] ขั้นตอนสุดท้าย: กด 'กลับ' -> กด 'เสร็จสิ้น'")
     time.sleep(1.0)
 
     # 8.1 กดปุ่มย้อนกลับ
-    # อ่านชื่อปุ่มจาก config หรือใช้ค่า Default "ย้อนกลับ"
-    back_title = S_CFG.get('BTN_BACK_TITLE', 'ย้อนกลับ')
+    # อ่านชื่อปุ่มจาก config หรือใช้ค่า Default "กลับ"
+    back_title = S_CFG.get('BTN_BACK_TITLE', 'กลับ')
     print(f"[*] กำลังหาปุ่ม: {back_title}")
 
     try:
