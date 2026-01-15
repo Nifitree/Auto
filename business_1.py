@@ -197,8 +197,8 @@ def business_services_flow(main_window):
 
     press_next(main_window)
     
-    # --- 2. เข้าเมนู 4 -> A ---
-    print("[*] เข้าเมนู 4 -> A")
+    # --- 2. เข้าเมนู -----
+    print("[*] เข้าเมนู ")
 
     # ใช้ Smart Function หาปุ่ม
     btn_4_title = S_CFG['BUSINESS_2_TITLE']
