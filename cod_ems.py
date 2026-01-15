@@ -141,7 +141,7 @@ def execute_cod_ems_flow(main_window):
     btn_4_title = S_CFG['BUTTON_4_TITLE']
     print(f"[*] กำลังเลื่อนหาปุ่มเมนู: {btn_4_title}")
     
-    target_btn = main_window.child_window(title=btn_4_title, control_type="Text")
+    target_btn = main_window.child_window(title=btn_4_title, control_type="Text").click_input()
     
     # อ่านชื่อปุ่มจาก Config (ถ้าไม่มีใช้ LineDown)
     scroll_id = S_CFG.get('SCROLL_DOWN_BTN_ID', 'LineDown')
