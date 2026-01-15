@@ -102,10 +102,76 @@ def click_menu_button(main_window, title):
     btn.click_input()
     time.sleep(WAIT_TIME)
 
+# --- [NEW Helper 1] กดลูกศรเลื่อนหน้าจอ ---
+SCROLL_DOWN_BTN_ID = S_CFG.get('SCROLL_DOWN_BTN_ID', 'LineDown')
+
+def click_scroll_arrow_smart(window, repeat=3):
+    """คลิกปุ่ม LineDown เพื่อเลื่อนหน้าจอลง"""
+    try:
+        scroll_btn = window.child_window(auto_id=SCROLL_DOWN_BTN_ID)
+        if scroll_btn.exists(timeout=0.5):
+            for _ in range(repeat):
+                scroll_btn.click_input()
+                time.sleep(0.2)
+            return True
+        else:
+            print(f"[!] Warning: ไม่พบปุ่ม Scroll (ID: {SCROLL_DOWN_BTN_ID})")
+            return False
+    except Exception as e:
+        print(f"[!] Warning: Scroll ผิดพลาด: {e}")
+        return False
+
+# --- [NEW Helper 2] ค้นหาปุ่ม + เช็ค Safe Zone + เลื่อนลงอัตโนมัติ ---
+def find_and_click_smart(window, target_title, max_loops=15):
+    """
+    ค้นหาปุ่มจาก Title แบบฉลาด:
+    1. หาปุ่ม
+    2. ถ้าเจอ -> เช็คว่าอยู่ใน Safe Zone (ไม่ตกขอบล่าง) ไหม?
+    3. ถ้าไม่เจอ หรือ ตกขอบ -> สั่งเลื่อนลง แล้วหาใหม่
+    """
+    print(f"[*] Scanning for '{target_title}' (Smart Scroll)...")
+    
+    for i in range(max_loops):
+        # 1. ลองหาปุ่ม
+        btn = window.child_window(title=target_title, control_type="Text")
+        
+        # 2. เช็คการมีอยู่
+        if btn.exists(timeout=0.5):
+            rect = btn.rectangle()
+            win_rect = window.rectangle()
+            
+            # [Vertical Safe Zone] : พื้นที่ปลอดภัยคือ ส่วนบนถึง 90% ของความสูงหน้าต่าง
+            # (เผื่อ Footer ด้านล่างบัง 10%)
+            safe_limit = win_rect.top + (win_rect.height() * 0.90)
+            
+            # เช็คว่าขอบล่างของปุ่ม (rect.bottom) อยู่ในเขตปลอดภัยไหม
+            if rect.bottom < safe_limit and rect.top > win_rect.top:
+                print(f"[/] Found '{target_title}' in Safe Zone -> Clicking")
+                try:
+                    btn.click_input()
+                except:
+                    # ถ้าคลิกไม่ได้ ให้กด Enter ย้ำ
+                    btn.set_focus()
+                    window.type_keys("{ENTER}")
+                return True
+            else:
+                print(f"[*] Found '{target_title}' but out of bounds (Hidden) -> Scrolling Down")
+        else:
+            print(f"[*] '{target_title}' not found in view -> Scrolling Down")
+        
+        # 3. สั่งเลื่อนลง
+        click_scroll_arrow_smart(window, repeat=4) # กดลง 4 ที
+        time.sleep(0.8) # รอหน้าจอขยับ
+        
+    raise Exception(f"Could not find or click '{target_title}' after {max_loops} scrolls.")
+
 # ==================== 3. LOGIC ====================
 
 def execute_cod_ems_flow(main_window):
-    # --- 1. เข้าเมนู S และกรอกข้อมูลผู้ส่ง ---
+    if main_window is None:
+        raise Exception("Main Window is None (Connection Failed)")
+
+    # --- 1. เข้าเมนู S และข้อมูลผู้ส่ง ---
     click_menu_button(main_window, S_CFG['BUTTON_S_TITLE'])
 
     print("[*] อ่านบัตรประชาชน")
@@ -118,15 +184,27 @@ def execute_cod_ems_flow(main_window):
 
     print("[*] ตรวจสอบเบอร์โทร")
     phone = main_window.child_window(auto_id=PHONE_EDIT_AUTO_ID, control_type="Edit")
-    if scroll_until_found(phone, main_window):
+    if scroll_until_found(phone, main_window, max_scrolls=5):
         fill_if_empty(main_window, phone, PHONE_NUMBER)
+    else:
+        print("[!] Warning: หาช่องเบอร์โทรไม่เจอ (ข้าม)")
 
     press_next(main_window)
     
     # --- 2. เข้าเมนู 4 -> A ---
     print("[*] เข้าเมนู 4 -> A")
-    click_menu_button(main_window, S_CFG['BUTTON_4_TITLE'])
+
+    # [USE SMART FUNCTION] ใช้ฟังก์ชันใหม่ที่นี่
+    btn_4_title = S_CFG['BUTTON_4_TITLE']
+    
+    # เรียกใช้ Helper ใหม่: หา -> เช็คขอบ -> เลื่อนลง -> คลิก
+    find_and_click_smart(main_window, btn_4_title)
+    
+    time.sleep(WAIT_TIME)
+
+    # ปุ่ม A
     click_menu_button(main_window, S_CFG['BUTTON_A_TITLE'])
+    
     press_next(main_window) # ถัดไป (1)
 
     # --- 3. ยืนยันและกรอกน้ำหนัก ---
@@ -138,7 +216,6 @@ def execute_cod_ems_flow(main_window):
     time.sleep(0.5)
 
     fill_field(main_window, S_CFG['WEIGHT_INPUT_ID'], S_CFG['WEIGHT_VALUE'], "กรอกน้ำหนัก")
-
     press_next(main_window) # ถัดไป (2)
 
     # --- 4. กรอกขนาด (กว้าง x ยาว x สูง) ---
@@ -151,7 +228,6 @@ def execute_cod_ems_flow(main_window):
 
     # --- 5. กรอกรหัสไปรษณีย์ปลายทาง ---
     fill_field(main_window, S_CFG['DEST_POSTAL_ID'], S_CFG['DEST_POSTAL_VALUE'], "รหัสไปรษณีย์ปลายทาง")
-
     press_next(main_window) # ถัดไป (4)
 
     # --- 6. เลือกบริการ COD EMS และกรอกรายละเอียด ---
@@ -164,7 +240,6 @@ def execute_cod_ems_flow(main_window):
 
     fill_field(main_window, S_CFG['PACKAGE_NUM_ID'], S_CFG['PACKAGE_NUM_VALUE'], "เลขที่ขนส่งตั้งต้น")
     fill_field(main_window, S_CFG['RETURN_REASON_ID'], S_CFG['RETURN_REASON_VALUE'], "เหตุผลในการส่งคืน")
-
     press_next(main_window) # ถัดไป (5) - จบขั้นตอนการกรอก
 
     # --- 7. จัดการ Popup (ถ้ามี) ---
@@ -184,12 +259,10 @@ def run_service():
     step_name = "COD EMS Flow"
     app = None
     print(f"\n{'='*50}\n[*] เริ่มทำรายการ: {step_name}")
-
     try:
         app, main_window = connect_main_window()
         execute_cod_ems_flow(main_window)
         print(f"[V] SUCCESS: {step_name} สำเร็จ")
-
     except Exception as e:
         print(f"\n[X] FAILED: {step_name} -> {e}")
         if app:
