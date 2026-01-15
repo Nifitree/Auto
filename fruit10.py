@@ -674,7 +674,9 @@ def run_smart_scenario(main_window, config):
     # =========================================================
 
     wait_until_id_appears(main_window, "ShippingService_358105", timeout=15)
-    main_window.type_keys("{ENTER}")
+    if find_and_click_with_rotate_logic(main_window, "ShippingService_358105"):
+        main_window.type_keys("{ENTER}")
+    time.sleep(1)
     smart_next(main_window)
     time.sleep(step_delay)
 
