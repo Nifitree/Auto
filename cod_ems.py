@@ -126,6 +126,7 @@ def execute_cod_ems_flow(main_window):
     postal = main_window.child_window(auto_id=POSTAL_CODE_EDIT_AUTO_ID, control_type="Edit")
     if scroll_until_found(postal, main_window):
         fill_if_empty(main_window, postal, POSTAL_CODE)
+        time.sleep(WAIT_TIME)
 
     # =======================================================
     # [UPDATED] เลื่อนหาเบอร์โทรศัพท์ก่อนกรอก
