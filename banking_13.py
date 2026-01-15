@@ -57,14 +57,22 @@ def run_banking_1_custom():
         ).click_input()
         time.sleep(WAIT_TIME)
 
-        # 5. กรอกจำนวนเงิน (AutoID = "Amount")
+        # 5. กรอกชื่อลูกค้า (AcctNo_UserControlBase)
+        CUSTOMER_NAME = "นายทดสอบ ระบบ"  # ชื่อลูกค้าทดสอบ
+        print(f"[*] Typing Customer Name '{CUSTOMER_NAME}'...")
+        name_input = window.child_window(auto_id="REFNO5", control_type="Edit")
+        name_input.click_input()
+        name_input.type_keys(CUSTOMER_NAME, with_spaces=True)
+        time.sleep(WAIT_TIME)
+
+        # 6. กรอกจำนวนเงิน (AutoID = "Amount")
         print(f"[*] Typing Amount '{PAYMENT_AMOUNT}'...")
         amount_input = window.child_window(auto_id="Amount", control_type="Edit")
         amount_input.click_input()
         amount_input.type_keys(PAYMENT_AMOUNT)
         time.sleep(WAIT_TIME)
 
-        # 6. กดปุ่มถัดไป (ครั้งที่ 2)
+        # 7. กดปุ่มถัดไป (ครั้งที่ 2)
         print("[*] Clicking Next (2)...")
         window.child_window(
             title=B_CFG["NEXT_TITLE"], 
@@ -73,7 +81,7 @@ def run_banking_1_custom():
         ).click_input()
         time.sleep(WAIT_TIME)
 
-        # 7. กดปุ่มถัดไป (ครั้งที่ 3)
+        # 8. กดปุ่มถัดไป (ครั้งที่ 3)
         print("[*] Clicking Next (3)...")
         window.child_window(
             title=B_CFG["NEXT_TITLE"], 
@@ -82,12 +90,12 @@ def run_banking_1_custom():
         ).click_input()
         time.sleep(WAIT_TIME)
 
-        # 8. กดรับเงิน (Receive Money)
+        # 9. กดรับเงิน (Receive Money)
         print("[*] Clicking 'Receive Money'...")
         window.child_window(title="รับเงิน", control_type="Text").click_input()
         time.sleep(WAIT_TIME)
 
-        # 9. กดปุ่ม Fast Cash (ID: EnableFastCash)
+        # 10. กดปุ่ม Fast Cash (ID: EnableFastCash)
         print("[*] Clicking Fast Cash (ID: EnableFastCash)...")
         # ไม่ระบุ control_type เพื่อความชัวร์ หรือถ้าเป็นปุ่ม image ก็จะกดได้
         window.child_window(auto_id="EnableFastCash").click_input()
