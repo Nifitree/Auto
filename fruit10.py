@@ -671,6 +671,7 @@ def run_smart_scenario(main_window, config):
 
         except: pass
         time.sleep(0.5)
+    
     # =========================================================
 
     wait_until_id_appears(main_window, "ShippingService_358105", timeout=15)
