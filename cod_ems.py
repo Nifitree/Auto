@@ -155,16 +155,39 @@ def execute_cod_ems_flow(main_window):
     # [UPDATED] เลื่อนหาปุ่มเมนู 4 ก่อนคลิก (เพราะตกขอบ)
     # =======================================================
     btn_4_title = S_CFG['BUTTON_4_TITLE']
-    print(f"[*] กำลังเลื่อนหาปุ่มเมนู: {btn_4_title}")
+    print(f"[*] กำลังค้นหาปุ่มเมนู: {btn_4_title}")
     
+    # สร้างตัวแทนปุ่ม (ยังไม่คลิก)
     btn_4 = main_window.child_window(title=btn_4_title, control_type="Text")
     
-    # กำหนด max_scrolls=10 เพื่อให้เลื่อนลงไปลึกๆ จนกว่าจะเจอ
-    if scroll_until_found(btn_4, main_window, max_scrolls=10):
-        btn_4.click_input()
+    found = False
+    # วนลูปกด Page Down สูงสุด 15 ครั้ง
+    for i in range(15):
+        # 1. เช็คก่อนว่าเจอหรือยัง?
+        if btn_4.exists(timeout=1):
+            found = True
+            break
+            
+        # 2. ถ้ายังไม่เจอ ให้กด Page Down
+        print(f"[*] ยังไม่เจอ... กด Page Down ครั้งที่ {i+1}")
+        main_window.type_keys("{PGDN}") 
+        time.sleep(1.5) # รอให้หน้าจอเลื่อนและโหลด
+        
+    if found:
+        print(f"[*] เจอแล้ว! กำลังคลิก: {btn_4_title}")
+        # เจอแล้วคลิกเลย
+        try:
+            btn_4.click_input()
+        except:
+            # ถ้าคลิกไม่ได้ (อาจจะอยู่ขอบล่างสุดพอดี) ให้เลื่อนอีกนิดแล้วคลิกใหม่
+            print("[!] คลิกไม่ได้ (อาจตกขอบ) -> ขยับจออีกนิด")
+            main_window.type_keys("{DOWN 2}") # กดลูกศรลง 2 ที
+            time.sleep(0.5)
+            btn_4.click_input()
+            
         time.sleep(WAIT_TIME)
     else:
-        raise Exception(f"หาปุ่มเมนู '{btn_4_title}' ไม่เจอ (เลื่อนหาจนสุดแล้ว)")
+        raise Exception(f"หาปุ่มเมนู '{btn_4_title}' ไม่เจอ (กด Page Down จนสุดแล้ว)")
 
     # ปุ่ม A
     click_menu_button(main_window, S_CFG['BUTTON_A_TITLE'])
