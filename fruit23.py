@@ -599,11 +599,11 @@ def run_smart_scenario(main_window, config):
 
     time.sleep(step_delay)
 
-    # 5. หน้า น้ำหนัก (รูป 3)
-    log(f"...[Step 5] กรอกน้ำหนัก: {weight}")
-    smart_input_generic(main_window, weight, "น้ำหนัก")
-    smart_next(main_window)
-    time.sleep(step_delay)
+    # # 5. หน้า น้ำหนัก (รูป 3)
+    # log(f"...[Step 5] กรอกน้ำหนัก: {weight}")
+    # smart_input_generic(main_window, weight, "น้ำหนัก")
+    # smart_next(main_window)
+    # time.sleep(step_delay)
 
     # [แก้ไขจุดที่ 2] ลบ smart_next(main_window) ที่ซ้ำซ้อนตรงนี้ออก 
     # เพราะมันทำให้กดข้ามไปหน้า เลข ปณ (Step 7) ทันทีโดยไม่ได้ตั้งตัว
