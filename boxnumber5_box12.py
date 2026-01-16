@@ -1,20 +1,18 @@
 import configparser
+import config_loader
+from config_loader import get_config_safe
+from utils import normalize_text, smart_click, return_to_home, check_service_unavailable_popup
+
 import os
+
+
 import time
 import datetime
 from pywinauto.application import Application
 from pywinauto import mouse
 
 # ================= 1. Config & Log =================
-def load_config(filename='config.ini'):
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(script_dir, filename)
-    config = configparser.ConfigParser()
-    if not os.path.exists(file_path): 
-        print(f"[Error] ไม่พบไฟล์ Config ที่: {file_path}")
-        return None
-    config.read(file_path, encoding='utf-8')
-    return config
+
 
 def log(message):
     print(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] {message}")
@@ -112,21 +110,6 @@ def force_scroll_down(window, scroll_dist=-5):
         mouse.scroll(coords=(center_x, center_y), wheel_dist=scroll_dist)
         time.sleep(0.8)
     except: pass
-
-def smart_click(window, criteria_list, timeout=5):
-    if isinstance(criteria_list, str): criteria_list = [criteria_list]
-    start = time.time()
-    while time.time() - start < timeout:
-        for criteria in criteria_list:
-            try:
-                for child in window.descendants():
-                    if child.is_visible() and criteria in child.window_text().strip():
-                        child.click_input()
-                        log(f"[/] กดปุ่ม '{criteria}' สำเร็จ")
-                        return True
-            except: pass
-        time.sleep(0.3)
-    return False
 
 def smart_click_with_scroll(window, criteria, max_scrolls=5, scroll_dist=-5):
     log(f"...ค้นหา '{criteria}' (Scroll)...")
@@ -576,7 +559,7 @@ def process_payment(window, payment_method, received_amount):
     time.sleep(1)
 
 # ================= 4. Workflow Main =================
-def run_smart_scenario(main_window, config):
+def run_smart_scenario(main_window, config, reporter=None):
     try:
         # แยกตัวแปร PostalCode ให้ชัดเจน
         weight = config['DEPOSIT_ENVELOPE'].get('Weight', '10')
@@ -655,8 +638,18 @@ def run_smart_scenario(main_window, config):
     # [แก้ไข] เพิ่ม timeout เป็น 60 และใส่ if not เพื่อเช็คว่าถ้าไม่เจอให้หยุดทันที
     target_service_id = "ShippingService_8509" 
     if not wait_until_id_appears(main_window, target_service_id, timeout=60):
+        if check_service_unavailable_popup(main_window, delay=0):
+            log("[SKIP] พบ Popup ไม่มีบริการ -> ข้ามไปทำ item ถัดไป")
+            return_to_home(main_window)
+            return
         log("Error: รอนานเกิน 60 วินาทีแล้ว ยังไม่เข้าหน้าบริการหลัก")
-        return 
+        return_to_home(main_window)
+        return
+    # เช็ค Popup ก่อนคลิก
+    if check_service_unavailable_popup(main_window, delay=0):
+        log("[SKIP] พบ Popup ไม่มีบริการ -> ข้ามไปทำ item ถัดไป")
+        return_to_home(main_window)
+        return
 
     # คลิก 1 ครั้ง
     if not find_and_click_with_rotate_logic(main_window, target_service_id):
@@ -710,12 +703,12 @@ def run_smart_scenario(main_window, config):
 
 # ================= 5. Start App =================
 if __name__ == "__main__":
-    conf = load_config()
+    conf = config_loader.config
     if conf:
         log("Connecting...")
         try:
             wait = int(conf['SETTINGS'].get('ConnectTimeout', 10))
-            app_title = conf['APP']['WindowTitle']
+            app_title = get_config_safe('APP', 'WindowTitle', '')
             log(f"Connecting to Title: {app_title} (Wait: {wait}s)")
             app = Application(backend="uia").connect(title_re=app_title, timeout=wait)
             main_window = app.top_window()
