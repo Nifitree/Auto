@@ -513,7 +513,7 @@ def process_payment(window, payment_method, received_amount):
 # ================= 4. Workflow Main =================
 def run_smart_scenario(main_window, config):
     try:
-        category_name = "ตระกร้าบรรจุผลไม้ 5 กก." 
+        category_name = "ตะกร้าบรรจุผลไม้ 5 กก." 
         category_id_fallback = "MailPieceShape_SubParent_CockFightingEquipments"
         
         
