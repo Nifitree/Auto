@@ -369,74 +369,44 @@ def process_receiver_address_selection(window, address_keyword, manual_data):
         smart_next(window)
         time.sleep(1.0) 
         
-        log("...ตรวจสอบผลลัพธ์ (ค้นหา ID: AddressResult)...")
-        found_popup = False
-        target_item = None # เก็บปุ่มที่จะกด
+        log("...ตรวจสอบผลลัพธ์ (Popup/List)...")
+        found_popup = False; found_list = False
         
         for _ in range(40): 
-            # 1. เช็ค Popup Error
             if check_error_popup(window, delay=0.0):
-                log("[WARN] ตรวจพบ Popup คำเตือน! -> เข้าโหมด Manual")
+                log("[WARN] ตรวจพบ Popup คำเตือน! -> ปิดแล้วเข้าสู่โหมดกรอกเอง")
                 found_popup = True; break
-            
-            # 2. [NEW] เช็คจาก Structure ID: AddressResult (ตาม Log ที่ให้มา)
-            # วิธีนี้แม่นยำที่สุด ไม่ขึ้นกับขนาดจอ
-            try:
-                # หา Container แม่ก่อน
-                address_groups = [c for c in window.descendants() if c.element_info.automation_id == "AddressResult"]
-                
-                if address_groups:
-                    # ถ้าเจอแม่ ให้หาลูก (ListItem) ทั้งหมด
-                    children_items = address_groups[0].descendants(control_type="ListItem")
-                    
-                    # กรองเฉพาะตัวที่มองเห็น
-                    visible_items = [i for i in children_items if i.is_visible()]
-                    
-                    if visible_items:
-                        # *** เลือกตัวแรกสุด (Index 0) ***
-                        target_item = visible_items[0]
-                        log(f"[/] เจอ ID 'AddressResult' และรายการย่อย {len(visible_items)} รายการ -> ล็อคเป้าตัวแรก")
-                        break
-            except: pass
-            
-            # 3. [Fallback] แผนสำรอง: เผื่อหา ID ไม่เจอ ให้หากว้างๆ แบบเดิม (แต่ลดเงื่อนไขความสูงลง)
-            if not target_item:
-                try:
-                    list_items = [i for i in window.descendants(control_type="ListItem") if i.is_visible()]
-                    # เอาแค่ Top > 80 (เผื่อจอเล็กมาก Header บัง)
-                    valid_items = [i for i in list_items if i.rectangle().top > 80]
-                    if valid_items:
-                        valid_items.sort(key=lambda x: x.rectangle().top)
-                        target_item = valid_items[0]
-                        log("[/] เจอ ListItem (Fallback Mode) -> ล็อคเป้าตัวแรก")
-                        break
-                except: pass
-
+            list_items = [i for i in window.descendants(control_type="ListItem") 
+                          if i.is_visible() and i.rectangle().top > 200]
+            if list_items: found_list = True; break
             time.sleep(0.25)
 
-        # --- ส่วนดำเนินการคลิก ---
         if found_popup:
-            log("...เข้าสู่โหมดกรอกเอง (Manual Mode) จาก Popup...")
+            # เจอ Popup -> เข้า Manual Mode
+            log("...เข้าสู่โหมดกรอกเอง (Manual Mode) -> รอส่งข้อมูลหน้าถัดไป...")
             is_manual_mode = True
             time.sleep(1.0)
             
-        elif target_item:
-            # เจอรายการ (ไม่ว่าจะจาก ID หรือ Fallback) -> คลิกเลย
+        elif found_list:
+            log("...เจอรายการที่อยู่ -> เลือกรายการแรกสุด...")
+            time.sleep(1.0)
             try:
-                log(f"...กำลังคลิกรายการแรก: {target_item.window_text().replace(chr(10), ' ').strip()[:30]}...")
-                try: target_item.set_focus()
-                except: pass
-                
-                target_item.click_input()
-                
-                log("...คลิกสำเร็จ -> รอโหลดข้อมูล (2.0s)...")
-                is_manual_mode = False # เจอรายการ = ไม่ต้องกรอกเอง
-                time.sleep(2.0) 
-            except Exception as e:
-                log(f"[!] Error ขณะคลิก: {e}")
-                is_manual_mode = True # คลิกไม่ได้ ก็กรอกเอง
+                all_list_items = [i for i in window.descendants(control_type="ListItem") if i.is_visible()]
+                valid_items = [i for i in all_list_items if i.rectangle().top > 200 and i.rectangle().height() > 50]
+                if valid_items:
+                    valid_items.sort(key=lambda x: x.rectangle().top)
+                    target_item = valid_items[0]
+                    log(f"[/] Click รายการที่: (Y={target_item.rectangle().top})")
+                    try: target_item.set_focus()
+                    except: pass
+                    target_item.click_input()
+                    log("...เลือกรายการแล้ว รอโหลดข้อมูล (2.0s)...")
+                    time.sleep(2.0) 
+                else: log("[!] เจอ List แต่กรองความสูงไม่ผ่าน")
+            except: pass
+            # เลือก List แล้ว ไม่ต้องกด Next ซ้ำ
         else:
-            log("[!] ไม่เจอทั้ง Popup และ รายการที่อยู่ -> บังคับเข้า Manual Mode")
+            log("[!] ไม่เจอทั้ง Popup และ รายการ -> สันนิษฐานว่าเข้าหน้ากรอกเอง")
             is_manual_mode = True
             smart_next(window)
 
@@ -493,7 +463,6 @@ def process_receiver_details_form(window, fname, lname, phone, is_manual_mode, m
                 window.type_keys("{TAB}"); window.type_keys(subdistrict, with_spaces=True)
 
             # 6. ที่อยู่ 1 (ID: StreetAddress1)
-            # ถ้าค่าว่าง ระบบจะข้ามไปเลย ไม่คลิกให้เสียเวลา
             find_and_fill_smart(window, "ที่อยู่ 1", "StreetAddress1", addr1)
             
             # 7. ที่อยู่ 2 (ID: StreetAddress2)
@@ -528,20 +497,10 @@ def process_repeat_transaction(window, should_repeat):
         time.sleep(0.5)
         
     if found_popup:
-        log("...เจอ Popup ทำรายการซ้ำ...")
-        time.sleep(1.0)
-        
-        target = "ใช่" if is_repeat_intent else "ไม่"
-        log(f"...Config: {should_repeat} -> Intent: {is_repeat_intent} -> เลือก: '{target}'")
-        
-        if not smart_click(window, target, timeout=3):
-            if target == "ไม่": window.type_keys("{ESC}")
-            else: window.type_keys("{ENTER}")
-    else: 
-        log("[WARN] ไม่พบ Popup ทำรายการซ้ำ (Timeout)")
-
-    # สำคัญ: ส่งค่าความตั้งใจกลับไปบอกฟังก์ชันหลัก
-    return is_repeat_intent
+            # เจอ Popup -> เข้า Manual Mode
+            log("...เข้าสู่โหมดกรอกเอง (Manual Mode) -> รอส่งข้อมูลหน้าถัดไป...")
+            is_manual_mode = True
+            time.sleep(1.0)
 
 def process_payment(window, payment_method, received_amount):
     log("--- ขั้นตอนการชำระเงิน (โหมด Fast Cash) ---")
@@ -608,7 +567,7 @@ def run_smart_scenario(main_window, config):
             'Province': config['MANUAL_ADDRESS_FALLBACK'].get('Province', '') if 'MANUAL_ADDRESS_FALLBACK' in config else '',
             'District': config['MANUAL_ADDRESS_FALLBACK'].get('District', '') if 'MANUAL_ADDRESS_FALLBACK' in config else '',
             'SubDistrict': config['MANUAL_ADDRESS_FALLBACK'].get('SubDistrict', '') if 'MANUAL_ADDRESS_FALLBACK' in config else ''
-        }
+        }   
     except: log("[Error] อ่าน Config ไม่สำเร็จ"); return
 
     log(f"--- เริ่มต้นการทำงาน ---")
