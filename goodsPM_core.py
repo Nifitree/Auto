@@ -1,4 +1,3 @@
-# Save as: goodsPM_core.py
 import configparser
 import time
 import os
@@ -53,25 +52,78 @@ def connect_main_window():
 def force_scroll_down(window):
     try:
         cfg = CONFIG["MOUSE_SCROLL"]
-        mouse.scroll(
-            coords=(window.rectangle().left + cfg.getint("CENTER_X_OFFSET"), 
-                    window.rectangle().top + cfg.getint("CENTER_Y_OFFSET")), 
-            wheel_dist=cfg.getint("WHEEL_DIST")
-        )
+        center_x = cfg.getint("CENTER_X_OFFSET", fallback=300)
+        center_y = cfg.getint("CENTER_Y_OFFSET", fallback=300)
+        wheel_dist = cfg.getint("WHEEL_DIST", fallback=-20)
+        mouse.click(coords=(window.rectangle().left + center_x, window.rectangle().top + center_y))
+        time.sleep(0.5)
+        mouse.scroll(coords=(window.rectangle().left + center_x, window.rectangle().top + center_y), wheel_dist=wheel_dist)
         time.sleep(1.0)
     except:
         window.type_keys("{PGDN}")
 
 def scroll_until_found(control, window, max_scrolls=3):
+    if control.exists(timeout=1): return True
     for _ in range(max_scrolls):
-        if control.exists(timeout=1): return True
         force_scroll_down(window)
+        if control.exists(timeout=1): return True
     return False
 
 def fill_if_empty(window, control, value):
-    if not control.texts()[0].strip():
-        control.click_input()
-        window.type_keys(value)
+    try:
+        if not control.texts()[0].strip():
+            control.click_input()
+            time.sleep(0.5)
+            control.type_keys(value, with_spaces=True)
+    except: pass
+
+# --- [NEW] กรอกข้อมูลเจาะจงช่อง (AutoID) ---
+def fill_field_by_id(window, auto_id, value, description=""):
+    print(f"[*] Filling {description} ({auto_id}): {value}")
+    control = window.child_window(auto_id=auto_id)
+    
+    if not scroll_until_found(control, window):
+        raise Exception(f"Field not found: {description} (ID: {auto_id})")
+    
+    control.click_input()
+    time.sleep(0.5)
+    # ลบค่าเก่า (Ctrl+A -> Backspace) แล้วพิมพ์ใหม่
+    control.type_keys("^a{BACKSPACE}")
+    control.type_keys(value, with_spaces=True)
+
+# --- [NEW] กดปุ่มถัดไป ---
+def press_next_button(window):
+    print("[*] Clicking Next...")
+    next_btn = window.child_window(title=B_CFG["NEXT_TITLE"], auto_id=B_CFG["NEXT_AUTO_ID"])
+    if next_btn.exists():
+        next_btn.click_input()
+    else:
+        window.type_keys("{ENTER}")
+    time.sleep(WAIT_TIME)
+
+# --- [RESTORED] ระบบค้นหาและเลือกบริการ ---
+def search_and_select_service(window, service_title):
+    """ค้นหา Service Code แล้วคลิกเลือกรายการ"""
+    print(f"[*] Searching for Service: {service_title}")
+    
+    # 1. พิมพ์ค้นหา
+    search_input = window.child_window(auto_id=S_CFG["SEARCH_EDIT_ID"], control_type="Edit")
+    search_input.click_input()
+    search_input.type_keys("^a{BACKSPACE}")
+    search_input.type_keys(service_title, with_spaces=True)
+    search_input.type_keys("{ENTER}")
+    time.sleep(2) # รอโหลดผลลัพธ์
+
+    # 2. คลิกรายการที่เจอ
+    target_item = window.child_window(title=service_title, auto_id=S_CFG["TRANSACTION_CONTROL_TYPE"], control_type="Text")
+    
+    if target_item.exists(timeout=3):
+        target_item.click_input()
+        print(f"[/] Selected: {service_title}")
+    else:
+        raise Exception(f"Service {service_title} not found in search results.")
+    
+    time.sleep(WAIT_TIME)
 
 # ==================== CORE LOGIC ====================
 
@@ -99,55 +151,8 @@ def goods_pm_main():
         if not scroll_until_found(phone, main_window): raise Exception("Phone not found")
         fill_if_empty(main_window, phone, PHONE_NUMBER)
 
-        print("[*] Clicking Next...")
-        main_window.child_window(title=B_CFG["NEXT_TITLE"], auto_id=B_CFG["NEXT_AUTO_ID"], control_type="Text").click_input()
-        time.sleep(WAIT_TIME)
+        press_next_button(main_window)
         return True
     except Exception as e:
         print(f"[X] Navigation Failed: {e}")
         return False
-
-def run_goods_transaction(main_window, title):
-    """ทำรายการย่อย (เลือก -> ถัดไป -> เสร็จสิ้น)"""
-    print(f"[*] Selecting Item: {title}")
-    main_window.child_window(title=title, auto_id=S_CFG["TRANSACTION_CONTROL_TYPE"], control_type="Text").click_input()
-    time.sleep(WAIT_TIME)
-
-    print("[*] Clicking Next...")
-    main_window.child_window(title=B_CFG["NEXT_TITLE"], auto_id=B_CFG["NEXT_AUTO_ID"], control_type="Text").click_input()
-    time.sleep(WAIT_TIME)
-
-    print("[*] Clicking Finish...")
-    main_window.child_window(title=B_CFG["FINISH_BUTTON_TITLE"], control_type="Text").click_input()
-    time.sleep(WAIT_TIME)
-
-def run_service(step_name, service_title, use_main=True, use_search=False):
-    """Wrapper หลักสำหรับเรียกจากไฟล์ลูก"""
-    app = None
-    try:
-        print(f"\n{'='*50}\n[*] Starting: {step_name} ({service_title})")
-        
-        app, main_window = connect_main_window()
-
-        if use_main and not goods_pm_main():
-            return
-
-        if use_search:
-            print(f"[*] Searching for code: {service_title}")
-            search_input = main_window.child_window(auto_id=S_CFG["SEARCH_EDIT_ID"], control_type="Edit")
-            search_input.click_input()
-            search_input.type_keys("^a{BACKSPACE}")
-            search_input.type_keys(service_title, with_spaces=True)
-            search_input.type_keys("{ENTER}")
-            time.sleep(1.5)
-
-            target = main_window.child_window(title=service_title, control_type="Text")
-            if not target.exists(timeout=3):
-                raise Exception(f"Service {service_title} not found in search results")
-
-        run_goods_transaction(main_window, service_title)
-        print(f"[V] SUCCESS: {step_name}")
-
-    except Exception as e:
-        if app: save_evidence_context(app, {"test_name": "GoodsPM", "step_name": step_name, "error_message": str(e)})
-        print(f"[X] FAILED: {e}")
