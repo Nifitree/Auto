@@ -15,7 +15,7 @@ if __name__ == "__main__":
         # 2. ค้นหาและเลือกรายการ (ใช้ฟังก์ชันจาก Core)
         # ---------------------------------------------------------
         SERVICE_TITLE = S_CFG['GOODSPM_1_TITLE'] # 50313
-        search_and_select_service(main_window, SERVICE_TITLE)
+        run_service("GoodsPM Service 1", SERVICE_TITLE)
 
         # ---------------------------------------------------------
         # 3. กรอกข้อมูล 5 ช่อง
