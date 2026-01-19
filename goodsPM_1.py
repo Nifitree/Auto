@@ -15,8 +15,24 @@ def run_goodsPM_1_custom():
         # ---------------------------------------------------------
         # 2. ค้นหาและเลือกรายการ (ใช้ฟังก์ชันจาก Core)
         # ---------------------------------------------------------
-        SERVICE_TITLE = S_CFG['GOODSPM_1_TITLE'] # 50313
-        run_service("GoodsPM Service 1", SERVICE_TITLE)
+        SERVICE_TITLE = S_CFG['GOODSPM_1_TITLE']         # 50313
+        TRANS_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']   # SubTextTextBlock
+
+        print(f"[*] Selecting Service: {SERVICE_TITLE}")
+        
+        # ใช้คำสั่งเลือกโดยตรงตามที่คุณต้องการ
+        try:
+            main_window.child_window(
+                title=SERVICE_TITLE, 
+                auto_id=TRANS_TYPE, 
+                control_type="Text"
+            ).click_input()
+        except Exception as e:
+            print(f"[!] หาเมนูไม่เจอ หรือเมนูตกขอบ (ลองเลื่อนหาดู): {e}")
+            # ถ้าหาไม่เจอจริงๆ อาจต้องใช้ระบบ Search หรือ Scroll ช่วย
+            # แต่ ณ ที่นี้ใช้ Click ตรงๆ ตามคำขอ
+
+        time.sleep(WAIT_TIME)
 
         # ---------------------------------------------------------
         # 3. กรอกข้อมูล 5 ช่อง
