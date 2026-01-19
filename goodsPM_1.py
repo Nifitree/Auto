@@ -2,8 +2,8 @@ from goodsPM_core import *
 import time
 from evidence import save_evidence_context
 
-def run_banking_1_custom():
-    step_name = "banking_services1 (Custom Flow)"
+def run_goodsPM_1_custom():
+    step_name = "goodsPM_1 (Custom Flow)"
     app = None  # ประกาศตัวแปร app ไว้ก่อนเพื่อกัน error ใน except block
     
     try:
@@ -65,12 +65,13 @@ def run_banking_1_custom():
         print(f"[V] SUCCESS: {step_name} Completed")
 
     except Exception as e:
-        print(f"[X] FAILED: {e}")
         if app:
-            try:
-                save_evidence_context(app, {
-                    "test_name": "GoodsPM Service 1",
-                    "step_name": "Execution Failed",
-                    "error_message": str(e)
-                })
-            except: pass
+            save_evidence_context(app, {
+                "test_name": "GoodsPM Service 1",
+                "step_name": "Execution Failed",
+                "error_message": str(e)
+            })
+        print(f"[X] FAILED: {step_name} error: {e}")
+
+if __name__ == "__main__":
+    run_goodsPM_1_custom()
