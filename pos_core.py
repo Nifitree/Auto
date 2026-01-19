@@ -44,10 +44,9 @@ POSTAL_CODE_EDIT_AUTO_ID = CONFIG["GLOBAL"]["POSTAL_CODE_EDIT_AUTO_ID"]
 B_CFG = CONFIG["PRAISANI_POS_MAIN"]
 S_CFG = CONFIG["PRAISANI_POS_SERVICES"]
 
-# [จุดแก้ไข 2] โหลด Config ส่วน Payment และ Information (จำเป็นสำหรับ pos_1.py)
+# [จุดแก้ไข 2] โหลด Config ส่วน Payment
 T_CFG = CONFIG["PAYMENT"]
-I_CFG = CONFIG["INFORMATION"]
-RECEIVE_PAYMENT_TITLE = I_CFG['RECEIVE_PAYMENT_TITLE']
+RECEIVE_PAYMENT_TITLE = S_CFG.get('RECEIVE_PAYMENT_TITLE', 'รับเงิน')
 
 # Initialize AppContext
 ctx = AppContext(window_title_regex=WINDOW_TITLE)
