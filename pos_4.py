@@ -16,7 +16,16 @@ if __name__ == "__main__":
         TRANS_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE'] # ค่าคือ SubTextTextBlock
         
         print(f"[*] Selecting Service: {SERVICE_TITLE}")
-        main_window.child_window(title=SERVICE_TITLE, auto_id=TRANS_TYPE, control_type="Text").click_input()
+        target = main_window.child_window(title=SERVICE_TITLE, auto_id=TRANS_TYPE, control_type="Text")
+        
+        # Scroll หา element ถ้ายังไม่เห็น
+        if not scroll_until_found(target, main_window):
+            raise Exception(f"Service {SERVICE_TITLE} not found after scrolling")
+        
+        # รอให้ element พร้อมแล้วค่อย click
+        target.wait('visible', timeout=5)
+        main_window.set_focus()
+        target.click_input()
         time.sleep(2) # รอโหลดหน้า
 
         # 2. พิมพ์บาร์โค้ด
