@@ -62,10 +62,6 @@ if __name__ == "__main__":
         main_window.child_window(auto_id="EnableFastCash").click_input()
         time.sleep(WAIT_TIME)
 
-        # 5. กดเสร็จสิ้น
-        main_window.child_window(title=B_CFG["FINISH_BUTTON_TITLE"]).click_input()
-        print(f"[V] POS Service 7 Success!")
-
     except Exception as e:
         target_app = app if (app is not None) else ctx.app
         if target_app:

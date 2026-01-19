@@ -83,9 +83,6 @@ if __name__ == "__main__":
         
         time.sleep(WAIT_TIME)
 
-        main_window.child_window(title=B_CFG["FINISH_BUTTON_TITLE"], control_type="Text").click_input()
-        print("[V] Service 2 Success!")
-
     except Exception as e:
         target_app = app if (app is not None) else ctx.app
         if target_app:
