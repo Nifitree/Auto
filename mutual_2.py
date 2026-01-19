@@ -1,9 +1,11 @@
 from mutual_core import *
 
-if __name__ == "__main__":
-    print(f"\n{'='*50}\n[*] Running Mutual Service 2 (4 Fields)...")
+def run_mutual_2():
+    step_name = "Mutual Fund 2 (50308)"
     app = None
+    
     try:
+        print(f"\n{'='*50}\n[*] Starting: {step_name}")
         if not mutual_main(): exit()
         app, main_window = connect_main_window()
         

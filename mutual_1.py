@@ -51,7 +51,7 @@ def run_mutual_1():
         fill_field_by_id(main_window, "REFNO6", ref6_val, "สังกัด")
 
         # 5.4 Amount: จำนวนเงิน
-        amt_val = S_CFG.get('M1_AMOUNT', '500.00')
+        amt_val = S_CFG.get('M1_AMOUNT', '100.00')
         fill_field_by_id(main_window, "Amount", amt_val, "จำนวนเงิน")
 
         # 6. กดถัดไป 2 ครั้ง (ยืนยัน -> รับเงิน)
