@@ -1,5 +1,6 @@
 from goodsPM_core import * 
 import time
+from evidence import save_evidence_context
 
 if __name__ == "__main__":
     print(f"\n{'='*50}\n[*] Running Goods Payment Service 1 (50313)...")
@@ -50,20 +51,18 @@ if __name__ == "__main__":
         # ---------------------------------------------------------
         # 5. กดรับเงิน
         # ---------------------------------------------------------
-        recv_title = S_CFG.get('BTN_RECEIVE_MONEY_TITLE', 'รับเงิน')
-        print(f"[*] Clicking Receive Money: {recv_title}")
-        
-        # ลองหาแบบ Text
-        recv_btn = main_window.child_window(title=recv_title, control_type="Text")
-        if not recv_btn.exists(timeout=2):
-             # ถ้าไม่เจอหาแบบ Button
-             recv_btn = main_window.child_window(title=recv_title, control_type="Button")
-        
-        if recv_btn.exists():
-            recv_btn.click_input()
-            print("[V] Service 1 Completed Successfully.")
-        else:
-            print(f"[!] Button '{recv_title}' not found.")
+        print("[*] Clicking 'Receive Money'...")
+        # ใช้ Title = "รับเงิน" ตามที่คุณต้องการ
+        main_window.child_window(title="รับเงิน", control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+
+        # 6. กดปุ่ม Fast Cash (ID: EnableFastCash)
+        print("[*] Clicking Fast Cash (ID: EnableFastCash)...")
+        # ไม่ระบุ control_type เพื่อความชัวร์ หรือถ้าเป็นปุ่ม image ก็จะกดได้
+        main_window.child_window(auto_id="EnableFastCash").click_input()
+        time.sleep(WAIT_TIME)
+
+        print(f"[V] SUCCESS: {step_name} Completed")
 
     except Exception as e:
         print(f"[X] FAILED: {e}")
