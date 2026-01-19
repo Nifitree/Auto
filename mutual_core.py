@@ -56,6 +56,10 @@ ACCOUNT_NAME_AUTO_ID = S_CFG.get('ACCOUNT_NAME_AUTO_ID', '')
 AMOUNT_TO_PAY_VALUE = S_CFG.get('AMOUNT_TO_PAY_VALUE', '')
 AMOUNT_TO_PAY_AUTO_ID = S_CFG.get('AMOUNT_TO_PAY_AUTO_ID', '')
 LOAN_TYPE_COMBO_ID = S_CFG.get('LOAN_TYPE_COMBO_ID', '')
+# LOAN_A_SELECT = ชำระหนี้เงินกู้สามัญ
+# LOAN_B_SELECT = ชำระหนี้เงินกู้พิเศษ
+# LOAN_C_SELECT = ชำระหนี้เงินกู้ฉุกเฉิน
+# LOAN_D_SELECT = ชำระหนี้เงินกู้ตามใบ
 LOAN_TYPE_SELECT = S_CFG.get('LOAN_A_SELECT', '')
 
 # Initialize AppContext & Payment
