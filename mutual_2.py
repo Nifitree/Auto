@@ -51,13 +51,7 @@ if __name__ == "__main__":
         main_window.child_window(auto_id="EnableFastCash").click_input()
         time.sleep(WAIT_TIME)
 
-        # 5. จบงาน
-        print("[*] Next (3)")
-        main_window.child_window(title=B_CFG["NEXT_TITLE"], auto_id=B_CFG["NEXT_AUTO_ID"]).click_input()
-        time.sleep(WAIT_TIME)
-
-        finish_transaction(main_window)
-        print("[V] Service 2 Success!")
+        print(f"[V] SUCCESS: {step_name} Completed")
 
     except Exception as e:
         target_app = app if (app is not None) else ctx.app
