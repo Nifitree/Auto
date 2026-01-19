@@ -10,15 +10,30 @@ if __name__ == "__main__":
         # 1. เลือกรายการ
         run_mutual_transaction(main_window, S_CFG['MUTUAL_2_TITLE'])
         
-        # 2. กรอกข้อมูล 4 ช่อง
+        # 2. กรอกข้อมูล 4 ช่อง (AcctNo, REFNO4, REFNO5, Amount)
         print("[*] Filling 4 fields...")
-        main_window.child_window(auto_id=MEMBER_ID_AUTO_ID).type_keys(MEMBER_ID_VALUE)
-        main_window.child_window(auto_id=ACCOUNT_NUM_AUTO_ID).type_keys(ACCOUNT_NUM_VALUE)
-        main_window.child_window(auto_id=ACCOUNT_NAME_AUTO_ID).type_keys(ACCOUNT_NAME_VALUE)
-        main_window.child_window(auto_id=AMOUNT_TO_PAY_AUTO_ID).type_keys(AMOUNT_TO_PAY_VALUE)
+        # AcctNo = เลขที่สมาชิก
+        main_window.child_window(auto_id="AcctNo").click_input()
+        time.sleep(0.3)
+        main_window.child_window(auto_id="AcctNo").type_keys(MEMBER_ID_VALUE, with_spaces=True)
+        
+        # REFNO4 = เลขที่บัญชี
+        main_window.child_window(auto_id="REFNO4").click_input()
+        time.sleep(0.3)
+        main_window.child_window(auto_id="REFNO4").type_keys(ACCOUNT_NUM_VALUE, with_spaces=True)
+        
+        # REFNO5 = ชื่อเจ้าของบัญชี
+        main_window.child_window(auto_id="REFNO5").click_input()
+        time.sleep(0.3)
+        main_window.child_window(auto_id="REFNO5").type_keys(ACCOUNT_NAME_VALUE, with_spaces=True)
+        
+        # Amount = จำนวนเงิน
+        main_window.child_window(auto_id="Amount").click_input()
+        time.sleep(0.3)
+        main_window.child_window(auto_id="Amount").type_keys(AMOUNT_TO_PAY_VALUE, with_spaces=True)
         time.sleep(WAIT_TIME)
 
-        # 3. Flow
+        # 3. กดถัดไป 2 ครั้ง
         print("[*] Next (1)")
         main_window.child_window(title=B_CFG["NEXT_TITLE"], auto_id=B_CFG["NEXT_AUTO_ID"]).click_input()
         time.sleep(WAIT_TIME)
@@ -27,40 +42,16 @@ if __name__ == "__main__":
         main_window.child_window(title=B_CFG["NEXT_TITLE"], auto_id=B_CFG["NEXT_AUTO_ID"]).click_input()
         time.sleep(WAIT_TIME)
         
-        print("[*] Receive Payment")
-        main_window.child_window(title=RECEIVE_PAYMENT_TITLE).click_input()
-        
-        # [STEP 7] PAYMENT SECTION
-        print("[*] Waiting for Payment Screen (3s)...")
-        time.sleep(3)
-        main_window.set_focus()
-        
-        print(f"[*] Payment Action: Clicking Fast Cash (ID: EnableFastCash)...")
-        
-        # --- 1. Fast Cash (Default) ---
-        fast_cash_btn = main_window.child_window(auto_id="EnableFastCash")
-        if fast_cash_btn.exists(timeout=2):
-            fast_cash_btn.click_input()
-        else:
-            print("[!] EnableFastCash not found, using Hotkey F")
-            main_window.type_keys(T_CFG['PAYMENT_FAST'])
-        
-        # --- 2. Other Methods (Commented Out) ---
-        # payment.pay_cash()                      # เงินสด (ระบุจำนวน)
-        # payment.pay_qr()                        # QR PromptPay
-        # payment.pay_credit()                    # บัตรเครดิต
-        # payment.pay_debit()                     # บัตรเดบิต
-        # payment.pay_check()                     # เช็คธนาคาร
-        # payment.pay_alipay()                    # Alipay
-        # payment.pay_wechat()                    # WeChat Pay
-        # payment.pay_thp()                       # Wallet@Post
-        # payment.pay_truemoney()                 # TrueMoney
-        # payment.pay_qr_credit()                 # QR Credit
-        
+        # 4. กดรับเงิน + Fast Cash
+        print("[*] Clicking 'Receive Money'...")
+        main_window.child_window(title="รับเงิน", control_type="Text").click_input()
         time.sleep(WAIT_TIME)
-        # =========================================================
 
-        # 4. จบงาน
+        print("[*] Clicking Fast Cash (ID: EnableFastCash)...")
+        main_window.child_window(auto_id="EnableFastCash").click_input()
+        time.sleep(WAIT_TIME)
+
+        # 5. จบงาน
         print("[*] Next (3)")
         main_window.child_window(title=B_CFG["NEXT_TITLE"], auto_id=B_CFG["NEXT_AUTO_ID"]).click_input()
         time.sleep(WAIT_TIME)
