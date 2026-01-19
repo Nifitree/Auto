@@ -82,11 +82,6 @@ if __name__ == "__main__":
             main_window.type_keys(T_CFG['PAYMENT_FAST'])
         
         time.sleep(WAIT_TIME)
-        # -----------------
-
-        print("[*] Next (3)")
-        main_window.child_window(title=B_CFG["NEXT_TITLE"], auto_id=B_CFG["ID_AUTO_ID"]).click_input()
-        time.sleep(WAIT_TIME)
 
         main_window.child_window(title=B_CFG["FINISH_BUTTON_TITLE"], control_type="Text").click_input()
         print("[V] Service 2 Success!")

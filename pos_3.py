@@ -60,11 +60,6 @@ if __name__ == "__main__":
         
         time.sleep(WAIT_TIME)
 
-        # 5. จบงาน
-        print("[*] Next (3)")
-        main_window.child_window(title=B_CFG["NEXT_TITLE"], auto_id=B_CFG["ID_AUTO_ID"]).click_input()
-        time.sleep(WAIT_TIME)
-
         main_window.child_window(title=B_CFG["FINISH_BUTTON_TITLE"], control_type="Text").click_input()
         print("[V] Service 3 Success!")
 
