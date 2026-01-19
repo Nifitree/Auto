@@ -77,7 +77,7 @@ def fill_if_empty(window, control, value):
             control.type_keys(value, with_spaces=True)
     except: pass
 
-# --- [ADDED] Helper สำหรับกรอกข้อมูลเจาะจงช่อง (เพิ่มใหม่ ไม่ลบของเก่า) ---
+# --- [ADDED] Helper สำหรับกรอกข้อมูลเจาะจงช่อง ---
 def fill_field_by_id(window, auto_id, value, description=""):
     print(f"[*] Filling {description} ({auto_id}): {value}")
     control = window.child_window(auto_id=auto_id)
@@ -90,7 +90,7 @@ def fill_field_by_id(window, auto_id, value, description=""):
     control.type_keys("^a{BACKSPACE}") # ลบค่าเก่า
     control.type_keys(value, with_spaces=True)
 
-# --- [ADDED] Helper กดปุ่มถัดไป (เพิ่มใหม่ ไม่ลบของเก่า) ---
+# --- [ADDED] Helper กดปุ่มถัดไป ---
 def press_next_button(window):
     print("[*] Clicking Next...")
     next_btn = window.child_window(title=B_CFG["NEXT_TITLE"], auto_id=B_CFG["NEXT_AUTO_ID"])
@@ -98,6 +98,30 @@ def press_next_button(window):
         next_btn.click_input()
     else:
         window.type_keys("{ENTER}")
+    time.sleep(WAIT_TIME)
+
+# --- [ADDED] Helper ค้นหาและเลือกบริการ (สำหรับ goodsPM_8 และอื่นๆ) ---
+def search_and_select_service(window, service_title):
+    """ค้นหา Service Code แล้วคลิกเลือกรายการ"""
+    print(f"[*] Searching for Service: {service_title}")
+    
+    # 1. พิมพ์ค้นหา
+    search_input = window.child_window(auto_id=S_CFG["SEARCH_EDIT_ID"], control_type="Edit")
+    search_input.click_input()
+    search_input.type_keys("^a{BACKSPACE}")
+    search_input.type_keys(service_title, with_spaces=True)
+    search_input.type_keys("{ENTER}")
+    time.sleep(1.5) # รอโหลดผลลัพธ์
+
+    # 2. คลิกรายการที่เจอ (ใช้ Logic เดียวกับ run_goods_transaction)
+    target_item = window.child_window(title=service_title, auto_id=S_CFG["TRANSACTION_CONTROL_TYPE"], control_type="Text")
+    
+    if target_item.exists(timeout=3):
+        target_item.click_input()
+        print(f"[/] Selected: {service_title}")
+    else:
+        raise Exception(f"Service {service_title} not found in search results.")
+    
     time.sleep(WAIT_TIME)
 
 # ==================== CORE LOGIC ====================
@@ -134,7 +158,6 @@ def goods_pm_main():
         print(f"[X] Navigation Failed: {e}")
         return False
 
-# --- [RESTORED] ฟังก์ชันที่ต้องใช้ใน run_service ---
 def run_goods_transaction(main_window, title):
     """ทำรายการย่อย (เลือก -> ถัดไป -> เสร็จสิ้น)"""
     print(f"[*] Selecting Item: {title}")
@@ -149,7 +172,6 @@ def run_goods_transaction(main_window, title):
     main_window.child_window(title=B_CFG["FINISH_BUTTON_TITLE"], control_type="Text").click_input()
     time.sleep(WAIT_TIME)
 
-# --- [RESTORED] ฟังก์ชัน Wrapper เดิมที่คุณต้องการ ---
 def run_service(step_name, service_title, use_main=True, use_search=False):
     """Wrapper หลักสำหรับเรียกจากไฟล์ลูก"""
     app = None
