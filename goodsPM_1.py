@@ -12,9 +12,7 @@ def run_goodsPM_1_custom():
         if not goods_pm_main(): exit()
         app, main_window = connect_main_window()
 
-        # ---------------------------------------------------------
         # 2. ค้นหาและเลือกรายการ (ใช้ฟังก์ชันจาก Core)
-        # ---------------------------------------------------------
         SERVICE_TITLE = S_CFG['GOODSPM_1_TITLE']         # 50313
         TRANS_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']   # SubTextTextBlock
 
@@ -34,9 +32,7 @@ def run_goodsPM_1_custom():
 
         time.sleep(WAIT_TIME)
 
-        # ---------------------------------------------------------
         # 3. กรอกข้อมูล 5 ช่อง
-        # ---------------------------------------------------------
         
         # 3.1 REFNO5: เลขที่ผู้เสียภาษี
         tax_val = S_CFG.get('PM1_TAX_ID', '1234567890123')
@@ -58,15 +54,11 @@ def run_goodsPM_1_custom():
         amt_val = S_CFG.get('PM1_AMOUNT', '100.00')
         fill_field_by_id(main_window, "Amount", amt_val, "จำนวนเงิน")
 
-        # ---------------------------------------------------------
         # 4. กดถัดไป
-        # ---------------------------------------------------------
         press_next_button(main_window)
         press_next_button(main_window)
 
-        # ---------------------------------------------------------
         # 5. กดรับเงิน
-        # ---------------------------------------------------------
         print("[*] Clicking 'Receive Money'...")
         # ใช้ Title = "รับเงิน" ตามที่คุณต้องการ
         main_window.child_window(title="รับเงิน", control_type="Text").click_input()
