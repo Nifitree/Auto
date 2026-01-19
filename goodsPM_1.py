@@ -2,12 +2,12 @@ from goodsPM_core import *
 import time
 from evidence import save_evidence_context
 
-if __name__ == "__main__":
-    print(f"\n{'='*50}\n[*] Running Goods Payment Service 1 (50313)...")
-    
-    app = None
+def run_banking_1_custom():
+    step_name = "banking_services1 (Custom Flow)"
+    app = None  # ประกาศตัวแปร app ไว้ก่อนเพื่อกัน error ใน except block
     
     try:
+        print(f"\n{'='*50}\n[*] Starting: {step_name}")
         # 1. รัน Flow หลัก (เข้าเมนู -> อ่านบัตร -> ถัดไป)
         if not goods_pm_main(): exit()
         app, main_window = connect_main_window()
