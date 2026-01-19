@@ -53,26 +53,26 @@ if __name__ == "__main__":
         name_val = S_CFG.get('P5_NAME', 'นายทดสอบ ระบบ')
         name_id = S_CFG.get('P5_AUTOID_NAME', 'AcctNo')
         print(f" [-] Name ({name_id}): {name_val}")
-        main_window.child_window(auto_id=name_id).click_input()
+        main_window.child_window(auto_id=name_id, control_type="Edit").click_input()
         time.sleep(0.3)
-        main_window.child_window(auto_id=name_id).type_keys(name_val, with_spaces=True)
+        main_window.child_window(auto_id=name_id, control_type="Edit").type_keys(name_val, with_spaces=True)
         
         # 4.2 REFNO5 = วันที่ครบกำหนดชำระ (ลบค่าเก่าก่อน)
         due_date_val = S_CFG.get('P5_DUE_DATE', '02/02/2026')
         due_date_id = S_CFG.get('P5_AUTOID_DUE_DATE', 'REFNO5')
         print(f" [-] Due Date ({due_date_id}): {due_date_val}")
-        main_window.child_window(auto_id=due_date_id).click_input()
+        main_window.child_window(auto_id=due_date_id, control_type="Edit").click_input()
         time.sleep(0.3)
-        main_window.child_window(auto_id=due_date_id).type_keys("^a{BACKSPACE}")  # ลบค่าเก่า
-        main_window.child_window(auto_id=due_date_id).type_keys(due_date_val, with_spaces=True)
+        main_window.child_window(auto_id=due_date_id, control_type="Edit").type_keys("^a{BACKSPACE}")  # ลบค่าเก่า
+        main_window.child_window(auto_id=due_date_id, control_type="Edit").type_keys(due_date_val, with_spaces=True)
         
         # 4.3 REFNO7 = เบอร์โทรติดต่อ
         phone_val = S_CFG.get('P5_PHONE', '0987654321')
         phone_id = S_CFG.get('P5_AUTOID_PHONE', 'REFNO7')
         print(f" [-] Phone ({phone_id}): {phone_val}")
-        main_window.child_window(auto_id=phone_id).click_input()
+        main_window.child_window(auto_id=phone_id, control_type="Edit").click_input()
         time.sleep(0.3)
-        main_window.child_window(auto_id=phone_id).type_keys(phone_val, with_spaces=True)
+        main_window.child_window(auto_id=phone_id, control_type="Edit").type_keys(phone_val, with_spaces=True)
         
         time.sleep(WAIT_TIME)
 
