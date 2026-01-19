@@ -1,7 +1,7 @@
 from mutual_core import *
 
 def run_mutual_2():
-    step_name = "Mutual Fund 2 (50308)"
+    step_name = "Mutual Fund 2 (50412)"
     app = None
     
     try:
