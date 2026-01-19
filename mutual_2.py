@@ -69,3 +69,6 @@ def run_mutual_2():
         else:
             print("[!] ไม่สามารถบันทึกภาพได้ (App Disconnected)")
         print(f"[X] FAILED: {e}")
+
+if __name__ == "__main__":
+    run_mutual_2()
