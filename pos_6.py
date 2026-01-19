@@ -2,59 +2,75 @@ from pos_core import *
 import time
 
 if __name__ == "__main__":
-    print(f"\n{'='*50}\n[*] Running POS Service 6 (52025) [Search Mode]...")
+    print(f"\n{'='*50}\n[*] Running POS Service 6 (52025)...")
 
     app = None
-    WAIT_TIME = 2  # กำหนดค่าเวลาหน่วง
+    WAIT_TIME = 2
 
     try:
         if not pos_services_main(): exit()
         app, main_window = connect_main_window()
 
-        # ดึงตัวแปรที่ต้องใช้
-        SERVICE_TITLE = S_CFG['PRAISANI_6_TITLE']       
-        TRANS_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE']  
-        SEARCH_ID = S_CFG['SEARCH_EDIT_ID']             
-
         # 1. ค้นหาและเลือกรายการ
+        SERVICE_TITLE = S_CFG['PRAISANI_6_TITLE']
+        SEARCH_ID = S_CFG['SEARCH_EDIT_ID']
+        
         print(f"[*] Searching for Service: {SERVICE_TITLE}")
-        
-        # 1.1 พิมพ์รหัสลงในช่องค้นหาก่อน
-        main_window.child_window(auto_id=SEARCH_ID).type_keys(SERVICE_TITLE)
-        time.sleep(2) # รอให้รายการกรองขึ้นมา
+        search_input = main_window.child_window(auto_id=SEARCH_ID, control_type="Edit")
+        search_input.click_input()
+        search_input.type_keys("^a{BACKSPACE}")
+        search_input.type_keys(SERVICE_TITLE, with_spaces=True)
+        search_input.type_keys("{ENTER}")
+        time.sleep(1.5)
 
-        # 1.2 คลิกเลือกรายการ
-        print(f"[*] Selecting Service: {SERVICE_TITLE}")
-        main_window.child_window(title=SERVICE_TITLE, auto_id=TRANS_TYPE, control_type="Text").click_input()
-        time.sleep(2) # รอโหลดหน้า
+        print(f"[*] Clicking on: {SERVICE_TITLE}")
+        target = main_window.child_window(title=SERVICE_TITLE, control_type="Text")
+        if not target.exists(timeout=3):
+            raise Exception(f"Service {SERVICE_TITLE} not found")
+        target.click_input()
+        time.sleep(WAIT_TIME)
 
-        # 2. พิมพ์บาร์โค้ด
+        # 2. พิมพ์บาร์โค้ด (Barcode_52025)
         BARCODE_ID = S_CFG['BARCODE_INPUT_ID6']
-        BARCODE_VAL = S_CFG['TEST_BARCODE_VALUE']
+        BARCODE_VAL = S_CFG.get('P6_BARCODE', '')
         
-        main_window.child_window(auto_id=BARCODE_ID).type_keys(BARCODE_VAL)
-        print(f"[*] Typed Barcode: {BARCODE_VAL}")
+        print(f"[*] Typing Barcode: {BARCODE_VAL}")
+        main_window.child_window(auto_id=BARCODE_ID, control_type="Edit").click_input()
+        time.sleep(0.3)
+        main_window.child_window(auto_id=BARCODE_ID, control_type="Edit").type_keys(BARCODE_VAL, with_spaces=True)
         time.sleep(1)
 
-        # 3. กดถัดไป
-        print("[*] Next ")
+        # 3. กดถัดไป 3 ครั้ง
+        print("[*] Next (1)")
         main_window.child_window(title=B_CFG["NEXT_TITLE"], auto_id=B_CFG["ID_AUTO_ID"]).click_input()
         time.sleep(WAIT_TIME)
 
-        # 4. กดตกลง
-        main_window.child_window(title=B_CFG["ACCEPT_TITLE"], auto_id=B_CFG["ID_AUTO_ID"]).click_input()
-        print("[*] Clicked OK")
-        time.sleep(1)
+        print("[*] Next (2)")
+        main_window.child_window(title=B_CFG["NEXT_TITLE"], auto_id=B_CFG["ID_AUTO_ID"]).click_input()
+        time.sleep(WAIT_TIME)
+
+        print("[*] Next (3)")
+        main_window.child_window(title=B_CFG["NEXT_TITLE"], auto_id=B_CFG["ID_AUTO_ID"]).click_input()
+        time.sleep(WAIT_TIME)
+
+        # 4. กดรับเงิน + Fast Cash
+        print("[*] Clicking 'Receive Money'...")
+        main_window.child_window(title="รับเงิน", control_type="Text").click_input()
+        time.sleep(WAIT_TIME)
+
+        print("[*] Clicking Fast Cash (ID: EnableFastCash)...")
+        main_window.child_window(auto_id="EnableFastCash").click_input()
+        time.sleep(WAIT_TIME)
 
         # 5. กดเสร็จสิ้น
         main_window.child_window(title=B_CFG["FINISH_BUTTON_TITLE"]).click_input()
-        print(f"[*] Clicked {B_CFG['FINISH_BUTTON_TITLE']}")
+        print(f"[V] POS Service 6 Success!")
 
     except Exception as e:
         target_app = app if (app is not None) else ctx.app
         if target_app:
             save_evidence_context(target_app, {
-                "test_name": "Mutual Service 6", # เปลี่ยนชื่อเทสให้ตรง
+                "test_name": "POS Service 6",
                 "step_name": "Execution Failed",
                 "error_message": str(e)
             })
