@@ -9,22 +9,27 @@ if __name__ == "__main__":
         if not pos_services_main(): exit()
         app, main_window = connect_main_window()
 
-        # --- ส่วน Logic ที่แก้ไขใหม่ (เลียนแบบ pos_2) ---
+        # --- ส่วน Logic ที่แก้ไขใหม่ ---
 
-        # 1. เลือกรายการ 51119 (ใช้รูปแบบเดียวกับ pos_2 เป๊ะๆ)
+        # 1. ค้นหาและเลือกรายการ 51119 (ใช้ช่องค้นหา)
         SERVICE_TITLE = S_CFG['PRAISANI_4_TITLE']
-        TRANS_TYPE = S_CFG['TRANSACTION_CONTROL_TYPE'] # ค่าคือ SubTextTextBlock
+        SEARCH_ID = S_CFG['SEARCH_EDIT_ID']
         
-        print(f"[*] Selecting Service: {SERVICE_TITLE}")
-        target = main_window.child_window(title=SERVICE_TITLE, auto_id=TRANS_TYPE, control_type="Text")
+        print(f"[*] Searching for Service: {SERVICE_TITLE}")
         
-        # Scroll หา element ถ้ายังไม่เห็น
-        if not scroll_until_found(target, main_window):
-            raise Exception(f"Service {SERVICE_TITLE} not found after scrolling")
+        # พิมพ์รหัสในช่องค้นหา
+        search_input = main_window.child_window(auto_id=SEARCH_ID, control_type="Edit")
+        search_input.click_input()
+        search_input.type_keys("^a{BACKSPACE}")  # ล้างค่าเก่า
+        search_input.type_keys(SERVICE_TITLE, with_spaces=True)
+        search_input.type_keys("{ENTER}")
+        time.sleep(1.5)
         
-        # รอให้ element พร้อมแล้วค่อย click
-        target.wait('visible', timeout=5)
-        main_window.set_focus()
+        # คลิกรายการที่ค้นหาเจอ
+        print(f"[*] Clicking on: {SERVICE_TITLE}")
+        target = main_window.child_window(title=SERVICE_TITLE, control_type="Text")
+        if not target.exists(timeout=3):
+            raise Exception(f"Service {SERVICE_TITLE} not found in search results")
         target.click_input()
         time.sleep(2) # รอโหลดหน้า
 
