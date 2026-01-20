@@ -3,6 +3,7 @@ from evidence import save_evidence_context
 import time
 
 CONFIG_FILE = "config.ini"
+
 def read_config(filename=CONFIG_FILE):
     import configparser
     import os
