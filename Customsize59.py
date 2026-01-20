@@ -325,6 +325,31 @@ def smart_input_weight(window, value):
     window.type_keys(str(value), with_spaces=True)
     return True
 
+def process_parcel_dimensions(window, width, height, length):
+    """กรอกขนาดพัสดุ (กว้าง x ยาว x สูง) ในหน้าถัดจากน้ำหนัก"""
+    log("--- หน้า: กรอกขนาดพัสดุ (กว้าง/ยาว/สูง) ---")
+    try:
+        # กรอก Width (ความกว้าง)
+        if width:
+            if not find_and_fill_smart(window, "ความกว้าง", "Width", width):
+                log("[WARN] หาช่อง Width ไม่เจอ")
+        
+        # กรอก Length (ความยาว)
+        if length:
+            if not find_and_fill_smart(window, "ความยาว", "Length", length):
+                log("[WARN] หาช่อง Length ไม่เจอ")
+        
+        # กรอก Height (ความสูง)
+        if height:
+            if not find_and_fill_smart(window, "ความสูง", "Height", height):
+                log("[WARN] หาช่อง Height ไม่เจอ")
+        
+        log("   [/] กรอกขนาดพัสดุเสร็จสิ้น")
+        return True
+    except Exception as e:
+        log(f"[!] Error กรอกขนาดพัสดุ: {e}")
+        return False
+
 def process_special_services(window, services_str):
     log("--- หน้า: บริการพิเศษ ---")
     if wait_for_text(window, "บริการพิเศษ", timeout=5):
@@ -594,6 +619,9 @@ def process_payment(window, payment_method, received_amount):
 def run_smart_scenario(main_window, config):
     try:
         weight = config['DEPOSIT_ENVELOPE'].get('Weight', '10')
+        width = config['DEPOSIT_ENVELOPE'].get('Width', '')
+        length = config['DEPOSIT_ENVELOPE'].get('Length', '')
+        height = config['DEPOSIT_ENVELOPE'].get('Height', '')
         postal = config['DEPOSIT_ENVELOPE'].get('PostalCode', '10110')
         receiver_postal = config['DEPOSIT_ENVELOPE'].get('ReceiverPostalCode', '10110') # ปลายทาง
         sender_postal = config['TEST_DATA'].get('SenderPostalCode', '10110') # ต้นทาง
@@ -643,6 +671,12 @@ def run_smart_scenario(main_window, config):
     smart_input_weight(main_window, weight)
     smart_next(main_window)
     time.sleep(1)
+    
+    # กรอกขนาดพัสดุ (กว้าง/ยาว/สูง)
+    process_parcel_dimensions(main_window, width, height, length)
+    smart_next(main_window)
+    time.sleep(1)
+    
     try: main_window.type_keys(str(receiver_postal), with_spaces=True)
     except: pass
     smart_next(main_window)
