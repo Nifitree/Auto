@@ -81,12 +81,15 @@ def run_insurance_3():
         policy11_edit = main_window.child_window(auto_id=S_CFG["I1_POLICY_11_AUTO_ID"], control_type="Edit")
         fill_if_empty(main_window, policy11_edit, S_CFG["I1_POLICY_11"])
         
-        # เลขที่กรมธรรม์ (AcctNo) - ต้อง scroll ลงเพราะหลุดขอบ
-        print("[*] Scrolling to find Policy Account Number...")
+        # เลื่อนลงหลังจากกรอก REFNO4 เสร็จ เพื่อหา AcctNo
+        print("[*] Scrolling down to find AcctNo...")
+        force_scroll_down(main_window)
+        
+        # เลขที่กรมธรรม์ (AcctNo)
+        print("[*] Finding and filling Policy Account Number (AcctNo)...")
         policy_edit = main_window.child_window(auto_id=S_CFG["I1_POLICY_AUTO_ID"], control_type="Edit")
         if not scroll_until_found(policy_edit, main_window):
             raise Exception("AcctNo field not found after scrolling")
-        print("[*] Filling Policy Account Number...")
         fill_if_empty(main_window, policy_edit, S_CFG["I1_POLICY"])
         
         # จำนวนเงิน (Amount)
