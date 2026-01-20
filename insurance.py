@@ -1,4 +1,3 @@
-# Save as: insurance.py
 import configparser
 from pywinauto.application import Application
 from pywinauto import mouse
