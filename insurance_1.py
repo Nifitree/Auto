@@ -1,4 +1,4 @@
-from insurance import connect_main_window, insurance_navigate_main, scroll_until_found, fill_if_empty, B_CFG, S_CFG, WAIT_TIME
+from insurance import *
 from evidence import save_evidence_context
 import time
 
@@ -103,9 +103,19 @@ def run_insurance_1():
         time.sleep(WAIT_TIME)
         
         # กด Fast Cash
-        print("[*] Clicking Fast Cash...")
-        fast_cash_btn = main_window.child_window(auto_id=S_CFG["BTN_FAST_CASH_ID"], control_type="Button")
-        fast_cash_btn.click_input()
+        print("[*] Waiting for Payment Screen (3s)...")
+        time.sleep(3)
+        main_window.set_focus()
+
+        print(f"[*] Payment Action: Clicking Fast Cash...")
+        fast_cash_btn = main_window.child_window(auto_id="EnableFastCash")
+        
+        if fast_cash_btn.exists(timeout=2):
+            fast_cash_btn.click_input()
+        else:
+            print("[!] EnableFastCash not found, using Hotkey F")
+            main_window.type_keys(T_CFG['PAYMENT_FAST'])
+        
         time.sleep(WAIT_TIME)
         
         print(f"[V] SUCCESS: {step_name}")
