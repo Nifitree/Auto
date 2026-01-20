@@ -326,20 +326,20 @@ def smart_input_weight(window, value):
     return True
 
 def process_parcel_dimensions(window, width, height, length):
-    """กรอกขนาดพัสดุ (กว้าง x ยาว x สูง) ในหน้าถัดจากน้ำหนัก"""
-    log("--- หน้า: กรอกขนาดพัสดุ (กว้าง/ยาว/สูง) ---")
+    """กรอกขนาดพัสดุ (ยาว x กว้าง x สูง) ในหน้าถัดจากน้ำหนัก"""
+    log("--- หน้า: กรอกขนาดพัสดุ (ยาว/กว้าง/สูง) ---")
     try:
-        # กรอก Width (ความกว้าง)
-        if width:
-            if not find_and_fill_smart(window, "ความกว้าง", "Width", width):
-                log("[WARN] หาช่อง Width ไม่เจอ")
-        
-        # กรอก Length (ความยาว)
+        # กรอก Length (ความยาว) - กรอกก่อน
         if length:
             if not find_and_fill_smart(window, "ความยาว", "Length", length):
                 log("[WARN] หาช่อง Length ไม่เจอ")
         
-        # กรอก Height (ความสูง)
+        # กรอก Width (ความกว้าง) - กรอกที่สอง
+        if width:
+            if not find_and_fill_smart(window, "ความกว้าง", "Width", width):
+                log("[WARN] หาช่อง Width ไม่เจอ")
+        
+        # กรอก Height (ความสูง) - กรอกสุดท้าย
         if height:
             if not find_and_fill_smart(window, "ความสูง", "Height", height):
                 log("[WARN] หาช่อง Height ไม่เจอ")
