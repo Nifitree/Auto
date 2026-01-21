@@ -357,21 +357,76 @@ def handle_quantity_popup(window, quantity):
         # รอให้ popup เด้งขึ้นมา
         time.sleep(1.0)
         
-        # หาช่อง Edit ในหน้าต่างปัจจุบัน
+        # หา popup window (มักเป็น Window/Pane ที่อยู่ด้านบนสุด)
+        popup = None
+        for child in window.descendants(control_type="Window"):
+            if child.is_visible():
+                popup = child
+                break
+        
+        # ถ้าหา popup ไม่เจอ ใช้ window หลัก
+        target_window = popup if popup else window
+        
+        # หาช่อง Edit และกรอกจำนวน
+        filled = False
         for _ in range(10):
-            edits = [e for e in window.descendants(control_type="Edit") if e.is_visible()]
+            edits = [e for e in target_window.descendants(control_type="Edit") if e.is_visible()]
+            if not edits:
+                # ถ้าหาใน popup ไม่เจอ ลองหาจาก window หลัก
+                edits = [e for e in window.descendants(control_type="Edit") if e.is_visible()]
+            
             if edits:
-                # กรอกจำนวนในช่อง Edit แรกที่เจอ
                 edits[0].click_input()
                 edits[0].type_keys(str(quantity), with_spaces=True)
                 log(f"   [/] กรอกจำนวน {quantity} สำเร็จ")
+                filled = True
                 break
             time.sleep(0.5)
         
-        # กดปุ่มถัดไป/ตกลง
+        if not filled:
+            log("[WARN] หาช่องกรอกจำนวนไม่เจอ")
+            return False
+        
+        # กดปุ่มถัดไป/ตกลง ที่อยู่ใน popup (ไม่ใช่ปุ่มหลักของหน้าจอ)
         time.sleep(0.5)
-        if not smart_click(window, ["ถัดไป", "ตกลง", "OK"], timeout=3):
+        popup_btn_clicked = False
+        
+        # หาปุ่มใน popup ก่อน
+        for btn_text in ["ถัดไป", "ตกลง", "OK", "Next"]:
+            try:
+                for child in target_window.descendants(control_type="Button"):
+                    if child.is_visible() and btn_text in child.window_text():
+                        child.click_input()
+                        log(f"   [/] กดปุ่ม '{btn_text}' ใน Popup สำเร็จ")
+                        popup_btn_clicked = True
+                        break
+                if popup_btn_clicked:
+                    break
+            except:
+                pass
+        
+        # ถ้ากดใน popup ไม่ได้ ลองหาจาก window หลัก (แต่หลีกเลี่ยง footer)
+        if not popup_btn_clicked:
+            for btn_text in ["ถัดไป", "ตกลง", "OK"]:
+                try:
+                    for child in window.descendants(control_type="Button"):
+                        # ข้ามปุ่ม footer (LocalCommand_Submit)
+                        if child.element_info.automation_id == "LocalCommand_Submit":
+                            continue
+                        if child.is_visible() and btn_text in child.window_text():
+                            child.click_input()
+                            log(f"   [/] กดปุ่ม '{btn_text}' สำเร็จ")
+                            popup_btn_clicked = True
+                            break
+                    if popup_btn_clicked:
+                        break
+                except:
+                    pass
+        
+        # สำรอง: กด Enter
+        if not popup_btn_clicked:
             window.type_keys("{ENTER}")
+            log("   [/] กด Enter เพื่อยืนยัน")
         
         log("   [/] จบการกรอกจำนวนชิ้น")
         return True
