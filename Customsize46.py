@@ -357,71 +357,60 @@ def handle_quantity_popup(window, quantity):
         # รอให้ popup เด้งขึ้นมา
         time.sleep(1.0)
         
-        # หา popup window (มักเป็น Window/Pane ที่อยู่ด้านบนสุด)
-        popup = None
-        for child in window.descendants(control_type="Window"):
-            if child.is_visible():
-                popup = child
-                break
-        
-        # ถ้าหา popup ไม่เจอ ใช้ window หลัก
-        target_window = popup if popup else window
-        
         # หาช่อง Edit และกรอกจำนวน
-        filled = False
+        edit_elem = None
         for _ in range(10):
-            edits = [e for e in target_window.descendants(control_type="Edit") if e.is_visible()]
-            if not edits:
-                # ถ้าหาใน popup ไม่เจอ ลองหาจาก window หลัก
-                edits = [e for e in window.descendants(control_type="Edit") if e.is_visible()]
-            
+            edits = [e for e in window.descendants(control_type="Edit") if e.is_visible()]
             if edits:
-                edits[0].click_input()
-                edits[0].type_keys(str(quantity), with_spaces=True)
+                edit_elem = edits[0]
+                edit_elem.click_input()
+                edit_elem.type_keys(str(quantity), with_spaces=True)
                 log(f"   [/] กรอกจำนวน {quantity} สำเร็จ")
-                filled = True
                 break
             time.sleep(0.5)
         
-        if not filled:
+        if not edit_elem:
             log("[WARN] หาช่องกรอกจำนวนไม่เจอ")
             return False
         
-        # กดปุ่มถัดไป/ตกลง ที่อยู่ใน popup (ไม่ใช่ปุ่มหลักของหน้าจอ)
+        # หาตำแหน่ง Y ของช่อง Edit เพื่อใช้อ้างอิง
+        edit_rect = edit_elem.rectangle()
+        edit_y = edit_rect.top
+        
+        # กดปุ่มถัดไปที่อยู่ใน popup (ใกล้ช่องกรอก ไม่ใช่ล่างสุดของหน้าจอ)
         time.sleep(0.5)
         popup_btn_clicked = False
         
-        # หาปุ่มใน popup ก่อน
-        for btn_text in ["ถัดไป", "ตกลง", "OK", "Next"]:
+        # หาปุ่ม "ถัดไป" ทั้งหมด แล้วเลือกอันที่อยู่ใกล้ช่อง Edit มากที่สุด (ไม่ใช่ footer)
+        next_buttons = []
+        for child in window.descendants(control_type="Button"):
             try:
-                for child in target_window.descendants(control_type="Button"):
-                    if child.is_visible() and btn_text in child.window_text():
-                        child.click_input()
-                        log(f"   [/] กดปุ่ม '{btn_text}' ใน Popup สำเร็จ")
-                        popup_btn_clicked = True
-                        break
-                if popup_btn_clicked:
-                    break
+                if child.is_visible() and "ถัดไป" in child.window_text():
+                    btn_rect = child.rectangle()
+                    next_buttons.append({
+                        'elem': child,
+                        'y': btn_rect.top,
+                        'text': child.window_text()
+                    })
             except:
                 pass
         
-        # ถ้ากดใน popup ไม่ได้ ลองหาจาก window หลัก (แต่หลีกเลี่ยง footer)
-        if not popup_btn_clicked:
-            for btn_text in ["ถัดไป", "ตกลง", "OK"]:
-                try:
-                    for child in window.descendants(control_type="Button"):
-                        # ข้ามปุ่ม footer (LocalCommand_Submit)
-                        if child.element_info.automation_id == "LocalCommand_Submit":
-                            continue
-                        if child.is_visible() and btn_text in child.window_text():
-                            child.click_input()
-                            log(f"   [/] กดปุ่ม '{btn_text}' สำเร็จ")
-                            popup_btn_clicked = True
-                            break
-                    if popup_btn_clicked:
-                        break
-                except:
-                    pass
+        if next_buttons:
+            # เรียงตาม Y (บนลงล่าง) แล้วเลือกปุ่มแรกที่ไม่ใช่ล่างสุด
+            next_buttons.sort(key=lambda x: x['y'])
+            
+            # ถ้ามีมากกว่า 1 ปุ่ม เลือกปุ่มแรก (อยู่บนสุด = popup)
+            # ถ้ามี 1 ปุ่ม ก็ใช้ปุ่มนั้น
+            if len(next_buttons) > 1:
+                # เลือกปุ่มที่ไม่ใช่ล่างสุด (popup button)
+                target_btn = next_buttons[0]  # ปุ่มบนสุด
+                log(f"   -> เจอปุ่มถัดไป {len(next_buttons)} ปุ่ม เลือกปุ่มบน (Y={target_btn['y']})")
+            else:
+                target_btn = next_buttons[0]
+            
+            target_btn['elem'].click_input()
+            log(f"   [/] กดปุ่ม 'ถัดไป' ใน Popup สำเร็จ (Y={target_btn['y']})")
+            popup_btn_clicked = True
         
         # สำรอง: กด Enter
         if not popup_btn_clicked:
