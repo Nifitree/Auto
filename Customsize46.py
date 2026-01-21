@@ -350,12 +350,48 @@ def process_parcel_dimensions(window, width, height, length):
         log(f"[!] Error กรอกขนาดพัสดุ: {e}")
         return False
 
-def process_special_services(window, services_str):
+def handle_quantity_popup(window, quantity):
+    """จัดการ Popup ถามจำนวนชิ้นสินค้า (หลังกดบริการพิเศษ เช่น ตอบรับ)"""
+    log(f"--- กรอกจำนวนชิ้น: {quantity} ---")
+    try:
+        # รอให้ popup เด้งขึ้นมา
+        time.sleep(1.0)
+        
+        # หาช่อง Edit ในหน้าต่างปัจจุบัน
+        for _ in range(10):
+            edits = [e for e in window.descendants(control_type="Edit") if e.is_visible()]
+            if edits:
+                # กรอกจำนวนในช่อง Edit แรกที่เจอ
+                edits[0].click_input()
+                edits[0].type_keys(str(quantity), with_spaces=True)
+                log(f"   [/] กรอกจำนวน {quantity} สำเร็จ")
+                break
+            time.sleep(0.5)
+        
+        # กดปุ่มถัดไป/ตกลง
+        time.sleep(0.5)
+        if not smart_click(window, ["ถัดไป", "ตกลง", "OK"], timeout=3):
+            window.type_keys("{ENTER}")
+        
+        log("   [/] จบการกรอกจำนวนชิ้น")
+        return True
+    except Exception as e:
+        log(f"[!] Error handle_quantity_popup: {e}")
+        return False
+
+def process_special_services(window, services_str, quantity=''):
+    """หน้าบริการพิเศษ - กดเลือกบริการและจัดการ popup ถามจำนวน (ถ้ามี)"""
     log("--- หน้า: บริการพิเศษ ---")
     if wait_for_text(window, "บริการพิเศษ", timeout=5):
         if services_str.strip():
             for s in services_str.split(','):
-                if s: smart_click(window, s.strip())
+                service_name = s.strip()
+                if service_name:
+                    if smart_click(window, service_name):
+                        # ถ้าเลือกบริการ "ตอบรับ" -> จัดการ popup ถามจำนวน
+                        if "ตอบรับ" in service_name and quantity:
+                            time.sleep(1.0)  # รอ popup เด้ง
+                            handle_quantity_popup(window, quantity)
     smart_next(window)
 
 def process_sender_info_page(window):
@@ -630,6 +666,9 @@ def run_smart_scenario(main_window, config):
         add_insurance_flag = config['DEPOSIT_ENVELOPE'].get('AddInsurance', 'False')
         insurance_amt = config['DEPOSIT_ENVELOPE'].get('Insurance', '1000')
         special_services = config['SPECIAL_SERVICES'].get('Services', '')
+        # Product Quantity Config (สำหรับบริการที่มี popup ถามจำนวน เช่น ตอบรับ)
+        product_quantity = config['PRODUCT_QUANTITY'].get('Quantity', '') if 'PRODUCT_QUANTITY' in config else ''
+        
         addr_keyword = config['RECEIVER'].get('AddressKeyword', '99/99')
         rcv_fname = config['RECEIVER_DETAILS'].get('FirstName', 'A')
         rcv_lname = config['RECEIVER_DETAILS'].get('LastName', 'B')
@@ -707,7 +746,7 @@ def run_smart_scenario(main_window, config):
     time.sleep(1)
     smart_next(main_window) 
     time.sleep(step_delay)
-    process_special_services(main_window, special_services)
+    process_special_services(main_window, special_services, product_quantity)
     time.sleep(step_delay)
     process_sender_info_page(main_window)
     time.sleep(step_delay)
