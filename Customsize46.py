@@ -437,8 +437,6 @@ def process_special_services(window, services_str, quantity=''):
                     # เช็คว่าเลือก "ตอบรับ" หรือไม่
                     if "ตอบรับ" in service_name:
                         has_tobrub = True
-    
-    # กดถัดไปครั้งแรก
     smart_next(window)
     
     # ถ้าเลือก "ตอบรับ" -> จะมี popup ถามจำนวนเด้งขึ้นมาหลังกด "ถัดไป"

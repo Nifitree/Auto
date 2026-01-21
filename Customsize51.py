@@ -350,13 +350,146 @@ def process_parcel_dimensions(window, width, height, length):
         log(f"[!] Error กรอกขนาดพัสดุ: {e}")
         return False
 
-def process_special_services(window, services_str):
+def handle_quantity_popup(window, quantity):
+    """จัดการ Popup ถามจำนวนชิ้นสินค้า (หลังกดบริการพิเศษ เช่น ตอบรับ)"""
+    log(f"--- กรอกจำนวนชิ้น: {quantity} ---")
+    try:
+        # รอให้ popup เด้งขึ้นมา
+        time.sleep(1.0)
+        
+        # หาช่อง Edit และกรอกจำนวน
+        edit_elem = None
+        for _ in range(10):
+            edits = [e for e in window.descendants(control_type="Edit") if e.is_visible()]
+            if edits:
+                edit_elem = edits[0]
+                edit_elem.click_input()
+                edit_elem.type_keys(str(quantity), with_spaces=True)
+                log(f"   [/] กรอกจำนวน {quantity} สำเร็จ")
+                break
+            time.sleep(0.5)
+        
+        if not edit_elem:
+            log("[WARN] หาช่องกรอกจำนวนไม่เจอ")
+            return False
+        
+        # หาตำแหน่ง Y ของช่อง Edit เพื่อใช้อ้างอิง
+        edit_rect = edit_elem.rectangle()
+        edit_y = edit_rect.top
+        
+        # กดปุ่มถัดไปที่อยู่ใน popup (ใกล้ช่องกรอก ไม่ใช่ล่างสุดของหน้าจอ)
+        time.sleep(0.5)
+        popup_btn_clicked = False
+        
+        # หาปุ่ม "ถัดไป" ทั้งหมด แล้วเลือกอันที่อยู่ใกล้ช่อง Edit มากที่สุด (ไม่ใช่ footer)
+        next_buttons = []
+        for child in window.descendants(control_type="Button"):
+            try:
+                if child.is_visible() and "ถัดไป" in child.window_text():
+                    btn_rect = child.rectangle()
+                    next_buttons.append({
+                        'elem': child,
+                        'y': btn_rect.top,
+                        'text': child.window_text()
+                    })
+            except:
+                pass
+        
+        if next_buttons:
+            # เรียงตาม Y (บนลงล่าง) แล้วเลือกปุ่มแรกที่ไม่ใช่ล่างสุด
+            next_buttons.sort(key=lambda x: x['y'])
+            
+            # ถ้ามีมากกว่า 1 ปุ่ม เลือกปุ่มแรก (อยู่บนสุด = popup)
+            # ถ้ามี 1 ปุ่ม ก็ใช้ปุ่มนั้น
+            if len(next_buttons) > 1:
+                # เลือกปุ่มที่ไม่ใช่ล่างสุด (popup button)
+                target_btn = next_buttons[0]  # ปุ่มบนสุด
+                log(f"   -> เจอปุ่มถัดไป {len(next_buttons)} ปุ่ม เลือกปุ่มบน (Y={target_btn['y']})")
+            else:
+                target_btn = next_buttons[0]
+            
+            target_btn['elem'].click_input()
+            log(f"   [/] กดปุ่ม 'ถัดไป' ใน Popup สำเร็จ (Y={target_btn['y']})")
+            popup_btn_clicked = True
+        
+        # สำรอง: กด Enter
+        if not popup_btn_clicked:
+            window.type_keys("{ENTER}")
+            log("   [/] กด Enter เพื่อยืนยัน")
+        
+        log("   [/] จบการกรอกจำนวนชิ้น")
+        return True
+    except Exception as e:
+        log(f"[!] Error handle_quantity_popup: {e}")
+        return False
+
+def process_special_services(window, services_str, quantity=''):
+    """หน้าบริการพิเศษ - กดเลือกบริการและจัดการ popup ถามจำนวน (ถ้ามี)"""
     log("--- หน้า: บริการพิเศษ ---")
+    has_tobrub = False  # ตัวแปรเช็คว่าเลือก "ตอบรับ" หรือไม่
+    
     if wait_for_text(window, "บริการพิเศษ", timeout=5):
         if services_str.strip():
             for s in services_str.split(','):
-                if s: smart_click(window, s.strip())
+                service_name = s.strip()
+                if service_name:
+                    smart_click(window, service_name)
+                    # เช็คว่าเลือก "ตอบรับ" หรือไม่
+                    if "ตอบรับ" in service_name:
+                        has_tobrub = True
+    
+    # กดถัดไปครั้งแรก
     smart_next(window)
+    
+    # ถ้าเลือก "ตอบรับ" -> จะมี popup ถามจำนวนเด้งขึ้นมาหลังกด "ถัดไป"
+    if has_tobrub and quantity:
+        time.sleep(1.0)  # รอ popup เด้ง
+        handle_quantity_popup(window, quantity)
+        
+        # หลังจากกดถัดไปใน popup แล้ว -> กดเสร็จสิ้น
+        time.sleep(1.0)
+        log("...กดปุ่มเสร็จสิ้น...")
+        if not smart_click(window, "เสร็จสิ้น", timeout=5):
+            click_element_by_id(window, "LocalCommand_Complete", timeout=3)
+        
+        # รอ popup ทำรายการซ้ำ แล้วกด "ไม่"
+        time.sleep(1.5)
+        process_repeat_transaction(window, False)
+        
+        # ชำระเงินด้วย Fast Cash
+        time.sleep(1.0)
+        process_payment_fast_cash(window)
+        
+        return True  # บอกว่าจบ flow ตอบรับแล้ว
+    
+    return False  # ไม่ได้เลือกตอบรับ
+
+def process_payment_fast_cash(window):
+    """ชำระเงินด้วย Fast Cash (กดปุ่ม EnableFastCash)"""
+    log("--- ขั้นตอนชำระเงิน: Fast Cash ---")
+    
+    # กดปุ่มรับเงิน
+    log("...ค้นหาปุ่ม 'รับเงิน'...")
+    time.sleep(1.0)
+    if smart_click(window, "รับเงิน", timeout=5):
+        time.sleep(1.5)
+    else:
+        log("[WARN] หาปุ่มรับเงินไม่เจอ")
+        return False
+    
+    # กดปุ่ม Fast Cash (ID: EnableFastCash)
+    log("...กดปุ่ม Fast Cash...")
+    time.sleep(0.5)
+    if click_element_by_id(window, "EnableFastCash", timeout=5):
+        log("   [/] กด Fast Cash สำเร็จ")
+    else:
+        # สำรอง: ลองกด F หรือ Enter
+        log("[WARN] หาปุ่ม Fast Cash ไม่เจอ -> ลองกด F")
+        window.type_keys("F")
+    
+    time.sleep(1.0)
+    log("\n[SUCCESS] จบการชำระเงินด้วย Fast Cash")
+    return True
 
 def process_sender_info_page(window):
     log("--- หน้า: ข้อมูลผู้ส่ง (ข้าม) ---")
@@ -630,6 +763,9 @@ def run_smart_scenario(main_window, config):
         add_insurance_flag = config['DEPOSIT_ENVELOPE'].get('AddInsurance', 'False')
         insurance_amt = config['DEPOSIT_ENVELOPE'].get('Insurance', '1000')
         special_services = config['SPECIAL_SERVICES'].get('Services', '')
+        # Product Quantity Config (สำหรับบริการที่มี popup ถามจำนวน เช่น ตอบรับ)
+        product_quantity = config['PRODUCT_QUANTITY'].get('Quantity', '') if 'PRODUCT_QUANTITY' in config else ''
+        
         addr_keyword = config['RECEIVER'].get('AddressKeyword', '99/99')
         rcv_fname = config['RECEIVER_DETAILS'].get('FirstName', 'A')
         rcv_lname = config['RECEIVER_DETAILS'].get('LastName', 'B')
@@ -707,7 +843,12 @@ def run_smart_scenario(main_window, config):
     time.sleep(1)
     smart_next(main_window) 
     time.sleep(step_delay)
-    process_special_services(main_window, special_services)
+    # ถ้าเลือก "ตอบรับ" จะจบ flow ที่นี่ (กรอกจำนวน -> เสร็จสิ้น -> ไม่ทำซ้ำ -> Fast Cash)
+    tobrub_finished = process_special_services(main_window, special_services, product_quantity)
+    if tobrub_finished:
+        log("\\n[SUCCESS] จบการทำงาน flow ตอบรับครบทุกขั้นตอน")
+        return  # จบการทำงาน ไม่ต้องทำขั้นตอนต่อไป
+    
     time.sleep(step_delay)
     process_sender_info_page(main_window)
     time.sleep(step_delay)
