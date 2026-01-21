@@ -445,6 +445,51 @@ def process_special_services(window, services_str, quantity=''):
     if has_tobrub and quantity:
         time.sleep(1.0)  # รอ popup เด้ง
         handle_quantity_popup(window, quantity)
+        
+        # หลังจากกดถัดไปใน popup แล้ว -> กดเสร็จสิ้น
+        time.sleep(1.0)
+        log("...กดปุ่มเสร็จสิ้น...")
+        if not smart_click(window, "เสร็จสิ้น", timeout=5):
+            click_element_by_id(window, "LocalCommand_Complete", timeout=3)
+        
+        # รอ popup ทำรายการซ้ำ แล้วกด "ไม่"
+        time.sleep(1.5)
+        process_repeat_transaction(window, False)
+        
+        # ชำระเงินด้วย Fast Cash
+        time.sleep(1.0)
+        process_payment_fast_cash(window)
+        
+        return True  # บอกว่าจบ flow ตอบรับแล้ว
+    
+    return False  # ไม่ได้เลือกตอบรับ
+
+def process_payment_fast_cash(window):
+    """ชำระเงินด้วย Fast Cash (กดปุ่ม EnableFastCash)"""
+    log("--- ขั้นตอนชำระเงิน: Fast Cash ---")
+    
+    # กดปุ่มรับเงิน
+    log("...ค้นหาปุ่ม 'รับเงิน'...")
+    time.sleep(1.0)
+    if smart_click(window, "รับเงิน", timeout=5):
+        time.sleep(1.5)
+    else:
+        log("[WARN] หาปุ่มรับเงินไม่เจอ")
+        return False
+    
+    # กดปุ่ม Fast Cash (ID: EnableFastCash)
+    log("...กดปุ่ม Fast Cash...")
+    time.sleep(0.5)
+    if click_element_by_id(window, "EnableFastCash", timeout=5):
+        log("   [/] กด Fast Cash สำเร็จ")
+    else:
+        # สำรอง: ลองกด F หรือ Enter
+        log("[WARN] หาปุ่ม Fast Cash ไม่เจอ -> ลองกด F")
+        window.type_keys("F")
+    
+    time.sleep(1.0)
+    log("\n[SUCCESS] จบการชำระเงินด้วย Fast Cash")
+    return True
 
 def process_sender_info_page(window):
     log("--- หน้า: ข้อมูลผู้ส่ง (ข้าม) ---")
@@ -798,7 +843,12 @@ def run_smart_scenario(main_window, config):
     time.sleep(1)
     smart_next(main_window) 
     time.sleep(step_delay)
-    process_special_services(main_window, special_services, product_quantity)
+    # ถ้าเลือก "ตอบรับ" จะจบ flow ที่นี่ (กรอกจำนวน -> เสร็จสิ้น -> ไม่ทำซ้ำ -> Fast Cash)
+    tobrub_finished = process_special_services(main_window, special_services, product_quantity)
+    if tobrub_finished:
+        log("\\n[SUCCESS] จบการทำงาน flow ตอบรับครบทุกขั้นตอน")
+        return  # จบการทำงาน ไม่ต้องทำขั้นตอนต่อไป
+    
     time.sleep(step_delay)
     process_sender_info_page(main_window)
     time.sleep(step_delay)
