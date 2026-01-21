@@ -382,17 +382,25 @@ def handle_quantity_popup(window, quantity):
 def process_special_services(window, services_str, quantity=''):
     """หน้าบริการพิเศษ - กดเลือกบริการและจัดการ popup ถามจำนวน (ถ้ามี)"""
     log("--- หน้า: บริการพิเศษ ---")
+    has_tobrub = False  # ตัวแปรเช็คว่าเลือก "ตอบรับ" หรือไม่
+    
     if wait_for_text(window, "บริการพิเศษ", timeout=5):
         if services_str.strip():
             for s in services_str.split(','):
                 service_name = s.strip()
                 if service_name:
-                    if smart_click(window, service_name):
-                        # ถ้าเลือกบริการ "ตอบรับ" -> จัดการ popup ถามจำนวน
-                        if "ตอบรับ" in service_name and quantity:
-                            time.sleep(1.0)  # รอ popup เด้ง
-                            handle_quantity_popup(window, quantity)
+                    smart_click(window, service_name)
+                    # เช็คว่าเลือก "ตอบรับ" หรือไม่
+                    if "ตอบรับ" in service_name:
+                        has_tobrub = True
+    
+    # กดถัดไปครั้งแรก
     smart_next(window)
+    
+    # ถ้าเลือก "ตอบรับ" -> จะมี popup ถามจำนวนเด้งขึ้นมาหลังกด "ถัดไป"
+    if has_tobrub and quantity:
+        time.sleep(1.0)  # รอ popup เด้ง
+        handle_quantity_popup(window, quantity)
 
 def process_sender_info_page(window):
     log("--- หน้า: ข้อมูลผู้ส่ง (ข้าม) ---")
