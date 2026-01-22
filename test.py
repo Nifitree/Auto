@@ -26,7 +26,7 @@ def click_scroll_arrow_smart(window, direction='right', repeat=5):
     """
     try:
         # 1. พยายามโฟกัสไปที่กล่องรายการสินค้าก่อน
-        target_group = window.descendants(auto_id="ShippingServiceList")
+        target_group = [c for c in window.descendants() if c.element_info.automation_id == "ShippingServiceList"]
         
         if target_group:
             target_group[0].set_focus()
@@ -604,7 +604,7 @@ def run_smart_scenario(main_window, config):
     process_sender_info_popup(main_window, phone, sender_postal) 
     
     time.sleep(step_delay)
-    if not smart_click_with_scroll(main_window, "กำหนดขนาดเอง หมายเลข 1", scroll_dist=scroll_dist): return
+    if not smart_click_with_scroll(main_window, "กำหนดขนาดเอง", scroll_dist=scroll_dist): return
     time.sleep(step_delay)
     if special_options_str.strip():
         for opt in special_options_str.split(','):
@@ -650,11 +650,18 @@ def run_smart_scenario(main_window, config):
         time.sleep(0.5)
 
     log("...รอหน้าบริการหลัก...")
-    wait_until_id_appears(main_window, "ShippingService_363258", timeout=wait_timeout)
-     # คลิก 1 ครั้ง
-    if not find_and_click_with_rotate_logic(main_window, "ShippingService_363258"):
-        log("[Error] หาปุ่มบริการไม่เจอ (ShippingService_363258)")
+    
+    # [แก้ไข] เพิ่ม timeout เป็น 60 และใส่ if not เพื่อเช็คว่าถ้าไม่เจอให้หยุดทันที
+    target_service_id = "ShippingService_363254" 
+    if not wait_until_id_appears(main_window, target_service_id, timeout=60):
+        log("Error: รอนานเกิน 60 วินาทีแล้ว ยังไม่เข้าหน้าบริการหลัก")
+        return 
+
+    # คลิก 1 ครั้ง
+    if not find_and_click_with_rotate_logic(main_window, target_service_id):
+        log(f"[Error] หาปุ่มบริการไม่เจอ ({target_service_id})")
         return
+
 
     if add_insurance_flag.lower() in ['true', 'yes']:
         log(f"...ใส่วงเงิน {insurance_amt}...")
